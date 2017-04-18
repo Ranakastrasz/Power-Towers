@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Attack : MonoBehaviour {
+public class AttackManager : MonoBehaviour {
 
     //Attached to a Tower
     //Ontick, find target
 
     public GameObject CurrentTarget { get; private set; }
 
-    public AttackPrototype Prototype { get; private set; }
+    public AttackManagerPrototype Prototype { get; private set; }
 
     public float CurrentCooldown { get; private set; } // Attack Prototype.
 
@@ -27,7 +27,7 @@ public class Attack : MonoBehaviour {
 	}
 
 
-    public void ApplyPrototype(AttackPrototype iPrototype)
+    public void ApplyPrototype(AttackManagerPrototype iPrototype)
     {
         Prototype = iPrototype;
 

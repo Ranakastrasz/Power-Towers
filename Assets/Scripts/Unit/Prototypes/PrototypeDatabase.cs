@@ -4,17 +4,25 @@ using UnityEngine;
 
 public class PrototypeDatabase : MonoBehaviour
 {
-    public static PrototypeDatabase Active { set; private get; }
+    public static PrototypeDatabase Active { protected set; get; }
     public TowerPrototype Wall;
     public TowerPrototype[] RockLauncher = new TowerPrototype[6];
     public TowerPrototype[] TeslaCoil    = new TowerPrototype[6];
     public TowerPrototype[] Generator    = new TowerPrototype[6];
+
+    public AttackManagerPrototype AttackManagerDefault;
+    public PowerManagerPrototype PowerManagerDefault;
 
 
     // Use this for initialization
     void Start()
     {
         Active = this;
+
+        AttackManagerDefault = new AttackManagerPrototype(0.0f, 0.0f, 0);
+        PowerManagerDefault = new PowerManagerPrototype(0, 0);
+
+
         Wall = new TowerPrototype("Wall Tower", 2);
 
         // Rock Launcher
@@ -25,21 +33,21 @@ public class PrototypeDatabase : MonoBehaviour
         RockLauncher[4] = new TowerPrototype("Rock Launcher 5", 310);
         RockLauncher[5] = new TowerPrototype("Rock Launcher 6", 630);
 
-        RockLauncher[0].Attack = new AttackPrototype(5.0f, 3.0f,   31);
-        RockLauncher[1].Attack = new AttackPrototype(5.0f, 3.0f,   96);
-        RockLauncher[2].Attack = new AttackPrototype(5.0f, 3.0f,  224);
-        RockLauncher[3].Attack = new AttackPrototype(5.0f, 3.0f,  448);
-        RockLauncher[4].Attack = new AttackPrototype(5.0f, 3.0f,  960);
-        RockLauncher[5].Attack = new AttackPrototype(5.0f, 3.0f, 1680);
+        RockLauncher[0].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,   31);
+        RockLauncher[1].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,   96);
+        RockLauncher[2].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,  224);
+        RockLauncher[3].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,  448);
+        RockLauncher[4].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,  960);
+        RockLauncher[5].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f, 1680);
 
-        RockLauncher[0].PowerManager = new PowerManagerPrototype(50, 10);
-        RockLauncher[1].PowerManager = new PowerManagerPrototype(150, 30);
-        RockLauncher[2].PowerManager = new PowerManagerPrototype(350, 70);
-        RockLauncher[3].PowerManager = new PowerManagerPrototype(750, 150);
-        RockLauncher[4].PowerManager = new PowerManagerPrototype(1550, 310);
-        RockLauncher[5].PowerManager = new PowerManagerPrototype(3150, 630);
+        RockLauncher[0].PowerManagerPrototype = new PowerManagerPrototype(50, 10);
+        RockLauncher[1].PowerManagerPrototype = new PowerManagerPrototype(150, 30);
+        RockLauncher[2].PowerManagerPrototype = new PowerManagerPrototype(350, 70);
+        RockLauncher[3].PowerManagerPrototype = new PowerManagerPrototype(750, 150);
+        RockLauncher[4].PowerManagerPrototype = new PowerManagerPrototype(1550, 310);
+        RockLauncher[5].PowerManagerPrototype = new PowerManagerPrototype(3150, 630);
 
-        Wall.SetUpgradesTo(Generator[0]);
+        Wall.SetUpgradesTo(RockLauncher[0]);
 
         RockLauncher[0].SetUpgradesTo(RockLauncher[1]);
         RockLauncher[1].SetUpgradesTo(RockLauncher[2]);
@@ -55,19 +63,19 @@ public class PrototypeDatabase : MonoBehaviour
         Generator[4] = new TowerPrototype("Generator 5", 155);
         Generator[5] = new TowerPrototype("Generator 6", 315);
 
-        Generator[0].PowerManager = new PowerManagerPrototype(  250,  10);
-        Generator[1].PowerManager = new PowerManagerPrototype(  750,  30);
-        Generator[2].PowerManager = new PowerManagerPrototype( 1750,  70);
-        Generator[3].PowerManager = new PowerManagerPrototype( 3750, 150);
-        Generator[4].PowerManager = new PowerManagerPrototype( 7750, 310);
-        Generator[5].PowerManager = new PowerManagerPrototype(15750, 630);
+        Generator[0].PowerManagerPrototype = new PowerManagerPrototype(  250,  10);
+        Generator[1].PowerManagerPrototype = new PowerManagerPrototype(  750,  30);
+        Generator[2].PowerManagerPrototype = new PowerManagerPrototype( 1750,  70);
+        Generator[3].PowerManagerPrototype = new PowerManagerPrototype( 3750, 150);
+        Generator[4].PowerManagerPrototype = new PowerManagerPrototype( 7750, 310);
+        Generator[5].PowerManagerPrototype = new PowerManagerPrototype(15750, 630);
 
-        Generator[0].PowerManager.PassiveProduction =   5;
-        Generator[1].PowerManager.PassiveProduction =  15;
-        Generator[2].PowerManager.PassiveProduction =  35;
-        Generator[3].PowerManager.PassiveProduction =  75;
-        Generator[4].PowerManager.PassiveProduction = 155;
-        Generator[5].PowerManager.PassiveProduction = 315;
+        Generator[0].PowerManagerPrototype.PassiveProduction =   5;
+        Generator[1].PowerManagerPrototype.PassiveProduction =  15;
+        Generator[2].PowerManagerPrototype.PassiveProduction =  35;
+        Generator[3].PowerManagerPrototype.PassiveProduction =  75;
+        Generator[4].PowerManagerPrototype.PassiveProduction = 155;
+        Generator[5].PowerManagerPrototype.PassiveProduction = 315;
 
         Generator[0].SetUpgradesTo(Generator[1]);
         Generator[1].SetUpgradesTo(Generator[2]);
@@ -76,7 +84,7 @@ public class PrototypeDatabase : MonoBehaviour
         Generator[4].SetUpgradesTo(Generator[5]);
 
 
-        Wall.SetUpgradesTo(Generator[0]);
+        //Wall.SetUpgradesTo(Generator[0]);
 
 
 

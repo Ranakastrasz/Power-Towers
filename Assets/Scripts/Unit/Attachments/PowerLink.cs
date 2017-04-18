@@ -43,6 +43,7 @@ public class PowerLink : Entity {
 
         transform.position = iSource.gameObject.transform.position;
         transform.rotation = Quaternion.Euler(0.0f, 0.0f, angle);
+        transform.localScale = new Vector3(length, 1.0f, 1.0f);
 
     }
 

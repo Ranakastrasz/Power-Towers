@@ -6,20 +6,26 @@
 
     // Also Sprite data
 
-    public AttackPrototype Attack { get; set; }
-    public PowerManagerPrototype PowerManager { get; set; }
+    public AttackManagerPrototype AttackManagerPrototype { get; set; }
+    public PowerManagerPrototype PowerManagerPrototype { get; set; }
 
     public TowerPrototype(string iName, int iPrice)
     {
         Name = iName;
         Price = iPrice;
 
-        Attack = null;
+        AttackManagerPrototype = PrototypeDatabase.Active.AttackManagerDefault;
+        PowerManagerPrototype = PrototypeDatabase.Active.PowerManagerDefault;
     }
 
-    public void SetAttack(AttackPrototype iAttack)
+    public void SetAttackManager(AttackManagerPrototype iAttackPrototype)
     {
-        Attack = iAttack;
+        AttackManagerPrototype = iAttackPrototype;
+    }
+
+    public void SetPowerManager(PowerManagerPrototype iPowerPrototype)
+    {
+        PowerManagerPrototype = iPowerPrototype;
     }
 
     public void SetUpgradesTo(TowerPrototype iUpgradesTo)

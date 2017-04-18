@@ -13,13 +13,11 @@ public class InputManager : MonoBehaviour {
     public GameObject GoalNodeObject;
 
     private Pathfinding.GraphNode spawnPoint; 
-    private Pathfinding.GraphNode goalPoint; 
+    private Pathfinding.GraphNode goalPoint;
 
 
-    public GameObject TowerPrefab; // Tower Prefab to place when making a new Tower.
     public GameObject Database; // Prototype database.
 
-    public GameObject TowerContainer; // Where to put new Towers.
     public GameObject PathingChecker; // For checking tower placement pathing.
     public GameObject PlacementPrototype; // For showing placement.
 
@@ -61,15 +59,8 @@ public class InputManager : MonoBehaviour {
 
         if (Input.GetKeyDown("t"))
         {
-            if (MouseState == MOUSE_STATE.PLACE_TOWER)
-            {
-                MouseState = MOUSE_STATE.NONE;
-                ClearPlacement();
-            }
-            else
-            {
-                MouseState = MOUSE_STATE.PLACE_TOWER;
-            }
+            SetMouseState(MOUSE_STATE.PLACE_TOWER);
+          
         }
 
         if (MouseState == MOUSE_STATE.PLACE_TOWER)
@@ -82,6 +73,18 @@ public class InputManager : MonoBehaviour {
         }
     }
 
+    public static void SetMouseState(MOUSE_STATE iState)
+    {
+        if (Active.MouseState == iState)
+        {
+            Active.MouseState = MOUSE_STATE.NONE;
+            Active.ClearPlacement();
+        }
+        else
+        {
+            Active.MouseState = iState;
+        }
+    }
 
     public bool validatePlacement(Vector3 iPosition)
     {
@@ -111,7 +114,7 @@ public class InputManager : MonoBehaviour {
         nodes.Add(spawnPoint);
         nodes.Add(goalPoint);
 
-        foreach (Creep creep in Creep.creepList)
+        foreach (Creep creep in EntityManager.GetCreeps())
         {
             nodes.Add(AstarPath.active.GetNearest(creep.transform.position).node);
         }
@@ -211,17 +214,17 @@ public class InputManager : MonoBehaviour {
 
             if (CanPlaceTowerHere)
             {
-
-                int price = Database.GetComponent<PrototypeDatabase>().Wall.Price;
-                if (Player.Active.SpendGold(price))
+                if (ShopCard.Active.SelectedTower != null)
                 {
-                    GameObject obj = (GameObject)GameObject.Instantiate(TowerPrefab, p, Quaternion.identity);
-                    obj.transform.parent = TowerContainer.transform;
-                    obj.GetComponent<Tower>().ApplyPrototype(Database.GetComponent<PrototypeDatabase>().Wall);
-                }
-                else
-                {
-                    print("Not Enough Gold");
+                    int price = ShopCard.Active.SelectedTower.Price;
+                    if (Player.Active.SpendGold(price))
+                    {
+                        EntityManager.CreateTower(p, ShopCard.Active.SelectedTower);
+                    }
+                    else
+                    {
+                        print("Not Enough Gold");
+                    }
                 }
             }
             else

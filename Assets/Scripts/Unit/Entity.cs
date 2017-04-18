@@ -14,9 +14,13 @@ public class Entity : MonoBehaviour
     // Update is called once per frame
     protected virtual void Update()
     {
+        
         Redraw();
     }
 
+    /// <summary>  
+    /// Redraw the entity, recoloring it as needed.
+    /// </summary>  
     public virtual void Redraw()
     {
         float Red = 1;

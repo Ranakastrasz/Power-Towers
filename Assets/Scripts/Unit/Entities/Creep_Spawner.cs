@@ -8,18 +8,13 @@ public class Creep_Spawner : Unit {
 
 
     public GameObject CreepGoal;
-    public GameObject CreepPrefab;
-    public GameObject CreepContainer;
     private double hitpoints = 5.0;
 
     private void spawnCreep()
     {
+        EntityManager.CreateCreep(transform.position, (int)hitpoints, CreepGoal.GetComponent<Transform>());
 
-        GameObject myCreep = (GameObject)
-            Instantiate(CreepPrefab, transform.position, Quaternion.identity);
-        myCreep.GetComponent<Creep>().Init((int)hitpoints, 1, CreepGoal.GetComponent<Transform>());
         hitpoints = hitpoints * 1.05;
-        myCreep.transform.parent = CreepContainer.transform;
     }
 
     // Use this for initialization

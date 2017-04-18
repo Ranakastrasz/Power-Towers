@@ -71,10 +71,10 @@ public class UnitPanel : MonoBehaviour {
                 Vitals.text = "Energy: " + power.Energy + "/" + power.Prototype.EnergyCap;
                 Vitals.color = COLOR_VITAL_MANA;
             }
-            Attack attack = tower.gameObject.GetComponent<Attack>();
+            AttackManager attack = tower.gameObject.GetComponent<AttackManager>();
             if (attack != null)
             { 
-                AttackPrototype attackPrototype = attack.Prototype as AttackPrototype; // Should be get functions instead of doing this here.
+                AttackManagerPrototype attackPrototype = attack.Prototype as AttackManagerPrototype; // Should be get functions instead of doing this here.
                 if (attack != null)
                 {
                     Range.text = "Range: " + UIManager.formatFloat(attackPrototype.Range);

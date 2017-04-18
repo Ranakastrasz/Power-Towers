@@ -6,13 +6,12 @@ using System;
 
 public class Tower : Unit
 {
-    public GameObject Container;
-    // Can Attack creeps. Use some kind of trigger. !
-    // Trigger on enter range, to get target? That might work, actually.
-    //
-
-
+    public AttackManager AttackManager { protected set; get; }
     public PowerManager PowerManager { protected set; get; }
+
+    // Should autocleanup when you change it.
+    // I think.
+
 
     new void Start()
     {
@@ -24,9 +23,20 @@ public class Tower : Unit
         p.y = (float)RanaLib.Math.Round(p.y, 0.5);
 
         transform.position = new Vector3(p.x, p.y, p.z);
-        
 
+
+
+    }
+
+    public void Init(Prototype iPrototype)
+    {
+
+        AttackManager = this.gameObject.AddComponent<AttackManager>();
+        PowerManager = this.gameObject.AddComponent<PowerManager>();
+        
         UpdatePathing();
+
+        ApplyPrototype(iPrototype);
 
 
     }
@@ -34,66 +44,16 @@ public class Tower : Unit
     public override void ApplyPrototype(Prototype iPrototype)
     {
         base.ApplyPrototype(iPrototype);
-        Attack attack = this.gameObject.GetComponent<Attack>();
         TowerPrototype towerPrototype = Prototype as TowerPrototype;
-        AttackPrototype attackPrototype = towerPrototype.Attack;
-        PowerManagerPrototype powerManagerPrototype = towerPrototype.PowerManager;
+        AttackManagerPrototype attackManagerPrototype = towerPrototype.AttackManagerPrototype;
+        PowerManagerPrototype powerManagerPrototype = towerPrototype.PowerManagerPrototype;
 
         gameObject.name = towerPrototype.Name;
 
-        if (attackPrototype == null )
-        {
-            if (attack == null)
-            {
-                // Do nothing
-            }
-            else
-            {
-                // Destroy
-                Destroy(attack);
-            }
-        }
-        else
-        {
-            if (attack == null)
-            {
-                // Create Prototype
-                attack = this.gameObject.AddComponent<Attack>();
-            }
-            else
-            {
-                //already exists.
-            }
-            attack.ApplyPrototype(towerPrototype.Attack);
-        }
 
-
-        if (powerManagerPrototype == null)
-        {
-            if (PowerManager == null)
-            {
-                // Do nothing
-            }
-            else
-            {
-                // Destroy
-                Destroy(PowerManager);
-            }
-        }
-        else
-        {
-            if (PowerManager == null)
-            {
-                // Create Prototype
-                PowerManager = this.gameObject.AddComponent<PowerManager>();
-            }
-            else
-            {
-                //already exists.
-            }
-            PowerManager.ApplyPrototype(towerPrototype.PowerManager);
-        }
-
+        AttackManager.ApplyPrototype(attackManagerPrototype);
+        PowerManager.ApplyPrototype(powerManagerPrototype);
+        
     }
 
 

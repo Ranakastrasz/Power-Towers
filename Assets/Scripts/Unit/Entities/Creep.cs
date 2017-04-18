@@ -2,12 +2,13 @@
 using System.Collections;
 
 
+/// <summary>  
+/// A Unit which represents an Enemy, able to move, take damage, and die.
+/// </summary>  
 public class Creep : Unit
 {
-    public GameObject Container;
 
     public int Life { protected set; get; }
-    public int Lifez { protected set; get; }
     public int MaxLife { protected set; get; }
 
     public int Bounty { protected set; get; }
@@ -17,51 +18,39 @@ public class Creep : Unit
     private AILerp lerp;
 
 
-    public static ArrayList creepList = new ArrayList();
 
     public static void RefreshPathing()
     {
-        foreach (Creep creep in creepList)
+        foreach (Creep creep in EntityManager.GetCreeps())
         {
             creep.lerp.SearchPath();
         }
     }
 
-    public static Creep Create()
-    {
-        return null;
-    }
-
     public void Init(int iHitpoints, int iBounty, Transform targetPoint)
     {
-        
-        gameObject.GetComponent<AILerp>().target = targetPoint;
+
+        lerp = gameObject.GetComponent<AILerp>();
+
+        lerp.target = targetPoint;
+        lerp.speed = BASE_SPEED;
+        lerp.ForceSearchPath();
+
 
         MaxLife = iHitpoints;
         Life = iHitpoints;
         Bounty = iBounty;
-
-
+        
     }
 
     new private void Start()
     {
         base.Start();
-        creepList.Add(this);
-
-        //maxLife = 1;
-        //life = 1;
-        lerp = gameObject.GetComponent<AILerp>();
-
-        lerp.speed = BASE_SPEED;
-
-        lerp.ForceSearchPath();
 
     }
 
     protected void OnDestroy()
     {
-        creepList.Remove(this);
     }
 
     public void Damage(Unit source, int amount)

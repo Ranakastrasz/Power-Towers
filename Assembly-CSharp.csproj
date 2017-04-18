@@ -46,7 +46,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\AbilityCard.cs" />
      <Compile Include="Assets\AstarPathfindingProject\Core\AI\AILerp.cs" />
      <Compile Include="Assets\AstarPathfindingProject\Core\AI\AIPath.cs" />
      <Compile Include="Assets\AstarPathfindingProject\Core\AI\NavmeshController.cs" />
@@ -131,22 +130,29 @@
      <Compile Include="Assets\Player.cs" />
      <Compile Include="Assets\RanaLib.cs" />
      <Compile Include="Assets\Scripts\EditorGrid.cs" />
+     <Compile Include="Assets\Scripts\Timer.cs" />
+     <Compile Include="Assets\Scripts\UI\AbilityCard.cs" />
+     <Compile Include="Assets\Scripts\UI\InputManager.cs" />
      <Compile Include="Assets\Scripts\UI\UIManager.cs" />
      <Compile Include="Assets\Scripts\UI\UnitPanel.cs" />
-     <Compile Include="Assets\Scripts\Unit\Attachments\Attack.cs" />
+     <Compile Include="Assets\Scripts\Unit\Attachments\AttackManager.cs" />
      <Compile Include="Assets\Scripts\Unit\Attachments\Buff.cs" />
      <Compile Include="Assets\Scripts\Unit\Attachments\Payload.cs" />
+     <Compile Include="Assets\Scripts\Unit\Attachments\PowerLink.cs" />
+     <Compile Include="Assets\Scripts\Unit\Attachments\PowerManager.cs" />
      <Compile Include="Assets\Scripts\Unit\Attachments\Projectile.cs" />
      <Compile Include="Assets\Scripts\Unit\Entities\Creep.cs" />
      <Compile Include="Assets\Scripts\Unit\Entities\Creep_Goal.cs" />
      <Compile Include="Assets\Scripts\Unit\Entities\Creep_Spawner.cs" />
      <Compile Include="Assets\Scripts\Unit\Entities\Tower.cs" />
      <Compile Include="Assets\Scripts\Unit\Entities\Unit.cs" />
-     <Compile Include="Assets\Scripts\Unit\Prototypes\AttackPrototype.cs" />
+     <Compile Include="Assets\Scripts\Unit\Entity.cs" />
+     <Compile Include="Assets\Scripts\Unit\Prototypes\AttackManagerPrototype.cs" />
+     <Compile Include="Assets\Scripts\Unit\Prototypes\PowerManagerPrototype.cs" />
      <Compile Include="Assets\Scripts\Unit\Prototypes\Prototype.cs" />
      <Compile Include="Assets\Scripts\Unit\Prototypes\PrototypeDatabase.cs" />
      <Compile Include="Assets\Scripts\Unit\Prototypes\TowerPrototype.cs" />
-     <Compile Include="Assets\TowerBuilder.cs" />
+     <Compile Include="Assets\Scripts\Unit\UnitManager.cs" />
      <None Include="Assets\AstarPathfindingProject\Editor\EditorAssets\Materials\Navmesh.shader" />
      <None Include="Assets\AstarPathfindingProject\Plugins\DotNetZip\DotNetZipLicense.txt" />
      <None Include="Assets\AstarPathfindingProject\ExampleScenes\Materials\Projector Multiply.shader" />

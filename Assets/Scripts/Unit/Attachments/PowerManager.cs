@@ -13,21 +13,24 @@ public class PowerManager : Entity
     ArrayList PowerLinksOut = new ArrayList(8);
 
     readonly int lastEnergy = 0;
-    private int totalReceived = 0;
+    /*private int totalReceived = 0;
     private int totalSent = 0;
     private int numSlowedByTransferRate = 0;
     private int bottleNeckedCount = 0;
-    public bool farTransfering = false;
-    
+    public bool farTransfering { protected set; get; }
+    */
+
+    protected static List<PowerManager> PowerManagerList = new List<PowerManager>();
+
     protected override void Start()
     {
-        //PowerManagerList.Add(this);
+        PowerManagerList.Add(this);
         this.Redraw();
     }
 
     public virtual void OnDestroy()
     {
-        //PowerManagerList.Remove(this);
+        PowerManagerList.Remove(this);
     }
 
     //Do a single bubble-sort pass over the transfer list to favor needy towers
@@ -55,7 +58,10 @@ public class PowerManager : Entity
 
     public static void GlobalTick()
     {
-
+        foreach (PowerManager powerManager in PowerManagerList)
+        {
+            powerManager.Tick();
+        }
     }
 
     public void Tick()

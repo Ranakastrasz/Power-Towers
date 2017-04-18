@@ -4,9 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class AbilityCard : MonoBehaviour {
+    
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
 		
 	}
@@ -27,14 +28,14 @@ public class AbilityCard : MonoBehaviour {
     }
     public void Button_ShortLink()
     {
-        // Toggles mode.
+        InputManager.SetMouseState(InputManager.MOUSE_STATE.ADD_SHORT_LINK);
     }
     public void Button_LongLink()
     {
-
+        InputManager.SetMouseState(InputManager.MOUSE_STATE.ADD_LONG_LINK);
     }
     public void Button_RemoveLink()
     {
-
+        InputManager.SetMouseState(InputManager.MOUSE_STATE.REMOVE_LINK);
     }
 }

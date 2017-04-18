@@ -167,9 +167,10 @@
     <Compile Include="Assets\Scripts\Timer.cs" />
     <Compile Include="Assets\Scripts\UI\AbilityCard.cs" />
     <Compile Include="Assets\Scripts\UI\InputManager.cs" />
+    <Compile Include="Assets\Scripts\UI\ShopCard.cs" />
     <Compile Include="Assets\Scripts\UI\UIManager.cs" />
     <Compile Include="Assets\Scripts\UI\UnitPanel.cs" />
-    <Compile Include="Assets\Scripts\Unit\Attachments\Attack.cs" />
+    <Compile Include="Assets\Scripts\Unit\Attachments\AttackManager.cs" />
     <Compile Include="Assets\Scripts\Unit\Attachments\Buff.cs" />
     <Compile Include="Assets\Scripts\Unit\Attachments\Payload.cs" />
     <Compile Include="Assets\Scripts\Unit\Attachments\PowerLink.cs" />
@@ -181,11 +182,12 @@
     <Compile Include="Assets\Scripts\Unit\Entities\Tower.cs" />
     <Compile Include="Assets\Scripts\Unit\Entities\Unit.cs" />
     <Compile Include="Assets\Scripts\Unit\Entity.cs" />
-    <Compile Include="Assets\Scripts\Unit\Prototypes\AttackPrototype.cs" />
+    <Compile Include="Assets\Scripts\Unit\Prototypes\AttackManagerPrototype.cs" />
     <Compile Include="Assets\Scripts\Unit\Prototypes\PowerManagerPrototype.cs" />
     <Compile Include="Assets\Scripts\Unit\Prototypes\Prototype.cs" />
     <Compile Include="Assets\Scripts\Unit\Prototypes\PrototypeDatabase.cs" />
     <Compile Include="Assets\Scripts\Unit\Prototypes\TowerPrototype.cs" />
+    <Compile Include="Assets\Scripts\Unit\EntityManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\AstarPathfindingProject\Editor\EditorAssets\Materials\Navmesh.shader" />
