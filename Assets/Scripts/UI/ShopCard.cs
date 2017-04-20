@@ -50,7 +50,7 @@ public class ShopCard : MonoBehaviour {
             GameObject currentColumn = (z % 2)==0 ? column1 : column2;
             if (z < towerList.Count)
             {
-                AddButton(currentColumn, towerList[z]);
+                AddButton(currentColumn, towerList[z], z);
             }
             else
             {
@@ -68,14 +68,14 @@ public class ShopCard : MonoBehaviour {
         return obj;
     }
 
-    private GameObject AddButton(GameObject iColumn, TowerPrototype iPrototype)
+    private GameObject AddButton(GameObject iColumn, TowerPrototype iPrototype, int index)
     {
         GameObject obj = (GameObject)GameObject.Instantiate(ButtonPrefab, iColumn.transform.position, Quaternion.identity);
         obj.transform.SetParent(iColumn.transform,false);
         GameObject text = obj.transform.GetChild(0).gameObject;
         if (iPrototype != null)
         {
-            text.GetComponent<Text>().text = iPrototype.Name + ":\n" + iPrototype.Price;
+            text.GetComponent<Text>().text = iPrototype.Name + ":\n" + iPrototype.Price + "G, ("+(index+1)+")";
             obj.GetComponent<Button>().onClick.AddListener(() => Button_Pressed(iPrototype));
 
         }

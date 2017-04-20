@@ -68,7 +68,7 @@ public class UnitPanel : MonoBehaviour {
             PowerManager power = tower.PowerManager;
             if (power != null)
             {
-                Vitals.text = "Energy: " + power.Energy + "/" + power.Prototype.EnergyCap;
+                Vitals.text = "Energy: " + power.Energy + "/" + power.Prototype.MaxEnergy;
                 Vitals.color = COLOR_VITAL_MANA;
             }
             AttackManager attack = tower.gameObject.GetComponent<AttackManager>();
