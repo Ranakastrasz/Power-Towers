@@ -4,65 +4,103 @@ using UnityEngine;
 
 public class PrototypeDatabase : MonoBehaviour
 {
+    public Sprite WallSprite = null;
+    public Sprite CannonSprite = null;
+    public Sprite GeneratorSprite = null;
+    public Sprite TransferSprite = null;
+
     public static PrototypeDatabase Active { protected set; get; }
     public TowerPrototype Wall;
-    public TowerPrototype[] RockLauncher = new TowerPrototype[6];
-    public TowerPrototype[] TeslaCoil    = new TowerPrototype[6];
-    public TowerPrototype[] Generator    = new TowerPrototype[6];
+    public TowerPrototype[] Cannon = new TowerPrototype[6]; // Rock Launcher
+    public TowerPrototype[] Lightning = new TowerPrototype[6]; // Tesla Coil
+    public TowerPrototype[] Frost = new TowerPrototype[6]; // Lich Tower
+    public TowerPrototype[] Wave = new TowerPrototype[6]; // Holy Tower
+    public TowerPrototype[] Flame = new TowerPrototype[6]; // Demon Tower
+    public TowerPrototype[] Posion = new TowerPrototype[6]; // Chemical Tower
+    public TowerPrototype[] Generator = new TowerPrototype[6]; // Waterwheel/Furnace
+    public TowerPrototype[] Transfer = new TowerPrototype[6]; // Briding Tower
 
+    public Effect EffectDefault;
     public AttackManagerPrototype AttackManagerDefault;
     public PowerManagerPrototype PowerManagerDefault;
 
+    private float LevelScale(int level, float scale)
+    {
+        return ((Mathf.Pow(2, level)) - 1) * scale;
+    }
 
     // Use this for initialization
     void Start()
     {
         Active = this;
 
-        AttackManagerDefault = new AttackManagerPrototype(0.0f, 0.0f, 0);
+        EffectDefault = new Effect();
+        AttackManagerDefault = new AttackManagerPrototype(0.0f, 0.0f, 0, EffectDefault);
         PowerManagerDefault = new PowerManagerPrototype(0, 0);
 
 
-        Wall = new TowerPrototype("Wall Tower", 2);
+        Wall = new TowerPrototype("Wall Tower", 2, null);
 
         // Rock Launcher
-        RockLauncher[0] = new TowerPrototype("Rock Launcher 1",  10);
-        RockLauncher[1] = new TowerPrototype("Rock Launcher 2",  30);
-        RockLauncher[2] = new TowerPrototype("Rock Launcher 3",  70);
-        RockLauncher[3] = new TowerPrototype("Rock Launcher 4", 150);
-        RockLauncher[4] = new TowerPrototype("Rock Launcher 5", 310);
-        RockLauncher[5] = new TowerPrototype("Rock Launcher 6", 630);
 
-        RockLauncher[0].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,   31);
-        RockLauncher[1].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,   96);
-        RockLauncher[2].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,  224);
-        RockLauncher[3].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,  448);
-        RockLauncher[4].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,  960);
-        RockLauncher[5].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f, 1680);
+        int[] Damage = { 31, 96, 224, 448, 960, 1680 };
+        int BasePrice = 10;
+        int BasePower = 50;
+        int BasePowerRate = 10;
+        for (int z = 0; z < 6; z++)
+        {
+            ProjectilePrototype projectilePrototype = new ProjectilePrototype(9.0f, new EffectDamage(Damage[z],true));
+            Effect effect = new EffectProjectile(projectilePrototype,false);
+            int level = z + 1;
+            Cannon[z] = new TowerPrototype("Rock Launcher "+(z+1), (int)LevelScale(level,BasePrice), CannonSprite);
+            Cannon[z].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f, Damage[z], effect);
 
-        RockLauncher[0].PowerManagerPrototype = new PowerManagerPrototype(50, 10);
-        RockLauncher[1].PowerManagerPrototype = new PowerManagerPrototype(150, 30);
-        RockLauncher[2].PowerManagerPrototype = new PowerManagerPrototype(350, 70);
-        RockLauncher[3].PowerManagerPrototype = new PowerManagerPrototype(750, 150);
-        RockLauncher[4].PowerManagerPrototype = new PowerManagerPrototype(1550, 310);
-        RockLauncher[5].PowerManagerPrototype = new PowerManagerPrototype(3150, 630);
-
-        Wall.SetUpgradesTo(RockLauncher[0]);
-
-        RockLauncher[0].SetUpgradesTo(RockLauncher[1]);
-        RockLauncher[1].SetUpgradesTo(RockLauncher[2]);
-        RockLauncher[2].SetUpgradesTo(RockLauncher[3]);
-        RockLauncher[3].SetUpgradesTo(RockLauncher[4]);
-        RockLauncher[4].SetUpgradesTo(RockLauncher[5]);
+            Cannon[z].PowerManagerPrototype = new PowerManagerPrototype((int)LevelScale(level,BasePower), (int)LevelScale(level,BasePowerRate));
+        }
+    
+        for (int z = 0; z< 5; z++)
+        {
+            Cannon[z].SetUpgradesTo(Cannon[z+1]);
+        }
 
 
-        Generator[0] = new TowerPrototype("Generator 1",   5);
-        Generator[1] = new TowerPrototype("Generator 2",  15);
-        Generator[2] = new TowerPrototype("Generator 3",  35);
-        Generator[3] = new TowerPrototype("Generator 4",  75);
-        Generator[4] = new TowerPrototype("Generator 5", 155);
-        Generator[5] = new TowerPrototype("Generator 6", 315);
 
+        /*Cannon[0] = new TowerPrototype("Rock Launcher 1",  10);
+        Cannon[1] = new TowerPrototype("Rock Launcher 2",  30);
+        Cannon[2] = new TowerPrototype("Rock Launcher 3",  70);
+        Cannon[3] = new TowerPrototype("Rock Launcher 4", 150);
+        Cannon[4] = new TowerPrototype("Rock Launcher 5", 310);
+        Cannon[5] = new TowerPrototype("Rock Launcher 6", 630);
+        
+        Cannon[0].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,  31, new EffectDamage(  31));
+        Cannon[1].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,  96, new EffectDamage(  96));
+        Cannon[2].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f, 224, new EffectDamage( 224));
+        Cannon[3].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f, 448, new EffectDamage( 448));
+        Cannon[4].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f, 960, new EffectDamage( 960));
+        Cannon[5].AttackManagerPrototype = new AttackManagerPrototype(5.0f, 3.0f,1680, new EffectDamage(1680));
+
+        Cannon[0].PowerManagerPrototype = new PowerManagerPrototype(  50,  10);
+        Cannon[1].PowerManagerPrototype = new PowerManagerPrototype( 150,  30);
+        Cannon[2].PowerManagerPrototype = new PowerManagerPrototype( 350,  70);
+        Cannon[3].PowerManagerPrototype = new PowerManagerPrototype( 750, 150);
+        Cannon[4].PowerManagerPrototype = new PowerManagerPrototype(1550, 310);
+        Cannon[5].PowerManagerPrototype = new PowerManagerPrototype(3150, 630);
+
+        
+        Cannon[0].SetUpgradesTo(Cannon[1]);
+        Cannon[1].SetUpgradesTo(Cannon[2]);
+        Cannon[2].SetUpgradesTo(Cannon[3]);
+        Cannon[3].SetUpgradesTo(Cannon[4]);
+        Cannon[4].SetUpgradesTo(Cannon[5]);*/
+
+
+        Generator[0] = new TowerPrototype("Generator 1",   5, GeneratorSprite);
+        Generator[1] = new TowerPrototype("Generator 2",  15, GeneratorSprite);
+        Generator[2] = new TowerPrototype("Generator 3",  35, GeneratorSprite);
+        Generator[3] = new TowerPrototype("Generator 4",  75, GeneratorSprite);
+        Generator[4] = new TowerPrototype("Generator 5", 155, GeneratorSprite);
+        Generator[5] = new TowerPrototype("Generator 6", 315, GeneratorSprite);
+        
         Generator[0].PowerManagerPrototype = new PowerManagerPrototype(  250,  10);
         Generator[1].PowerManagerPrototype = new PowerManagerPrototype(  750,  30);
         Generator[2].PowerManagerPrototype = new PowerManagerPrototype( 1750,  70);
@@ -83,6 +121,26 @@ public class PrototypeDatabase : MonoBehaviour
         Generator[3].SetUpgradesTo(Generator[4]);
         Generator[4].SetUpgradesTo(Generator[5]);
 
+        
+        Transfer[0] = new TowerPrototype("Transfer Tower 1",   3, TransferSprite);
+        Transfer[1] = new TowerPrototype("Transfer Tower 2",   9, TransferSprite);
+        Transfer[2] = new TowerPrototype("Transfer Tower 3",  21, TransferSprite);
+        Transfer[3] = new TowerPrototype("Transfer Tower 4",  45, TransferSprite);
+        Transfer[4] = new TowerPrototype("Transfer Tower 5",  93, TransferSprite);
+        Transfer[5] = new TowerPrototype("Transfer Tower 6", 189, TransferSprite);
+        
+        Transfer[0].PowerManagerPrototype = new PowerManagerPrototype(  300,   30);
+        Transfer[1].PowerManagerPrototype = new PowerManagerPrototype(  900,   90);
+        Transfer[2].PowerManagerPrototype = new PowerManagerPrototype( 2700,  270);
+        Transfer[3].PowerManagerPrototype = new PowerManagerPrototype( 8100,  810);
+        Transfer[4].PowerManagerPrototype = new PowerManagerPrototype(24300, 2430);
+        Transfer[5].PowerManagerPrototype = new PowerManagerPrototype(72900, 7290);
+        
+        Transfer[0].SetUpgradesTo(Transfer[1]);
+        Transfer[1].SetUpgradesTo(Transfer[2]);
+        Transfer[2].SetUpgradesTo(Transfer[3]);
+        Transfer[3].SetUpgradesTo(Transfer[4]);
+        Transfer[4].SetUpgradesTo(Transfer[5]);
 
         //Wall.SetUpgradesTo(Generator[0]);
 

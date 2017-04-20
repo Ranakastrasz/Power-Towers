@@ -9,6 +9,7 @@ public class AttackManager : MonoBehaviour {
 
     public GameObject CurrentTarget { get; private set; }
 
+
     public AttackManagerPrototype Prototype { get; private set; }
 
     public float CurrentCooldown { get; private set; } // Attack Prototype.
@@ -17,7 +18,6 @@ public class AttackManager : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
-		
 	}
 	
 	// Update is called once per frame
@@ -37,9 +37,9 @@ public class AttackManager : MonoBehaviour {
     void FixedUpdate()
     {
         ApplyCooldown();
+        SearchTarget();
         if (CanAttack())
         {
-            SearchTarget();
 
             if (CurrentTarget != null)
             {
@@ -61,12 +61,12 @@ public class AttackManager : MonoBehaviour {
 
     private bool CanAttack()
     {
-        return (Prototype.Cooldown != 0 )&&(CurrentCooldown == Prototype.Cooldown);
+        return (Prototype.Cooldown != 0) && (CurrentCooldown == Prototype.Cooldown);
     }
 
     private void ApplyCooldown()
     {
-        CurrentCooldown = Mathf.Min( CurrentCooldown + Time.fixedDeltaTime, Prototype.Cooldown);
+        CurrentCooldown = Mathf.Min( CurrentCooldown + (Time.fixedDeltaTime), Prototype.Cooldown);
     }
 
     private void DoAttack(GameObject target)
@@ -74,9 +74,21 @@ public class AttackManager : MonoBehaviour {
         // Target the CreepData
         Creep creep = target.GetComponent<Creep>();
         // Apply damage. Later create Projectile and attach payload and all that stuff.
-        creep.Damage(this.gameObject.GetComponent<Tower>(), Prototype.Damage);
 
-        CurrentCooldown = 0f;
+        //creep.Damage(this.gameObject.GetComponent<Tower>(), Prototype.Damage);
+
+        Prototype.Effect.ApplyEntity(gameObject.GetComponent<Tower>(), gameObject.GetComponent<Tower>(), creep);
+
+        if (gameObject.GetComponent<PowerManager>().TrySpendEnergy((gameObject.GetComponent<Tower>().Prototype as TowerPrototype).Price))
+        { 
+            CurrentCooldown = Prototype.Cooldown * 0.75f;
+        }
+        else
+        {
+            CurrentCooldown = 0f;
+        }
+
+        // Also force facing, send angle to the Towerobject.
     }
 
     private void SearchTarget()
@@ -95,7 +107,7 @@ public class AttackManager : MonoBehaviour {
                     newTarget = currentEnemy;
                     bestValue = creep.Life;
                 }
-                else if (bestValue < creep.Life)
+                else if (bestValue > creep.Life)
                 {
                     newTarget = currentEnemy;
                 }
@@ -106,6 +118,5 @@ public class AttackManager : MonoBehaviour {
             CurrentTarget = newTarget;
         }
     }
-
-
+    
 }

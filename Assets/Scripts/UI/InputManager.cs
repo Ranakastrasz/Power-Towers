@@ -15,14 +15,15 @@ public class InputManager : MonoBehaviour {
     private Pathfinding.GraphNode spawnPoint; 
     private Pathfinding.GraphNode goalPoint;
 
-
+    
+    public TowerPrototype SelectedTowerPrototype { protected set; get; }
     public GameObject Database; // Prototype database.
 
     public GameObject PathingChecker; // For checking tower placement pathing.
     public GameObject PlacementPrototype; // For showing placement.
-
+    
     public enum MOUSE_STATE{
-        NONE,
+        SELECT_UNIT,
         PLACE_TOWER,
         ADD_SHORT_LINK,
         ADD_LONG_LINK,
@@ -48,7 +49,7 @@ public class InputManager : MonoBehaviour {
 	void Update ()
     {
 
-        if (Input.GetKeyDown("q"))
+        /*if (Input.GetKeyDown("q"))
         {
             UIManager.UpgradeTower();
         }
@@ -61,6 +62,18 @@ public class InputManager : MonoBehaviour {
         {
             SetMouseState(MOUSE_STATE.PLACE_TOWER);
           
+        }*/
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (MouseState == MOUSE_STATE.SELECT_UNIT)
+            {
+                Player.Active.SelectUnit(null);
+            }
+            else
+            {
+                SetMouseState(MOUSE_STATE.SELECT_UNIT);
+            }
         }
 
         if (MouseState == MOUSE_STATE.PLACE_TOWER)
@@ -73,11 +86,30 @@ public class InputManager : MonoBehaviour {
         }
     }
 
-    public static void SetMouseState(MOUSE_STATE iState)
+    public static void SelectTower(TowerPrototype iPrototype)
+    {
+        if (Active.MouseState == MOUSE_STATE.PLACE_TOWER && Active.SelectedTowerPrototype == iPrototype)
+        {
+            Active.SelectedTowerPrototype = null;
+            SetMouseState(MOUSE_STATE.SELECT_UNIT);
+        }
+        else
+        {
+            Active.SelectedTowerPrototype = iPrototype;
+            SetMouseState(MOUSE_STATE.PLACE_TOWER);
+
+        }
+        
+    }
+    /// <summary>
+    /// Changes the MouseState to the give MouseState, or none if it is already set.
+    /// </summary>
+    /// <param name="iState"></param>
+    public static void ToggleMouseState(MOUSE_STATE iState)
     {
         if (Active.MouseState == iState)
         {
-            Active.MouseState = MOUSE_STATE.NONE;
+            Active.MouseState = MOUSE_STATE.SELECT_UNIT;
             Active.ClearPlacement();
         }
         else
@@ -85,7 +117,81 @@ public class InputManager : MonoBehaviour {
             Active.MouseState = iState;
         }
     }
+    public static void SetMouseState(MOUSE_STATE iState)
+    {
+        if (iState == MOUSE_STATE.SELECT_UNIT)
+        {
+            Active.ClearPlacement();
+        }
+        Active.MouseState = iState;
+    }
 
+    public static void ClickUnit(Unit iUnit)
+    {
+        if (Active.MouseState == MOUSE_STATE.SELECT_UNIT)
+        {
+            Player.Active.SelectUnit(iUnit);
+        }
+        else if (Active.MouseState == MOUSE_STATE.PLACE_TOWER)
+        {
+            // Override tower, maybe, but probably not.
+        }
+
+        if (iUnit != null && Player.Active.selectedUnit != null)
+        {
+            if (iUnit is Tower && Player.Active.selectedUnit is Tower)
+            {
+                PowerManager sourcePowerManager = (Player.Active.selectedUnit as Tower).PowerManager;
+                PowerManager targetPowerManager = (iUnit as Tower).PowerManager;
+                
+                // This really calls for a UI_Button Library or something.
+                if (Active.MouseState == MOUSE_STATE.ADD_SHORT_LINK)
+                {
+                    sourcePowerManager.AddLink(targetPowerManager, false);
+                }
+                else if (Active.MouseState == MOUSE_STATE.ADD_LONG_LINK)
+                {
+                    sourcePowerManager.AddLink(targetPowerManager, true);
+
+                }
+                else if (Active.MouseState == MOUSE_STATE.REMOVE_LINK)
+                {
+                    sourcePowerManager.RemoveLink(targetPowerManager);
+                }
+            }
+
+        }
+    }
+
+    public void ShowPlacement()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+        {
+
+            Vector3 p = hit.point;
+
+            // Figure out mouse position.
+            p.x = (float)Math.Round(p.x, 0.5);
+            p.y = (float)Math.Round(p.y, 0.5);
+            p.z = (float)0.0;
+
+
+            PlacementPrototype.transform.position = new Vector3(p.x, p.y, p.z);
+
+            CanPlaceTowerHere = validatePlacement(p);
+
+
+            Redraw();
+        }
+    }
+    public void ClearPlacement()
+    {
+        PlacementPrototype.transform.position = OutOfTheWay;
+        Redraw();
+    }
+    
     public bool validatePlacement(Vector3 iPosition)
     {
 
@@ -95,7 +201,7 @@ public class InputManager : MonoBehaviour {
 
         var guo = new GraphUpdateObject(PathingChecker.GetComponent<Collider>().bounds);
 
-        /*foreach (Unit unit in Unit.UnitList)
+        foreach (Unit unit in EntityManager.GetTowers())
         {
             Bounds bounds = unit.gameObject.GetComponent<Collider>().bounds;
             if (PathingChecker.GetComponent<Collider>().bounds.Intersects(bounds))
@@ -104,7 +210,7 @@ public class InputManager : MonoBehaviour {
                 PathingChecker.transform.position = OutOfTheWay;
                 return false;
             }
-        }*/
+        }
 
         // Make sure all creeps can get to the goal.
 
@@ -129,34 +235,47 @@ public class InputManager : MonoBehaviour {
         return true;
 
     }
-    public void ShowPlacement()
+    public void PlaceObject()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
-
+            /*
+               public static bool CheckBox(Vector3 center, Vector3 halfExtents, 
+               Quaternion orientation = Quaternion.identity, int layermask = DefaultRaycastLayers, 
+               QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal);
+             */
+             
+            if (hit.transform.gameObject.tag == "Tower") return;
+            
             Vector3 p = hit.point;
 
-            // Figure out mouse position.
             p.x = (float)Math.Round(p.x, 0.5);
             p.y = (float)Math.Round(p.y, 0.5);
-            p.z = (float)0.0;
+            p.z = 0;
 
+            if (CanPlaceTowerHere)
+            {
+                if (SelectedTowerPrototype != null)
+                {
+                    int price = SelectedTowerPrototype.Price;
+                    if (Player.Active.SpendGold(price))
+                    {
+                        EntityManager.CreateTower(p, SelectedTowerPrototype);
+                    }
+                    else
+                    {
+                        print("Not Enough Gold");
+                    }
+                }
+            }
+            else
+            {
+                // Can't build here.
+            }
 
-            PlacementPrototype.transform.position = new Vector3(p.x, p.y, p.z);
-
-            CanPlaceTowerHere = validatePlacement(p);
-
-
-            Redraw();
         }
-    }
-
-    public void ClearPlacement()
-    {
-        PlacementPrototype.transform.position = OutOfTheWay;
-        Redraw();
     }
     public void Redraw()
     {
@@ -192,46 +311,4 @@ public class InputManager : MonoBehaviour {
         }
     }
 
-    public void PlaceObject()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
-        {
-            /*
-               public static bool CheckBox(Vector3 center, Vector3 halfExtents, 
-               Quaternion orientation = Quaternion.identity, int layermask = DefaultRaycastLayers, 
-               QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal);
-             */
-
-            if (hit.transform.gameObject.tag == "Tower") return;
-
-            Vector3 p = hit.point;
-
-            p.x = (float)Math.Round(p.x, 0.5);
-            p.y = (float)Math.Round(p.y, 0.5);
-            p.z = 0;
-
-            if (CanPlaceTowerHere)
-            {
-                if (ShopCard.Active.SelectedTower != null)
-                {
-                    int price = ShopCard.Active.SelectedTower.Price;
-                    if (Player.Active.SpendGold(price))
-                    {
-                        EntityManager.CreateTower(p, ShopCard.Active.SelectedTower);
-                    }
-                    else
-                    {
-                        print("Not Enough Gold");
-                    }
-                }
-            }
-            else
-            {
-                // Can't build here.
-            }
-
-        }
-    }
 }

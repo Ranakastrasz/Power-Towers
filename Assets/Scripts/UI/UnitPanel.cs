@@ -80,7 +80,7 @@ public class UnitPanel : MonoBehaviour {
                     Range.text = "Range: " + UIManager.formatFloat(attackPrototype.Range);
                     Cooldown.text = "Cool: " + UIManager.formatFloat(attackPrototype.Cooldown - attack.CurrentCooldown) + "/"
                         + UIManager.formatFloat(attackPrototype.Cooldown);
-                    Damage.text = "Damage: " + attackPrototype.Damage;
+                    //Damage.text = "Damage: " + attackPrototype.Damage;
                 }
             }
 

@@ -7,24 +7,26 @@ public class PowerManager : Entity
 {
     public PowerManagerPrototype Prototype { protected set; get; }
 
-    public int Energy { protected set; get; }
+    public int Energy;// { protected set; get; }
 
-    ArrayList PowerLinksIn = new ArrayList(8);
-    ArrayList PowerLinksOut = new ArrayList(8);
+    public List<PowerLink> PowerLinksIn = new List<PowerLink>(8);
+    public List<PowerLink> PowerLinksOut = new List<PowerLink>(8);
 
-    readonly int lastEnergy = 0;
-    /*private int totalReceived = 0;
-    private int totalSent = 0;
-    private int numSlowedByTransferRate = 0;
-    private int bottleNeckedCount = 0;
-    public bool farTransfering { protected set; get; }
-    */
-
+    public int lastEnergy { protected set; get; } // For +- number floaters, I think
+    public int totalReceived = 0;
+    public int totalSent = 0;
+    //private int numSlowedByTransferRate = 0;
+    //private int bottleNeckedCount = 0;
+    //public bool farTransfering { protected set; get; }
+    
+        // Consider a better way to do this, prefer not having to handle a list.
+        // Possible loop all towers and get their power managers instead?
     protected static List<PowerManager> PowerManagerList = new List<PowerManager>();
 
     protected override void Start()
     {
         PowerManagerList.Add(this);
+        lastEnergy = 0;
         this.Redraw();
     }
 
@@ -32,6 +34,8 @@ public class PowerManager : Entity
     {
         PowerManagerList.Remove(this);
     }
+
+
 
     //Do a single bubble-sort pass over the transfer list to favor needy towers
     //Guaranteed to place the neediest tower at the end of the list
@@ -56,36 +60,119 @@ public class PowerManager : Entity
             endloop
         endmethod*/
 
+
+    public void AddLink(PowerManager iTarget, bool longLink)
+    {
+        if (PowerLinksOut.Count < PowerLink.MAX_LINKS && iTarget.PowerLinksIn.Count < PowerLink.MAX_LINKS)
+        {
+            // Valid to link.
+            // Create a Link
+            GameObject obj = EntityManager.CreatePowerLink(this, iTarget);
+            /*PowerLink link = */obj.GetComponent<PowerLink>();
+            
+
+        }
+        else
+        {
+            // Throw LinkError.
+        }
+    }
+
+    internal void RemoveLinks()
+    {
+        List<PowerLink> list = new List<PowerLink>();
+        list.AddRange(PowerLinksIn);
+        list.AddRange(PowerLinksOut);
+        foreach (PowerLink powerLink in list)
+        {
+            RemoveLink(powerLink);
+        }
+    }
+
+    public void RemoveLink(PowerLink iLink)
+    {
+        iLink.remove();
+    }
+
+    // Wrapper letting you use the target instead of the link
+    public bool RemoveLink(PowerManager iTarget)
+    {
+        PowerLink link = null;
+        foreach (PowerLink powerLink in PowerLinksOut)
+        {
+            if (powerLink.Target == iTarget)
+            {
+                link = powerLink;
+                break;
+            }
+        }
+        if (link != null)
+        {
+            RemoveLink(link);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Attempt to spend energy, Return true if enough energy exists
+    /// and energy is deducted. False if insufficient energy.
+    /// </summary>
+    /// <param name="iCost">How much energy to spend</param>
+    /// <returns></returns>
+    internal bool TrySpendEnergy(int iCost)
+    {
+        if (Energy > iCost)
+        {
+            Energy -= iCost;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public static void GlobalTick()
     {
+        foreach (PowerManager powerManager in PowerManagerList)
+        {
+            powerManager.StartTick();
+        }
         foreach (PowerManager powerManager in PowerManagerList)
         {
             powerManager.Tick();
         }
     }
 
+    public void StartTick()
+    {
+        totalSent = 0;
+        totalReceived = 0;
+        lastEnergy = Energy;
+    }
+
     public void Tick()
     {
+
+        foreach (PowerLink powerLink in PowerLinksOut)
+        {
+            int EnergyToTransfer = Math.Min(Energy, Prototype.TransferRate - totalSent);
+
+            powerLink.PushEnergy(EnergyToTransfer);
+        }
+
         Energy = Math.Min(Energy + Prototype.PassiveProduction, Prototype.EnergyCap);
+        
 
-
-        int EnergyToTransfer = Math.Min(Energy, Prototype.TransferRate);
-
-        foreach (PowerLink powerLink in PowerLinksOut)
-        {
-            //EnergyToTransfer = powerLink.PushEnergy(Energy);
-        }
     }
-    public void Draw()
+
+    public override void Redraw()
     {
-
-
-        int EnergyToTransfer = Math.Min(Energy, Prototype.TransferRate);
-
-        foreach (PowerLink powerLink in PowerLinksOut)
-        {
-            //EnergyToTransfer = powerLink.PushEnergy(Energy);
-        }
+        // Create Floaters.
     }
     /*
       ///Transfer energy to other towers for this tick

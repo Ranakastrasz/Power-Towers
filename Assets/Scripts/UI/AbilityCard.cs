@@ -15,7 +15,30 @@ public class AbilityCard : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-
+        if (Input.GetKeyDown("q"))
+        {
+            Button_Upgrade();
+        }
+        if (Input.GetKeyDown("w"))
+        {
+            Button_Sell();
+        }
+        if (Input.GetKeyDown("e"))
+        {
+            // Sellers Remorse
+        }
+        if (Input.GetKeyDown("a"))
+        {
+            Button_ShortLink();
+        }
+        if (Input.GetKeyDown("s"))
+        {
+            Button_LongLink();
+        }
+        if (Input.GetKeyDown("d"))
+        {
+            Button_RemoveLink();
+        }
     }
 
     public void Button_Upgrade()
@@ -28,14 +51,14 @@ public class AbilityCard : MonoBehaviour {
     }
     public void Button_ShortLink()
     {
-        InputManager.SetMouseState(InputManager.MOUSE_STATE.ADD_SHORT_LINK);
+        InputManager.ToggleMouseState(InputManager.MOUSE_STATE.ADD_SHORT_LINK);
     }
     public void Button_LongLink()
     {
-        InputManager.SetMouseState(InputManager.MOUSE_STATE.ADD_LONG_LINK);
+        InputManager.ToggleMouseState(InputManager.MOUSE_STATE.ADD_LONG_LINK);
     }
     public void Button_RemoveLink()
     {
-        InputManager.SetMouseState(InputManager.MOUSE_STATE.REMOVE_LINK);
+        InputManager.ToggleMouseState(InputManager.MOUSE_STATE.REMOVE_LINK);
     }
 }

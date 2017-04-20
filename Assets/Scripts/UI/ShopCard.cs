@@ -11,21 +11,36 @@ public class ShopCard : MonoBehaviour {
     public GameObject ButtonPrefab;
     public GameObject SpacerPrefab;
 
-    public TowerPrototype SelectedTower { set; get; }
-
     private GameObject column1;
     private GameObject column2;
 
-    private List<TowerPrototype> towerList = new List<TowerPrototype>();
+    public List<TowerPrototype> towerList { protected set; get; }
 
     // Use this for initialization
     void Start()
     {
         Active = this;
-        towerList.Add(PrototypeDatabase.Active.Wall);
-        towerList.Add(PrototypeDatabase.Active.RockLauncher[0]);
-        towerList.Add(PrototypeDatabase.Active.TeslaCoil[0]);
+        towerList = new List<TowerPrototype>();
+        towerList.Add(PrototypeDatabase.Active.Cannon[0]);
+        towerList.Add(PrototypeDatabase.Active.Lightning[0]);
+
         towerList.Add(PrototypeDatabase.Active.Generator[0]);
+        towerList.Add(PrototypeDatabase.Active.Transfer[0]);
+        towerList.Add(PrototypeDatabase.Active.Wall);
+
+        /*
+         
+            -1, t - cannon
+            -2, y - lightning
+            -3, u - frost
+            -4, i - holy
+            -5, o - demon
+            -6, g - poison
+            -7, h - weaken
+            -8, j - generator
+            -9, k - transfer
+            -0, l - wall
+         */
 
         column1 = transform.GetChild(0).gameObject;
         column2 = transform.GetChild(1).gameObject;
@@ -75,6 +90,7 @@ public class ShopCard : MonoBehaviour {
 
     public void Button_Pressed(TowerPrototype iPrototype)
     {
-        SelectedTower = iPrototype;
+        InputManager.SelectTower(iPrototype);
+        //InputManager.ToggleMouseState(InputManager.MOUSE_STATE.PLACE_TOWER);
     }
 }
