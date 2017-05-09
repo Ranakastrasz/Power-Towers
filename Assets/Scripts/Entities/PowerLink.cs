@@ -19,12 +19,12 @@ public class PowerLink : Entity {
 
 
     public readonly static int[] PowerThreshholds = {           0,            1,        25,          125,          625};
-    public readonly static Color[] BeamColor      = { new Color(1.0f,0.5f,0.0f), Color.green, Color.blue, Color.yellow, Color.white };
+    public readonly static Color[] BeamColor      = { new Color(1.0f,0.5f,0.0f), Color.green, Color.cyan, Color.yellow, Color.white };
 
     /// <summary>
     ///  How much power was transfered last tick, for drawing the beam.
     /// </summary>
-    private int lastTransfer;
+    public int lastTransfer;
     
     public enum LINK_RANGE
         {
@@ -166,11 +166,11 @@ public class PowerLink : Entity {
         anim.speed = animationSpeed;
     }
 
-    /// <summary>
+    /*/// <summary>
     /// Push as much energy to the target as possible through this PowerLink.
     /// </summary>
-    /// <param name="iEnergyToTransfer"></param>
-    public void PushEnergy(int iEnergyToTransfer)
+    /// <param name="iEnergyToTransfer"></param>*/
+    /*public void PushEnergy(int iEnergyToTransfer)
     {
         int energyToRecieve = Math.Min(Target.Prototype.MaxEnergy - Target.Energy, Target.Prototype.TransferRate - Target.totalReceived);
 
@@ -184,7 +184,7 @@ public class PowerLink : Entity {
         Target.totalReceived += energyToTransfer;
         
         lastTransfer = energyToTransfer;
-    }
+    }*/
     
 
 }

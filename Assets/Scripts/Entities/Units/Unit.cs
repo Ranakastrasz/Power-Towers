@@ -4,10 +4,11 @@ using Pathfinding;
 
 public class Unit : Entity
 {
-    
+	
     /*
      * Kill a unit, removing it, but also running OnDeath effects.
     */
+
     public virtual void Kill(Unit killingUnit)
     {
         onDeath(killingUnit);

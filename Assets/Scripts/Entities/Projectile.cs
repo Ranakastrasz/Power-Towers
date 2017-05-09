@@ -28,18 +28,23 @@ public class Projectile : Entity
 	}
 
     // 
-    
+	// Guess is that it targeted a unit the same tick it was destroyed, so was created with a target,
+	// But the target stopped existing.
+
+
     public void Init(ProjectilePrototype iPrototype, Unit iOriginUnit, Entity iTargetEntity)
     {
         ApplyPrototype(iPrototype);
-        OriginUnit = iOriginUnit;
-        TargetEntity = iTargetEntity;
+		OriginUnit = iOriginUnit;
+		TargetEntity = iTargetEntity;
+		TargetPoint = TargetEntity.transform.position;
     }
     public void Init(ProjectilePrototype iPrototype, Unit iOriginUnit, Vector3 iTargetPoint)
     {
         ApplyPrototype(iPrototype);
-        OriginUnit = iOriginUnit;
-        TargetPoint = iTargetPoint;
+		OriginUnit = iOriginUnit;
+		TargetEntity = null;
+		TargetPoint = iTargetPoint;
         
     }
 	
@@ -59,8 +64,8 @@ public class Projectile : Entity
         
 
         if (TargetEntity != null)
-        {
-            TargetPoint = TargetEntity.gameObject.transform.position;
+		{
+			TargetPoint = TargetEntity.transform.position;
         }
         transform.position = Vector3.MoveTowards(transform.position, TargetPoint, Prototype.Speed * Time.deltaTime);
 

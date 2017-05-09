@@ -127,40 +127,52 @@
      <Compile Include="Assets\AstarPathfindingProject\Utilities\ProfileHelper.cs" />
      <Compile Include="Assets\AstarPathfindingProject\Utilities\UnityReferenceHelper.cs" />
      <Compile Include="Assets\AstarPathfindingProject\changelog.cs" />
+     <Compile Include="Assets\LightningBolt\LightningBoltScript.cs" />
      <Compile Include="Assets\Scripts\Attachments\AttackManager.cs" />
      <Compile Include="Assets\Scripts\Attachments\Buff.cs" />
+     <Compile Include="Assets\Scripts\Attachments\PointCollider.cs" />
      <Compile Include="Assets\Scripts\Attachments\PowerManager.cs" />
-     <Compile Include="Assets\Scripts\EditorGrid.cs" />
-     <Compile Include="Assets\Scripts\Entities\Effect\Effect.cs" />
-     <Compile Include="Assets\Scripts\Entities\Effect\EffectDamage.cs" />
-     <Compile Include="Assets\Scripts\Entities\Effect\EffectProjectile.cs" />
+     <Compile Include="Assets\Scripts\Effect\Effect.cs" />
+     <Compile Include="Assets\Scripts\Effect\EffectBuff.cs" />
+     <Compile Include="Assets\Scripts\Effect\EffectDamage.cs" />
+     <Compile Include="Assets\Scripts\Effect\EffectProjectile.cs" />
+     <Compile Include="Assets\Scripts\Effect\EffectTowerSpeed.cs" />
+     <Compile Include="Assets\Scripts\Entities\Beam.cs" />
      <Compile Include="Assets\Scripts\Entities\Entity.cs" />
      <Compile Include="Assets\Scripts\Entities\EntityManager.cs" />
      <Compile Include="Assets\Scripts\Entities\PowerLink.cs" />
      <Compile Include="Assets\Scripts\Entities\Projectile.cs" />
-     <Compile Include="Assets\Scripts\Entities\Prototypes\AttackManagerPrototype.cs" />
-     <Compile Include="Assets\Scripts\Entities\Prototypes\PowerManagerPrototype.cs" />
-     <Compile Include="Assets\Scripts\Entities\Prototypes\ProjectilePrototype.cs" />
-     <Compile Include="Assets\Scripts\Entities\Prototypes\Prototype.cs" />
-     <Compile Include="Assets\Scripts\Entities\Prototypes\PrototypeDatabase.cs" />
-     <Compile Include="Assets\Scripts\Entities\Prototypes\TowerPrototype.cs" />
-     <Compile Include="Assets\Scripts\Entities\Units\Creep.cs" />
-     <Compile Include="Assets\Scripts\Entities\Units\Creep_Goal.cs" />
-     <Compile Include="Assets\Scripts\Entities\Units\Creep_Spawner.cs" />
+     <Compile Include="Assets\Scripts\Entities\Units\Runner.cs" />
+     <Compile Include="Assets\Scripts\Entities\Units\Runner_Goal.cs" />
+     <Compile Include="Assets\Scripts\Entities\Units\Runner_Spawner.cs" />
      <Compile Include="Assets\Scripts\Entities\Units\Tower.cs" />
      <Compile Include="Assets\Scripts\Entities\Units\Unit.cs" />
+     <Compile Include="Assets\Scripts\Global\Constants.cs" />
+     <Compile Include="Assets\Scripts\Global\Player.cs" />
+     <Compile Include="Assets\Scripts\Global\Timer.cs" />
+     <Compile Include="Assets\Scripts\Global\Wave.cs" />
      <Compile Include="Assets\Scripts\Input\Hotkey.cs" />
      <Compile Include="Assets\Scripts\Input\InputManager.cs" />
      <Compile Include="Assets\Scripts\Input\KeyManager.cs" />
-     <Compile Include="Assets\Scripts\Player.cs" />
-     <Compile Include="Assets\Scripts\RanaLib.cs" />
-     <Compile Include="Assets\Scripts\Timer.cs" />
+     <Compile Include="Assets\Scripts\Library\EditorGrid.cs" />
+     <Compile Include="Assets\Scripts\Library\MutableStat.cs" />
+     <Compile Include="Assets\Scripts\Library\RanaLib.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\AbilityManagerPrototype.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\AttackManagerPrototype.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\BuffPrototype.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\PowerManagerPrototype.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\ProjectilePrototype.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\Prototype.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\PrototypeDatabase.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\RunnerData.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\TowerPrototype.cs" />
      <Compile Include="Assets\Scripts\UI\AbilityCard.cs" />
      <Compile Include="Assets\Scripts\UI\ShopCard.cs" />
      <Compile Include="Assets\Scripts\UI\UIManager.cs" />
      <Compile Include="Assets\Scripts\UI\UnitPanel.cs" />
      <None Include="Assets\AstarPathfindingProject\Editor\EditorAssets\Materials\Navmesh.shader" />
      <None Include="Assets\AstarPathfindingProject\Plugins\DotNetZip\DotNetZipLicense.txt" />
+     <None Include="Assets\LightningBolt\Readme.txt" />
      <None Include="Assets\AstarPathfindingProject\ExampleScenes\Materials\Projector Multiply.shader" />
      <None Include="Assets\AstarPathfindingProject\ExampleScenes\Materials\DiffuseAlwaysVisible.shader" />
      <None Include="Assets\AstarPathfindingProject\Plugins\dependencies.txt" />
@@ -189,7 +201,7 @@
  <HintPath>E:/Unity/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
  <Reference Include="Pathfinding.Ionic.Zip.Reduced">
- <HintPath>E:/Power Towers/Assets/AstarPathfindingProject/Plugins/DotNetZip/Pathfinding.Ionic.Zip.Reduced.dll</HintPath>
+ <HintPath>E:/Power Towers/Power Towers/Assets/AstarPathfindingProject/Plugins/DotNetZip/Pathfinding.Ionic.Zip.Reduced.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

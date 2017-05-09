@@ -1,9 +1,21 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Unit\Entities\Units\Tower.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Entities\Projectile.cs">
     <Files>
-      <File FileName="Assets\AstarPathfindingProject\ExampleScenes\ExampleScripts\ObjectPlacer.cs" Line="74" Column="16" />
-      <File FileName="Assets\Scripts\Unit\Entities\Units\Tower.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Attachments\AttackManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Prototypes\PowerManagerPrototype.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Prototypes\ProjectilePrototype.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Prototypes\PrototypeDatabase.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Prototypes\AbilityManagerPrototype.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Effect\EffectBuff.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Effect\EffectDamage.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Effect\EffectTowerSpeed.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Attachments\Buff.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Entities\Projectile.cs" Line="67" Column="4" />
+      <File FileName="Assets\Scripts\Entities\Units\Runner.cs" Line="95" Column="10" />
+      <File FileName="Assets\Scripts\Entities\Units\Unit.cs" Line="13" Column="6" />
+      <File FileName="Assets\Scripts\Entities\Entity.cs" Line="29" Column="55" />
+      <File FileName="Assets\Scripts\Effect\EffectProjectile.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

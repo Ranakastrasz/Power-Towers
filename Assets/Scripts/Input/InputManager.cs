@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using RanaLib;
 using Pathfinding;
+using UnityEngine.UI;
+
 
 public class InputManager : MonoBehaviour {
 
@@ -21,6 +23,8 @@ public class InputManager : MonoBehaviour {
 
     public GameObject PathingChecker; // For checking tower placement pathing.
     public GameObject PlacementPrototype; // For showing placement.
+
+    public GameObject GameSpeedSlider;
     
     public enum MOUSE_STATE{
         SELECT_UNIT,
@@ -214,7 +218,7 @@ public class InputManager : MonoBehaviour {
             }
         }
 
-        // Make sure all creeps can get to the goal.
+        // Make sure all runners can get to the goal.
 
 
         List<GraphNode> nodes = new List<GraphNode>();
@@ -222,9 +226,9 @@ public class InputManager : MonoBehaviour {
         nodes.Add(spawnPoint);
         nodes.Add(goalPoint);
 
-        foreach (Creep creep in EntityManager.GetCreeps())
+        foreach (Runner runner in EntityManager.GetRunners())
         {
-            nodes.Add(AstarPath.active.GetNearest(creep.transform.position).node);
+            nodes.Add(AstarPath.active.GetNearest(runner.transform.position).node);
         }
 
         if (!GraphUpdateUtilities.UpdateGraphsNoBlock(guo, nodes, true))
@@ -314,6 +318,17 @@ public class InputManager : MonoBehaviour {
         {
             sprite.enabled = false;
         }
+    }
+    
+    public void SetGameSpeed()
+    {
+        int speed = (int) GameSpeedSlider.GetComponent<Slider>().value;
+        Timer.SetGameSpeed(speed);
+        
+    }
+    public void SetTimeSliderPosition(int iPos)
+    {
+        GameSpeedSlider.GetComponent<Slider>().value = iPos;
     }
 
 }

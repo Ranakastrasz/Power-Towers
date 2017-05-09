@@ -13,8 +13,8 @@ public class EntityManager : MonoBehaviour {
     public GameObject TowerPrefab;
     public GameObject TowerContainer;
 
-    public GameObject CreepPrefab;
-    public GameObject CreepContainer;
+    public GameObject RunnerPrefab;
+    public GameObject RunnerContainer;
     
     public GameObject PowerLinkPrefab;
     public GameObject PowerLinkContainer;
@@ -47,42 +47,42 @@ public class EntityManager : MonoBehaviour {
         return obj;
     }
 
-    public static GameObject CreateCreep(Vector3 iPosition, int iHitpoints, int iBounty, Transform iTargetPosition)
+    public static GameObject CreateRunner(Vector3 iPosition, int iHitpoints, int iBounty, Transform iTargetPosition, int iRound)
     {
 
-        GameObject obj = (GameObject)GameObject.Instantiate(Active.CreepPrefab, iPosition, Quaternion.identity);
-        Creep creep = obj.GetComponent<Creep>();
-        creep.transform.parent = Active.CreepContainer.transform;
+        GameObject obj = (GameObject)GameObject.Instantiate(Active.RunnerPrefab, iPosition, Quaternion.identity);
+        Runner runner = obj.GetComponent<Runner>();
+        runner.transform.parent = Active.RunnerContainer.transform;
 
-        creep.Init((int)iHitpoints, iBounty, iTargetPosition);
+        runner.Init((int)iHitpoints, iBounty, iTargetPosition, iRound);
 
         return obj;
     }
 
-    public static GameObject CreatePowerLink(PowerManager iSource, PowerManager iTarget)
-    {
+	public static GameObject CreatePowerLink(PowerManager iSource, PowerManager iTarget)
+	{
 
-        GameObject obj = (GameObject)GameObject.Instantiate(Active.PowerLinkPrefab, iSource.gameObject.transform.position, Quaternion.identity);
-        PowerLink powerLink = obj.GetComponent<PowerLink>();
-        powerLink.transform.parent = Active.PowerLinkContainer.transform;
+		GameObject obj = (GameObject)GameObject.Instantiate(Active.PowerLinkPrefab, iSource.gameObject.transform.position, Quaternion.identity);
+		PowerLink powerLink = obj.GetComponent<PowerLink>();
+		powerLink.transform.parent = Active.PowerLinkContainer.transform;
 
-        powerLink.Init(iSource, iTarget);
-        
-        iSource.PowerLinksOut.Add(powerLink);
-        iTarget.PowerLinksIn.Add(powerLink);
+		powerLink.Init(iSource, iTarget);
 
-        return obj;
-    }
-    
+		iSource.PowerLinksOut.Add(powerLink);
+		iTarget.PowerLinksIn.Add(powerLink);
+
+		return obj;
+	}
+
     /*public static Unit[] GetUnits()
     {
         Unit[] units = EntityManager.Active.UnitContainer.GetComponentsInChildren<Unit>(); // Wrong, won't work for all units. yet
         return units;
     }*/
-    public static Creep[] GetCreeps()
+    public static Runner[] GetRunners()
     {
-        Creep[] creeps = EntityManager.Active.CreepContainer.GetComponentsInChildren<Creep>();
-        return creeps;
+        Runner[] runners = EntityManager.Active.RunnerContainer.GetComponentsInChildren<Runner>();
+        return runners;
     }
     public static Tower[] GetTowers()
     {

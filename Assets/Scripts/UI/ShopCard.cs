@@ -22,7 +22,7 @@ public class ShopCard : MonoBehaviour {
         Active = this;
         towerList = new List<TowerPrototype>();
         towerList.Add(PrototypeDatabase.Active.Cannon[0]);
-        towerList.Add(PrototypeDatabase.Active.Lightning[0]);
+        towerList.Add(PrototypeDatabase.Active.Poison[0]);
 
         towerList.Add(PrototypeDatabase.Active.Generator[0]);
         towerList.Add(PrototypeDatabase.Active.Transfer[0]);
@@ -75,7 +75,7 @@ public class ShopCard : MonoBehaviour {
         GameObject text = obj.transform.GetChild(0).gameObject;
         if (iPrototype != null)
         {
-            text.GetComponent<Text>().text = iPrototype.Name + ":\n" + iPrototype.Price + "G, ("+(index+1)+")";
+            text.GetComponent<Text>().text = iPrototype.Name + ": " + iPrototype.Price + "G, ("+(index+1)+")";
             obj.GetComponent<Button>().onClick.AddListener(() => Button_Pressed(iPrototype));
 
         }

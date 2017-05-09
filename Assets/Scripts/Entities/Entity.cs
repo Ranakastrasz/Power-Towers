@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-    
-    
 
     // Use this for initialization
     protected virtual void Start()
@@ -25,7 +23,10 @@ public class Entity : MonoBehaviour
 
     }
     
+	//Actual object destruction is always delayed until after the current Update loop, but will always be done before rendering.
+	// Figure out a fix for this.
 
+	// Validate whether or not it is set to be destroyed?
     public void remove()
     {
         onRemove();
@@ -37,13 +38,13 @@ public class Entity : MonoBehaviour
     /// </summary>  
     public virtual void Redraw()
     {
-        float Red = 1;
+        /*float Red = 1;
         float Green = 1;
         float Blue = 1;
         float Alpha = 1;
 
         SpriteRenderer sprite = this.GetComponent<SpriteRenderer>();
-        sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
+        sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));*/
 
 
     }

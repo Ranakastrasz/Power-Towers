@@ -6,8 +6,8 @@ using System;
 
 public class Tower : Unit
 {
-    public TowerPrototype Prototype { protected set; get; }
-    public AttackManager AttackManager { protected set; get; }
+	public TowerPrototype Prototype { protected set; get; }
+	public AttackManager AttackManager { protected set; get; }
     public PowerManager PowerManager { protected set; get; }
     public GameObject Turret { get; private set; }
 
@@ -47,14 +47,15 @@ public class Tower : Unit
     public void ApplyPrototype(TowerPrototype iPrototype)
     {
 
-        Prototype = iPrototype;
-        AttackManagerPrototype attackManagerPrototype = Prototype.AttackManagerPrototype;
+		Prototype = iPrototype;
+		AttackManagerPrototype attackManagerPrototype = Prototype.AttackManagerPrototype;
+		AbilityManagerPrototype abilityManagerPrototype = Prototype.AbilityManagerPrototype;
         PowerManagerPrototype powerManagerPrototype = Prototype.PowerManagerPrototype;
 
         gameObject.name = Prototype.Name;
 
 
-        AttackManager.ApplyPrototype(attackManagerPrototype);
+        AttackManager.ApplyPrototype(attackManagerPrototype,abilityManagerPrototype);
         PowerManager.ApplyPrototype(powerManagerPrototype);
         
         SpriteRenderer baseSprite = this.GetComponent<SpriteRenderer>();
@@ -86,7 +87,7 @@ public class Tower : Unit
     }
 
 
-    internal void KillCredit(Creep creep)
+    internal void KillCredit(Runner runner)
     {
         // Add Killcount, and apply onkill abilities if applicable. No idea what this might do tho.
     }
@@ -100,14 +101,14 @@ public class Tower : Unit
         //Pathfinding.Console.Write ("// Flushing\n");
         AstarPath.active.FlushGraphUpdates();
         
-        Creep.RefreshPathing();
+        Runner.RefreshPathing();
     }
     
 
     public override void Redraw()
     {
-        SpriteRenderer sprite = this.GetComponent<SpriteRenderer>();
-        float Red   = 1.0f;
+        //SpriteRenderer sprite = this.GetComponent<SpriteRenderer>();
+        /*float Red   = 1.0f;
         float Green = 1.0f;
         float Blue  = 1.0f;
         float Alpha = 1.0f;
@@ -121,7 +122,7 @@ public class Tower : Unit
             Alpha = 1;
         }
 
-        sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
+        sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));*/
 
         
         if (AttackManager.CurrentTarget != null)

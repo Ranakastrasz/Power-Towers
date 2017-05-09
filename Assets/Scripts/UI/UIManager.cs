@@ -10,8 +10,6 @@ public class UIManager : MonoBehaviour {
     public static UIManager Active { protected set; get; }
     public UnitPanel unitPanel;
 
-    public GameObject Database;
-
     static public UnitPanel UnitPanel
     {
         get { return Active.unitPanel; }
@@ -69,6 +67,12 @@ public class UIManager : MonoBehaviour {
     {
 
     }
+
+	void RenderGrid()
+	{
+		/**/
+
+	}
 
     
 

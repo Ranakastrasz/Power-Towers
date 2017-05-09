@@ -10,26 +10,29 @@ public class AttackManager : MonoBehaviour {
     public GameObject CurrentTarget { get; private set; }
 
 
-    public AttackManagerPrototype Prototype { get; private set; }
-
-    public float CurrentCooldown { get; private set; } // Attack Prototype.
-
-
-    // Use this for initialization
-    void Start ()
-    {
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-		
-	}
+	public AttackManagerPrototype Prototype { get; private set; }
+	public AbilityManagerPrototype AbilityPrototype { get; private set; }
 
 
-    public void ApplyPrototype(AttackManagerPrototype iPrototype)
-    {
-        Prototype = iPrototype;
+	public float CooldownRemaining { get; private set; }
+
+	public float AbilityCooldownRemaining { get; private set; }
+
+	public MutableStat AttackSpeed { get; private set; }
+
+
+
+	public void ApplyPrototype(AttackManagerPrototype iPrototype, AbilityManagerPrototype iAbilityPrototype)
+	{
+		Prototype = iPrototype;
+		AbilityPrototype = iAbilityPrototype;
+		if (AttackSpeed == null)
+		{
+			AttackSpeed = new MutableStat();
+		}
+		AttackSpeed.baseValue = 1;
+		CooldownRemaining = Prototype.Cooldown;
+		AbilityCooldownRemaining = AbilityPrototype.Cooldown;
 
     }
 
@@ -43,54 +46,78 @@ public class AttackManager : MonoBehaviour {
 
             if (CurrentTarget != null)
             {
-                DoAttack(CurrentTarget);
+                TryAttack(CurrentTarget);
 
-
-                /*float targetDistance = (currentTarget.gameObject.transform.position - transform.position).magnitude;
-                if (targetDistance > Range)
-                {
-                    currentTarget = null;
-                }
-                else
-                {
-
-                }*/
             }
         }
+		if (AbilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.CONSTANT && CanCast())
+		{
+			if (CurrentTarget != null)
+			{
+				DoCast(CurrentTarget);
+
+			}
+		}
     }
 
+	private bool CanCast()
+	{
+		return (AbilityPrototype.Cooldown != 0.0f) &&(AbilityCooldownRemaining <= 0) && (gameObject.GetComponent<PowerManager>().CanSpendEnergy(AbilityPrototype.EnergyCost));
+	}
     private bool CanAttack()
     {
-        return (Prototype.Cooldown != 0) && (CurrentCooldown == Prototype.Cooldown);
+        return (CooldownRemaining <= 0);
     }
 
     private void ApplyCooldown()
-    {
-        CurrentCooldown = Mathf.Min( CurrentCooldown + (Time.fixedDeltaTime), Prototype.Cooldown);
+	{
+		CooldownRemaining = Mathf.Max( CooldownRemaining - ((Time.fixedDeltaTime)*AttackSpeed.modifiedValue), 0);
+		// Ability cooldowns are uneffected.
+		AbilityCooldownRemaining = Mathf.Max( AbilityCooldownRemaining - ((Time.fixedDeltaTime)), 0);
     }
 
-    private void DoAttack(GameObject target)
-    {
-        // Target the CreepData
-        Creep creep = target.GetComponent<Creep>();
-        // Apply damage. Later create Projectile and attach payload and all that stuff.
+	private void TryAttack(GameObject target)
+	{
 
-        //creep.Damage(this.gameObject.GetComponent<Tower>(), Prototype.Damage);
+		if (CanCast ())
+		{
+			DoCast (target);
+		}
+		else
+		{
+			DoAttack(target);
+		}
 
-        Prototype.Effect.ApplyEntity(gameObject.GetComponent<Tower>(), gameObject.GetComponent<Tower>(), creep);
+	}
+	private void DoAttack(GameObject target)
+	{
+        // Target the RunnerData
+        Runner runner = target.GetComponent<Runner>();
 
-        if (gameObject.GetComponent<PowerManager>().TrySpendEnergy((gameObject.GetComponent<Tower>().Prototype as TowerPrototype).Price))
-        { 
-            CurrentCooldown = Prototype.Cooldown * 0.75f;
-        }
-        else
-        {
-            CurrentCooldown = 0f;
-        }
+		Prototype.Effect.ApplyEntity(gameObject.GetComponent<Tower>(), gameObject.GetComponent<Tower>(), runner);
+		CooldownRemaining = Prototype.Cooldown;
 
-        // Also force facing, send angle to the Towerobject.
     }
 
+	private void DoCast(GameObject target)
+	{
+		Runner runner = target.GetComponent<Runner>();
+		if (gameObject.GetComponent<PowerManager> ().TrySpendEnergy (AbilityPrototype.EnergyCost))
+		{
+			AbilityPrototype.Effect.ApplyEntity (gameObject.GetComponent<Tower> (), gameObject.GetComponent<Tower> (), runner);
+			AbilityCooldownRemaining = AbilityPrototype.Cooldown;
+			if (AbilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE)
+			{
+				CooldownRemaining = Prototype.Cooldown;
+			}
+			else if (AbilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK)
+			{
+				// Simulate casting time somehow? At least delay the next attack a bit.
+				CooldownRemaining = Mathf.Max(CooldownRemaining,0.1f);
+			}
+		}
+
+	}
     private void SearchTarget()
     {
         GameObject newTarget = null;
@@ -99,15 +126,15 @@ public class AttackManager : MonoBehaviour {
         foreach (Collider currentCollider in collidersInRange)
         {
             GameObject currentEnemy = currentCollider.gameObject;
-            Creep creep = currentEnemy.GetComponent<Creep>();
-            if (creep != null)
+            Runner runner = currentEnemy.GetComponent<Runner>();
+            if (runner != null)
             {
                 if (newTarget == null)
                 {
                     newTarget = currentEnemy;
-                    bestValue = creep.Life;
+                    bestValue = runner.Life;
                 }
-                else if (bestValue > creep.Life)
+                else if (bestValue > runner.Life)
                 {
                     newTarget = currentEnemy;
                 }
