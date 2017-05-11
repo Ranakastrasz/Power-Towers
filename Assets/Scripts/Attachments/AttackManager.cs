@@ -40,6 +40,7 @@ public class AttackManager : MonoBehaviour {
     void FixedUpdate()
     {
         ApplyCooldown();
+		CheckTarget ();
         SearchTarget();
         if (CanAttack())
         {
@@ -59,6 +60,19 @@ public class AttackManager : MonoBehaviour {
 			}
 		}
     }
+
+	private void CheckTarget()
+	{      
+		if (CurrentTarget != null)
+		{
+			Vector3 closestPoint = CurrentTarget.GetComponent<Collider> ().ClosestPointOnBounds (transform.position);
+			float distance = Vector3.Distance (closestPoint, transform.position);
+			if (distance > Prototype.Range)
+			{
+				CurrentTarget = null;
+			}
+		}
+	}
 
 	private bool CanCast()
 	{
@@ -108,7 +122,7 @@ public class AttackManager : MonoBehaviour {
 			AbilityCooldownRemaining = AbilityPrototype.Cooldown;
 			if (AbilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE)
 			{
-				CooldownRemaining = Prototype.Cooldown;
+				CooldownRemaining = Mathf.Min(AbilityPrototype.Cooldown,Prototype.Cooldown);
 			}
 			else if (AbilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK)
 			{

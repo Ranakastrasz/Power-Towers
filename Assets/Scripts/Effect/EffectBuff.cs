@@ -23,38 +23,40 @@ public class EffectBuff : Effect {
 
 	public override void ApplyEntity(Entity iOrigin, Entity iSource, Entity iTarget)
 	{
-
 		if (target == TARGET.RUNNER && iTarget is Runner)
 		{
 			Impact (iSource);
-			Runner iTargetRunner = iTarget as Runner;
 			if (iOrigin is Unit)
 			{
 				Unit iOriginUnit = iOrigin as Unit;
-				Buff.AddBuff (iTargetRunner, buff, iOriginUnit);
+				Buff.AddBuff (iTarget, buff, iOriginUnit);
 			}
 			else
 			{
-				Buff.AddBuff (iTargetRunner, buff, iTargetRunner);
+				Buff.AddBuff (iTarget, buff, iTarget);
 			}
 		}
 		else if (target == TARGET.TOWER && iTarget is Tower)
 		{
 			Impact (iSource);
-			Tower iTargetTower = iTarget as Tower;
 			if (iOrigin is Unit)
 			{
 				Unit iOriginUnit = iOrigin as Unit;
-				Buff.AddBuff (iTargetTower, buff, iOriginUnit);
+				Buff.AddBuff (iTarget, buff, iOriginUnit);
 			}
 			else
 			{
-				Buff.AddBuff (iTargetTower, buff, iTargetTower);
+				Buff.AddBuff (iTarget, buff, iTarget);
 			}
+		}
+		else if (target == TARGET.SELF)
+		{
+			Impact (iSource);
+			Buff.AddBuff (iOrigin, buff, iOrigin);
 		}
 		else
 		{
-			// Only runners can take damage.
+			// Throw Error
 		}
 	}
 

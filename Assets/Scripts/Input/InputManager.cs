@@ -53,20 +53,6 @@ public class InputManager : MonoBehaviour {
 	void Update ()
     {
 
-        /*if (Input.GetKeyDown("q"))
-        {
-            UIManager.UpgradeTower();
-        }
-        else if (Input.GetKeyDown("r"))
-        {
-            UIManager.SellTower();
-        }
-
-        if (Input.GetKeyDown("t"))
-        {
-            SetMouseState(MOUSE_STATE.PLACE_TOWER);
-          
-        }*/
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -325,10 +311,21 @@ public class InputManager : MonoBehaviour {
         int speed = (int) GameSpeedSlider.GetComponent<Slider>().value;
         Timer.SetGameSpeed(speed);
         
-    }
-    public void SetTimeSliderPosition(int iPos)
-    {
-        GameSpeedSlider.GetComponent<Slider>().value = iPos;
-    }
+	}
+	public void SetTimeSliderPosition(int iPos)
+	{
+		GameSpeedSlider.GetComponent<Slider>().value = iPos;
+	}
+
+	public void Button_Pause()
+	{
+		Timer.TogglePause();
+	}
+
+	public void Button_Quit()
+	{
+		Player.Active.Quit ();
+	}
+
 
 }

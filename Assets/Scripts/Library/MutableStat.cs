@@ -65,12 +65,12 @@ public class MutableStat
         }
     }
 
-    public void ModifyMult(string iSource, float iValue, string iDescription = "")
+    public void ModifyMult(string iKey, float iValue, string iDescription = "")
     {
-        if (!multMods.ContainsKey(iSource))
+        if (!multMods.ContainsKey(iKey))
         {
-            StatMod mod = new StatMod(iSource, iValue, iDescription);
-            multMods.Add(iSource, mod);
+            StatMod mod = new StatMod(iKey, iValue, iDescription);
+            multMods.Add(iKey, mod);
         }
         else
         {
@@ -80,11 +80,11 @@ public class MutableStat
         CalculateModifiedValue();
     }
 
-    public void UnmodifyMult(string iSource)
+    public void UnmodifyMult(string iKey)
     {
-        if (multMods.ContainsKey(iSource))
+        if (multMods.ContainsKey(iKey))
         {
-            multMods.Remove(iSource);
+            multMods.Remove(iKey);
         }
         else
         {

@@ -130,9 +130,20 @@ public class Tower : Unit
             Vector3 relativePos = AttackManager.CurrentTarget.gameObject.transform.position - transform.position;
 
             float angle = Mathf.Atan2(relativePos.y, relativePos.x) * Mathf.Rad2Deg;
+
             Turret.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
 
+
+		// Would be cool, but I don't know enough yet.
+		/*Buff buff = GetComponent<Buff> ();
+
+		if (buff != null)
+		{
+			float angle = Turret.transform.rotation.eulerAngles.z;
+			angle += (UnityEngine.Random.value-0.5f) * (Mathf.Deg2Rad) * 60.0f;
+			Turret.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+		}*/
 
 
     }

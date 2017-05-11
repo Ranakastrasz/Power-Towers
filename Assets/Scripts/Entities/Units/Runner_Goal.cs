@@ -29,6 +29,7 @@ public class Runner_Goal : Unit
 			if (runner != null)
 			{
 				Destroy (runner.gameObject);
+				Player.Active.DrainLife (1);
 			}
         }
         //Destroy(this);

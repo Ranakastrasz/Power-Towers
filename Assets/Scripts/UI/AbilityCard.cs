@@ -15,7 +15,7 @@ public class AbilityCard : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        if (Input.GetKeyDown("q"))
+        if (Input.GetKeyDown("q")) // Move to KeyManager via Hotkey class.
         {
             Button_Upgrade();
         }
@@ -56,9 +56,11 @@ public class AbilityCard : MonoBehaviour {
     public void Button_LongLink()
     {
         InputManager.ToggleMouseState(InputManager.MOUSE_STATE.ADD_LONG_LINK);
-    }
-    public void Button_RemoveLink()
-    {
-        InputManager.ToggleMouseState(InputManager.MOUSE_STATE.REMOVE_LINK);
-    }
+	}
+	public void Button_RemoveLink()
+	{
+		InputManager.ToggleMouseState(InputManager.MOUSE_STATE.REMOVE_LINK);
+	}
+
+
 }

@@ -8,15 +8,20 @@ public class UnitPanel : MonoBehaviour {
 
     public Text Name;
 
-    public Text Vitals;
-    public Text Cooldown;
-    public Text Range;
-    public Text Damage;
-    public Text Value;
+	public Text Vitals;
+	public Text Cooldown;
+	public Text Range;
+	public Text Damage;
+	public Text Value;
 
 
+	public Text AbilityName;
+	public Text AbilityCooldown;
+	public Text AbilityEnergycost;
+	public Text AbilityEffect;
+	public Text AbilityTrigger;
 
-    public Text AbilityName;
+	public Text Upgrade;
 
     public Image Image;
 
@@ -32,8 +37,7 @@ public class UnitPanel : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update ()
-    {
-        AbilityName.text = "Gold:" + Player.Active.Gold;
+	{
         Clear();
         if (Player.SelectedUnit != null)
         {
@@ -46,13 +50,23 @@ public class UnitPanel : MonoBehaviour {
 
     private void Clear()
     {
-        Name.text = "";
-        Vitals.text = "0/0";
+		Name.text = "----";
+		Vitals.text = "----";
         Image.sprite = null;
-        Cooldown.text = "Cool";
-        Range.text = "Range";
-        Damage.text = "Damage";
-        Value.text = "Value";
+		Cooldown.text = "----";
+		Range.text = "----";
+		Damage.text = "----";
+		Value.text = "----";
+
+		AbilityName.text = "----";
+		AbilityCooldown.text = "----";
+		AbilityEnergycost.text = "----";
+		AbilityEffect.text = "----";
+		AbilityTrigger.text = "----";
+
+		Upgrade.text = "Upgrade (Q)";
+
+
     }
     
 
@@ -61,6 +75,7 @@ public class UnitPanel : MonoBehaviour {
 
         Name.text = Player.SelectedUnit.gameObject.name;
         Image.sprite = Player.SelectedUnit.gameObject.GetComponent<SpriteRenderer>().sprite;
+
         if (Player.SelectedUnit is Runner)
         {
             Runner runner = (Runner)Player.SelectedUnit;
@@ -73,6 +88,13 @@ public class UnitPanel : MonoBehaviour {
         {
             Tower tower = (Tower)Player.SelectedUnit;
             PowerManager power = tower.PowerManager;
+
+			if (tower.Prototype.UpgradesTo != null)
+			{
+				int price = tower.Prototype.UpgradesTo.Price - tower.Prototype.Price;
+				Upgrade.text = "Upgrade ("+price+") (Q)";
+			}
+
             if (power != null)
             {
                 Vitals.text = "Energy: " + power.Energy + "/" + power.Prototype.MaxEnergy;
@@ -81,15 +103,49 @@ public class UnitPanel : MonoBehaviour {
             AttackManager attack = tower.gameObject.GetComponent<AttackManager>();
             Value.text = "Value: " + tower.Prototype.Price;
 			if (attack.Prototype != PrototypeDatabase.Active.AttackManagerDefault)
-            {
-                AttackManagerPrototype attackPrototype = attack.Prototype as AttackManagerPrototype; // Should be get functions instead of doing this here.
-                if (attack != null)
-                {
-                    Range.text = "Range: " + UIManager.formatFloat(attackPrototype.Range);
-                    Cooldown.text = "Cool: " + UIManager.formatFloat(attack.CooldownRemaining) + "/"
-						+ UIManager.formatFloat(attack.Prototype.Cooldown);
-                    Damage.text = "Damage: " + attackPrototype.DamageDisplay;
-                }
+			{
+				AttackManagerPrototype attackPrototype = attack.Prototype as AttackManagerPrototype; // Should be get functions instead of doing this here.
+				if (attack != null)
+				{
+					Range.text = "Range: " + UIManager.formatFloat(attackPrototype.Range);
+					if (attack.AttackSpeed.modifiedValue == 1)
+					{
+						Cooldown.text = "Cool: " + UIManager.formatFloat (attack.CooldownRemaining) + "/"
+						+ UIManager.formatFloat (attackPrototype.Cooldown);
+					}
+					else
+					{
+						Cooldown.text = "Cool: " + UIManager.formatFloat (attack.CooldownRemaining/attack.AttackSpeed.modifiedValue) + "/"
+							+ UIManager.formatFloat (attackPrototype.Cooldown/attack.AttackSpeed.modifiedValue);
+					}
+
+					Damage.text = "Damage: " + attackPrototype.DamageDisplay;
+					if (attack.AbilityPrototype != PrototypeDatabase.Active.AbilityManagerDefault)
+					{
+						AbilityManagerPrototype abilityPrototype = attack.AbilityPrototype as AbilityManagerPrototype; // Should be get functions instead of doing this here.
+						AbilityName.text = abilityPrototype.Name;
+
+						AbilityCooldown.text = "Cool: " + UIManager.formatFloat(attack.AbilityCooldownRemaining) + "/"
+							+ UIManager.formatFloat(abilityPrototype.Cooldown);
+						
+						AbilityEnergycost.text = "Energy: "+abilityPrototype.EnergyCost + "(" +UIManager.formatFloat(abilityPrototype.EnergyCost/abilityPrototype.Cooldown,1)+ ")";
+						AbilityEffect.text = "Effect: "+abilityPrototype.EffectDisplay;
+
+						if (abilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK)
+						{
+							AbilityTrigger.text = "Trigger: On Attack";
+						}
+						else if(abilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE)
+						{
+							AbilityTrigger.text = "Trigger: Replace Attack";
+						}
+						else
+						{
+							AbilityTrigger.text = "Trigger: Constant";
+						}
+					}
+				}
+
             }
             else
 			{

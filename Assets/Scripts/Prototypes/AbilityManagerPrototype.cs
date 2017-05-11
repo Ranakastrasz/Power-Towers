@@ -17,22 +17,24 @@ public class AbilityManagerPrototype : Prototype
     public TRIGGER Trigger { get; protected set; } // Which event causes it to occur.
 
 
-    public int DamageDisplay { get; protected set; } // Purely UI
 
     public Effect Effect { get; protected set; }
 
+	public string EffectDisplay { get; protected set; } // Purely UI
 
+	public string Name { get; protected set; } // Purely UI
 
     /*
      * general stuff
      */
-	public AbilityManagerPrototype(float iCooldown, int iEnergyCost, TRIGGER iTrigger, int iDamageDisplay, Effect iEffect)
+	public AbilityManagerPrototype(float iCooldown, int iEnergyCost, TRIGGER iTrigger, Effect iEffect, string iName = "", string iEffectDisplay = "")
     {
         Cooldown = iCooldown;
         EnergyCost = iEnergyCost;
         Trigger = iTrigger;
-        DamageDisplay = iDamageDisplay;
-        Effect = iEffect;
+		Effect = iEffect;
+		EffectDisplay = iEffectDisplay;
+		Name = iName;
     }
 
 }

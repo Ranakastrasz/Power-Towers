@@ -17,6 +17,7 @@ public class PowerManager : Entity
     public int totalSent = 0;
     private int numSlowedByTransferRate = 0;
     private int bottleNeckedCount = 0;
+
     
         // Consider a better way to do this, prefer not having to handle a list.
         // Possible loop all towers and get their power managers instead?

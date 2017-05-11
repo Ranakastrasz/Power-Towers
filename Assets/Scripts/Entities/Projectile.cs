@@ -38,6 +38,10 @@ public class Projectile : Entity
 		OriginUnit = iOriginUnit;
 		TargetEntity = iTargetEntity;
 		TargetPoint = TargetEntity.transform.position;
+
+		SpriteRenderer Sprite = this.GetComponent<SpriteRenderer>();
+		Sprite.sprite = Prototype.Sprite;
+
     }
     public void Init(ProjectilePrototype iPrototype, Unit iOriginUnit, Vector3 iTargetPoint)
     {
@@ -45,6 +49,9 @@ public class Projectile : Entity
 		OriginUnit = iOriginUnit;
 		TargetEntity = null;
 		TargetPoint = iTargetPoint;
+
+		SpriteRenderer Sprite = this.GetComponent<SpriteRenderer>();
+		Sprite.sprite = Prototype.Sprite;
         
     }
 	
@@ -75,9 +82,10 @@ public class Projectile : Entity
         {
             Prototype.Effect.ApplyPoint(OriginUnit, this, TargetPoint);
         }
-		// Move forward based on speed, I think.
-        // Turn instantly to face target.
-        // 
+
+		float angle = Mathf.Atan2(distance.y, distance.x) * Mathf.Rad2Deg;
+
+		transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 	}
 
     

@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
+    // Add a StatTable
+    // Made up of Mutable Stats.
+    // Towers would get speed
+    // Creeps would get speed, vulnerability.
+    // Mutable stat effect could then use a key for the mod, and a key for the stat.
 
     // Use this for initialization
     protected virtual void Start()

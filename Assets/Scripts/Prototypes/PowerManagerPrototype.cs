@@ -13,6 +13,11 @@ public class PowerManagerPrototype
     public int PassiveProduction { set; get; } 
     // EnergyManagerPrototype(EnergyCap, TransferRate, ConsumptionRate) (Consumption rate is dynamically generated from ability.)
 
+
+	public bool canRecieve { protected set; get; }
+	public bool canSend { protected set; get; }
+	public bool canSendLong { protected set; get; }
+
     public PowerManagerPrototype(int iMaxEnergy, int iTransferRate)
     {
         MaxEnergy       = iMaxEnergy;
@@ -43,7 +48,7 @@ public class PowerManagerPrototype
     /// Consumers cannot transfer power out.
     /// </summary>
     /// <returns></returns>
-    public bool isConsumer()
+    public bool isConsumer() // Should this really exist? review
     {
         return ConsumptionEstimate != 0;
     }

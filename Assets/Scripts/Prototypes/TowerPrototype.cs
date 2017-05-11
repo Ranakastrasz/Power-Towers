@@ -20,7 +20,7 @@ public class TowerPrototype : Prototype
     {
         Name = iName;
         Price = iPrice;
-        BaseSprite = PrototypeDatabase.Active.WallSprite;
+		BaseSprite = PrototypeDatabase.Active.SpriteBase;
         TurretSprite = iTurretSprite;
         
 
