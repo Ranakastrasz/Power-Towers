@@ -2,20 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Runner_Goal : Unit
+public class Runner_Goal : MonoBehaviour
 {
-
-    // Use this for initialization
-    new void Start()
-    {
-        base.Start();
-    }
-
-    // Update is called once per frame
-    new void Update()
-    {
-        base.Update();
-    }
+    
     void OnTriggerEnter(Collider other)
     {
         //Debug.Log("Entered");

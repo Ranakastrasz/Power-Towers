@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Runner_Spawner : Unit {
+public class Runner_Spawner : MonoBehaviour {
     // Spawner creates Runners on demand, and issues orders to them.
     // Also sets their stats.
 
@@ -18,17 +18,5 @@ public class Runner_Spawner : Unit {
     }
 
     // Use this for initialization
-
-    public new void Start ()
-    {
-        base.Start();
-        //InvokeRepeating("SpawnRunner", 10.0f, 3.0f);
-        
-    }
-
-    // Update is called once per frame
-    public new void Update ()
-    {
-        base.Update();
-    }
+    
 }

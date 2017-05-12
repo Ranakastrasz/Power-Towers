@@ -5,8 +5,13 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
 
+
     public static Player Active = null;
-    public Unit selectedUnit = null;
+    public Unit selectedUnit { protected set; get; }
+
+    // Change to selected Units later??
+
+    public GameObject SelectionIndicatorPrefab;
 
     public int Gold { protected set; get; }
     public int Lives { protected set; get; }
@@ -27,16 +32,41 @@ public class Player : MonoBehaviour {
         Active = this;
         Gold = 25;
         Lives = 25;
+        selectedUnit = null;
     }
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
 		
 	}
+    
 
     public void SelectUnit(Unit iSelectedUnit)
     {
         Active.selectedUnit = iSelectedUnit;
+        
+        GameObject[] gameObjects =  GameObject.FindGameObjectsWithTag ("SelectionIndicator");
+ 
+        for(var i = 0 ; i < gameObjects.Length ; i ++)
+            Destroy(gameObjects[i]);
+
+        if (iSelectedUnit != null)
+        {
+            GameObject obj = (GameObject)GameObject.Instantiate(Active.SelectionIndicatorPrefab, iSelectedUnit.transform.position, Quaternion.identity);
+
+            obj.transform.SetParent(iSelectedUnit.transform);
+            if (iSelectedUnit.GetComponent<Tower>())
+            {
+                obj.transform.localScale = new Vector3(1.4f, 1.4f, 1.4f);
+            }
+            else
+            { }
+        }
+        else
+        {
+            
+        }
     }
 
     public void AddGold(int iGold)

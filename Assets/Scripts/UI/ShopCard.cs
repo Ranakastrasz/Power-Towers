@@ -95,4 +95,23 @@ public class ShopCard : MonoBehaviour {
         InputManager.SelectTower(iPrototype);
         //InputManager.ToggleMouseState(InputManager.MOUSE_STATE.PLACE_TOWER);
     }
+    
+    // Update is called once per frame
+    void Update()
+    {
+        Clear();
+        Redraw();
+    }
+    
+    private void Clear()
+    {
+
+
+    }
+
+    public void Redraw()
+    {
+        // Grey-out disabled/too expensive stuff.
+        // Highlight selected tower to build.
+    }
 }

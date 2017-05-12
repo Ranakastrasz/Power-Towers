@@ -20,14 +20,13 @@ public class UnitPanel : MonoBehaviour {
 	public Text AbilityEnergycost;
 	public Text AbilityEffect;
 	public Text AbilityTrigger;
-
-	public Text Upgrade;
-
+    
     public Image Image;
+    public Image TurretImage;
 
     private Color COLOR_VITAL_LIFE = new Color(0.8f, 1.0f, 0.8f);
     private Color COLOR_VITAL_MANA = new Color(0.5f, 0.5f, 1.0f);
-    private Color COLOR_VITAL_OTHER = new Color(0.3f, 0.3f, 0.3f);
+    //private Color COLOR_VITAL_OTHER = new Color(0.3f, 0.3f, 0.3f);
 
     // Use this for initialization
     void Start ()
@@ -52,7 +51,10 @@ public class UnitPanel : MonoBehaviour {
     {
 		Name.text = "----";
 		Vitals.text = "----";
-        Image.sprite = null;
+        Image.enabled = false;
+        TurretImage.enabled = false;
+
+
 		Cooldown.text = "----";
 		Range.text = "----";
 		Damage.text = "----";
@@ -63,8 +65,7 @@ public class UnitPanel : MonoBehaviour {
 		AbilityEnergycost.text = "----";
 		AbilityEffect.text = "----";
 		AbilityTrigger.text = "----";
-
-		Upgrade.text = "Upgrade (Q)";
+        
 
 
     }
@@ -74,7 +75,21 @@ public class UnitPanel : MonoBehaviour {
     {
 
         Name.text = Player.SelectedUnit.gameObject.name;
-        Image.sprite = Player.SelectedUnit.gameObject.GetComponent<SpriteRenderer>().sprite;
+        
+        Image.enabled = true;
+
+        Image.sprite = Player.SelectedUnit.GetComponent<SpriteRenderer>().sprite;
+
+        foreach (Transform child in Player.SelectedUnit.transform)
+        {
+            if (child.gameObject.tag == "Turret")
+            {
+                TurretImage.enabled = true;
+                TurretImage.sprite = child.GetComponent<SpriteRenderer>().sprite;
+                TurretImage.transform.rotation = child.rotation;
+                break;
+            }
+        }
 
         if (Player.SelectedUnit is Runner)
         {
@@ -88,12 +103,7 @@ public class UnitPanel : MonoBehaviour {
         {
             Tower tower = (Tower)Player.SelectedUnit;
             PowerManager power = tower.PowerManager;
-
-			if (tower.Prototype.UpgradesTo != null)
-			{
-				int price = tower.Prototype.UpgradesTo.Price - tower.Prototype.Price;
-				Upgrade.text = "Upgrade ("+price+") (Q)";
-			}
+            
 
             if (power != null)
             {
@@ -163,16 +173,6 @@ public class UnitPanel : MonoBehaviour {
 				}
             }
 
-        }
-        else if (Player.SelectedUnit is Runner_Spawner)
-        {
-            //Tower tower = (Tower)SelectedUnit;
-            Vitals.color = COLOR_VITAL_OTHER;
-        }
-        else if (Player.SelectedUnit is Runner_Goal)
-        {
-            //Tower tower = (Tower)SelectedUnit;
-            Vitals.color = COLOR_VITAL_OTHER;
         }
     }
 }

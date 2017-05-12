@@ -4,16 +4,26 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class AbilityCard : MonoBehaviour {
+
     
+	public Text TextUpgrade;
+	public Text TextSell;
+	public Text TextShortLink;
+	public Text TextLongLink;
+	public Text TextRemoveLink;
+    
+    private Color COLOR_NORMAL = new Color(0.25f, 0.25f, 0.25f);
+    private Color COLOR_SELECTED = new Color(0f, 0.0f, 1.0f);
+    private Color COLOR_NOT_SELECTED = new Color(0.5f, 0.5f, 0.5f);
 
     // Use this for initialization
-    void Start ()
+    void Start()
     {
-		
-	}
-	
-	// Update is called once per frame
-	void Update ()
+
+    }
+
+    // Update is called once per frame
+    void Update()
     {
         if (Input.GetKeyDown("q")) // Move to KeyManager via Hotkey class.
         {
@@ -39,7 +49,94 @@ public class AbilityCard : MonoBehaviour {
         {
             Button_RemoveLink();
         }
+        Clear();
+        if (Player.SelectedUnit != null)
+        {
+            Redraw();
+        }
+        else
+        {
+        }
     }
+    
+    private void Clear()
+    {
+    
+        TextUpgrade.color = COLOR_NOT_SELECTED;
+
+        //TextSell.color = COLOR_NOT_SELECTED; Never not visible so far as I can think
+
+
+        TextShortLink.color = COLOR_NOT_SELECTED;
+        TextLongLink.color = COLOR_NOT_SELECTED;
+        TextRemoveLink.color = COLOR_NOT_SELECTED;
+
+        TextUpgrade.text = "----";
+        TextSell.text = "----";
+        TextShortLink.text = "----";
+        TextLongLink.text = "----";
+        TextRemoveLink.text = "----";
+
+
+    }
+
+    public void Redraw()
+    {
+
+        if (Player.SelectedUnit is Tower)
+        {
+            Tower tower = (Tower)Player.SelectedUnit;
+            PowerManager power = tower.PowerManager;
+
+            if (InputManager.Active.MouseState == InputManager.MOUSE_STATE.ADD_SHORT_LINK)
+            {
+                TextShortLink.color = COLOR_SELECTED;
+            }
+            else if (InputManager.Active.MouseState == InputManager.MOUSE_STATE.ADD_LONG_LINK)
+            {
+                TextLongLink.color = COLOR_SELECTED;
+            }
+            else if (InputManager.Active.MouseState == InputManager.MOUSE_STATE.REMOVE_LINK)
+            {
+                TextRemoveLink.color = COLOR_SELECTED;
+            }
+            else
+            {
+                TextShortLink.color = COLOR_NORMAL;
+                TextLongLink.color = COLOR_NORMAL;
+                TextRemoveLink.color = COLOR_NORMAL;
+            }
+
+            if (tower.Prototype.UpgradesTo != null)
+            {
+                int price = tower.Prototype.UpgradesTo.Price - tower.Prototype.Price;
+                TextUpgrade.text = "Upgrade (" + price + ") (Q)";
+
+                if (Player.Active.Gold >= price)
+                {
+                    TextUpgrade.color = COLOR_NORMAL;
+                }
+
+            }
+            TextSell.text = "Sell (" + tower.Prototype.Price + ") (W)";
+
+            if (true) // Is not consumer.
+            {
+                TextShortLink.text = "Short Link (A)";
+            }
+            if (true) // Is Transfer Tower.
+            {
+                TextLongLink.text = "Long Link (S)";
+            }
+            if (true) // Is not Consumer
+            {
+                TextRemoveLink.text = "Remove Link (D)";
+            }
+
+        }
+    }
+
+
 
     public void Button_Upgrade()
     {
@@ -61,6 +158,6 @@ public class AbilityCard : MonoBehaviour {
 	{
 		InputManager.ToggleMouseState(InputManager.MOUSE_STATE.REMOVE_LINK);
 	}
-
+    
 
 }

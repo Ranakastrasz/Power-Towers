@@ -72,6 +72,7 @@ public class InputManager : MonoBehaviour {
             if (Input.GetMouseButtonDown(0))
             {
                 PlaceObject();
+                Active.CheckShift();
             }
         }
     }
@@ -116,6 +117,14 @@ public class InputManager : MonoBehaviour {
         Active.MouseState = iState;
     }
 
+    private void CheckShift()
+    {
+        if (!(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+        {
+            SetMouseState(MOUSE_STATE.SELECT_UNIT);
+        }
+    }
+
     public static void ClickUnit(Unit iUnit)
     {
         if (Active.MouseState == MOUSE_STATE.SELECT_UNIT)
@@ -138,15 +147,17 @@ public class InputManager : MonoBehaviour {
                 if (Active.MouseState == MOUSE_STATE.ADD_SHORT_LINK)
                 {
                     sourcePowerManager.AddLink(targetPowerManager, false);
+                    Active.CheckShift();
                 }
                 else if (Active.MouseState == MOUSE_STATE.ADD_LONG_LINK)
                 {
                     sourcePowerManager.AddLink(targetPowerManager, true);
-
+                    Active.CheckShift();
                 }
                 else if (Active.MouseState == MOUSE_STATE.REMOVE_LINK)
                 {
                     sourcePowerManager.RemoveLink(targetPowerManager);
+                    Active.CheckShift();
                 }
             }
 
@@ -283,21 +294,34 @@ public class InputManager : MonoBehaviour {
         if (MouseState == MOUSE_STATE.PLACE_TOWER)
         {
             sprite.enabled = true;
-            if (CanPlaceTowerHere)
+
+            if (Player.Active.Gold >= SelectedTowerPrototype.Price)
             {
-                // Valid placement shows up as green
-                Green = 1;
+                if (CanPlaceTowerHere)
+                {
+                    // Valid placement shows up as green
+                    Green = 1;
 
 
-                sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
+                    sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
 
+                }
+                else
+                {
+                    // Invalid placement is red.
+                    Red = 1;
+
+                    sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
+                }
             }
             else
-            {
-                // Invalid placement is red.
-                Red = 1;
+        {
+                // Insufficient Money shows up blue
+                Blue = 1;
+
 
                 sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
+
             }
         }
         else
