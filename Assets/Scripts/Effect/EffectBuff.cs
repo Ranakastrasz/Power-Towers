@@ -4,55 +4,49 @@ using UnityEngine;
 
 public class EffectBuff : Effect {
 
-	public enum TARGET
-	{
-		SELF,
-		RUNNER,
-		TOWER
-	}
 
-	protected BuffPrototype buff;
-	protected TARGET target;
+	protected BuffPrototype _buffPrototype;
+	protected TARGET _target;
 
 	public EffectBuff(BuffPrototype iBuff, TARGET iTarget, bool iDestroy)
 	{
-		buff = iBuff;
-		target = iTarget;
-		DestroySource = iDestroy;
+		_buffPrototype = iBuff;
+		_target = iTarget;
+		_destroySource = iDestroy;
 	}
 
 	public override void ApplyEntity(Entity iOrigin, Entity iSource, Entity iTarget)
 	{
-		if (target == TARGET.RUNNER && iTarget is Runner)
+		if (_target == TARGET.RUNNER && iTarget is Runner)
 		{
 			Impact (iSource);
 			if (iOrigin is Unit)
 			{
 				Unit iOriginUnit = iOrigin as Unit;
-				Buff.AddBuff (iTarget, buff, iOriginUnit);
+				Buff.AddBuff (iTarget, _buffPrototype, iOriginUnit);
 			}
 			else
 			{
-				Buff.AddBuff (iTarget, buff, iTarget);
+				Buff.AddBuff (iTarget, _buffPrototype, iTarget);
 			}
 		}
-		else if (target == TARGET.TOWER && iTarget is Tower)
+		else if (_target == TARGET.TOWER && iTarget is Tower)
 		{
 			Impact (iSource);
 			if (iOrigin is Unit)
 			{
 				Unit iOriginUnit = iOrigin as Unit;
-				Buff.AddBuff (iTarget, buff, iOriginUnit);
+				Buff.AddBuff (iTarget, _buffPrototype, iOriginUnit);
 			}
 			else
 			{
-				Buff.AddBuff (iTarget, buff, iTarget);
+				Buff.AddBuff (iTarget, _buffPrototype, iTarget);
 			}
 		}
-		else if (target == TARGET.SELF)
+		else if (_target == TARGET.SELF)
 		{
 			Impact (iSource);
-			Buff.AddBuff (iOrigin, buff, iOrigin);
+			Buff.AddBuff (iOrigin, _buffPrototype, iOrigin);
 		}
 		else
 		{

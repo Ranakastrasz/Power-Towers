@@ -40,11 +40,11 @@ public class KeyManager : MonoBehaviour {
 	void Update ()
     {
 
-        for (int z = 0; z < ShopCard.Active.towerList.Count; z++)
+        for (int z = 0; z < ShopCard.Active._towerList.Count; z++)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1+z)) // Temperary
             {
-                ShopCard.Active.Button_Pressed(ShopCard.Active.towerList[z]);
+                ShopCard.Active.Button_Pressed(ShopCard.Active._towerList[z]);
             }
         }
         if (Input.GetKeyDown("p"))

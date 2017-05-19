@@ -11,14 +11,14 @@ using UnityEngine;
 public class BuffPrototype : Prototype
 {
 	
-	public Effect OnStart { get; protected set; }
-	public Effect OnEnd { get; protected set; }
-	public Effect OnPeriodic { get; protected set; }
-	public float Duration { get; protected set; }
-	public float Period { get; protected set; }
+	public Effect _onStart { get; protected set; }
+	public Effect _onEnd { get; protected set; }
+	public Effect _onPeriodic { get; protected set; }
+	public float _duration { get; protected set; }
+	public float _Period { get; protected set; }
 
-	public string Name { get; protected set; }
-	public string Tooltip { get; protected set; }
+	public string _name { get; protected set; }
+	public string _tooltip { get; protected set; }
 
 	// SFX
 	// String Tooltip?
@@ -28,13 +28,13 @@ public class BuffPrototype : Prototype
      */
 	public BuffPrototype(Effect iOnStart, Effect iOnEnd, Effect iOnPeriodic, float iDuration, float iPeriod, string iName, string iTooltip = "")
 	{
-		OnStart = iOnStart;
-		OnEnd = iOnEnd;
-		OnPeriodic = iOnPeriodic;
-		Duration = iDuration;
-		Period = iPeriod;
-		Name = iName;
-		Tooltip = iTooltip;
+		_onStart = iOnStart;
+		_onEnd = iOnEnd;
+		_onPeriodic = iOnPeriodic;
+		_duration = iDuration;
+		_Period = iPeriod;
+		_name = iName;
+		_tooltip = iTooltip;
 	}
 
 }

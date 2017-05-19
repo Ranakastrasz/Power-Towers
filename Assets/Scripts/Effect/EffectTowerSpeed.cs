@@ -8,15 +8,15 @@ public class EffectTowerSpeed : Effect
     
     // Later a general stat modifier.
     // Also let you chose the target entity.
-	protected string Key;
-	protected bool Add;
-	protected float Mod;
+	protected string _key;
+	protected bool _add;
+	protected float _mod;
 
 	public EffectTowerSpeed(string iKey, float iMod, bool iAdd)
 	{
-        Key = iKey;
-        Add = iAdd;
-        Mod = iMod;
+        _key = iKey;
+        _add = iAdd;
+        _mod = iMod;
 	}
 
 	public override void ApplyEntity(Entity iOrigin, Entity iSource, Entity iTarget)
@@ -29,13 +29,13 @@ public class EffectTowerSpeed : Effect
             if (iTarget is Unit)
             {
                 //Unit iOriginUnit = iTarget as Unit;
-                if (Add)
+                if (_add)
                 {
-                    iTargetTower.AttackManager.AttackSpeed.ModifyMult(Key, Mod, Key);
+                    iTargetTower._attackManager._attackSpeed.ModifyMult(_key, _mod, _key);
                 }
                 else
                 {
-                    iTargetTower.AttackManager.AttackSpeed.UnmodifyMult(Key);
+                    iTargetTower._attackManager._attackSpeed.UnmodifyMult(_key);
                 }
 			}
 			else

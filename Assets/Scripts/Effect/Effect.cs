@@ -5,12 +5,19 @@ public class Effect
 	// Effects are an awful lot like Prototypes.
 	// They are just a collection of data on how to do something, rather than a concrete object.
 
-    protected bool DestroySource = false;
+    protected bool _destroySource = false;
+    
+	public enum TARGET
+	{
+		SELF,
+		RUNNER,
+		TOWER
+	}
 
     protected void Impact(Entity iSource)
     {
         // Draw SFX?
-        if (DestroySource)
+        if (_destroySource)
         {
             iSource.remove();
         }
@@ -21,7 +28,7 @@ public class Effect
         Impact(iSource);
     }
 
-    public virtual void ApplyPoint(Entity iOrigin, Entity iSource, Vector3 iTarget)
+    public virtual void ApplyPoint(Entity iOrigin, Entity iSource, Vector3 iTargetPoint)
     {
         Impact(iSource);
     }

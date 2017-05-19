@@ -7,32 +7,32 @@ public class AttackManager : MonoBehaviour {
     //Attached to a Tower
     //Ontick, find target
 
-    public GameObject CurrentTarget { get; private set; }
+    public GameObject _currentTarget { get; private set; }
 
 
-	public AttackManagerPrototype Prototype { get; private set; }
-	public AbilityManagerPrototype AbilityPrototype { get; private set; }
+	public AttackManagerPrototype _prototype { get; private set; }
+	public AbilityManagerPrototype _abilityPrototype { get; private set; }
 
 
-	public float CooldownRemaining { get; private set; }
+	public float _cooldownRemaining { get; private set; }
 
-	public float AbilityCooldownRemaining { get; private set; }
+	public float _abilityCooldownRemaining { get; private set; }
 
-	public MutableStat AttackSpeed { get; private set; }
+	public MutableStat _attackSpeed { get; private set; }
 
 
 
 	public void ApplyPrototype(AttackManagerPrototype iPrototype, AbilityManagerPrototype iAbilityPrototype)
 	{
-		Prototype = iPrototype;
-		AbilityPrototype = iAbilityPrototype;
-		if (AttackSpeed == null)
+		_prototype = iPrototype;
+		_abilityPrototype = iAbilityPrototype;
+		if (_attackSpeed == null)
 		{
-			AttackSpeed = new MutableStat();
+			_attackSpeed = new MutableStat();
 		}
-		AttackSpeed.baseValue = 1;
-		CooldownRemaining = Prototype.Cooldown;
-		AbilityCooldownRemaining = AbilityPrototype.Cooldown;
+		_attackSpeed.baseValue = 1;
+		_cooldownRemaining = _prototype._cooldown;
+		_abilityCooldownRemaining = _abilityPrototype._cooldown;
 
     }
 
@@ -45,17 +45,17 @@ public class AttackManager : MonoBehaviour {
         if (CanAttack())
         {
 
-            if (CurrentTarget != null)
+            if (_currentTarget != null)
             {
-                TryAttack(CurrentTarget);
+                TryAttack(_currentTarget);
 
             }
         }
-		if (AbilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.CONSTANT && CanCast())
+		if (_abilityPrototype._trigger == AbilityManagerPrototype.TRIGGER.CONSTANT && CanCast())
 		{
-			if (CurrentTarget != null)
+			if (_currentTarget != null)
 			{
-				DoCast(CurrentTarget);
+				DoCast(_currentTarget);
 
 			}
 		}
@@ -63,31 +63,31 @@ public class AttackManager : MonoBehaviour {
 
 	private void CheckTarget()
 	{      
-		if (CurrentTarget != null)
+		if (_currentTarget != null)
 		{
-			Vector3 closestPoint = CurrentTarget.GetComponent<Collider> ().ClosestPointOnBounds (transform.position);
+			Vector3 closestPoint = _currentTarget.GetComponent<Collider> ().ClosestPointOnBounds (transform.position);
 			float distance = Vector3.Distance (closestPoint, transform.position);
-			if (distance > Prototype.Range)
+			if (distance > _prototype._range)
 			{
-				CurrentTarget = null;
+				_currentTarget = null;
 			}
 		}
 	}
 
 	private bool CanCast()
 	{
-		return (AbilityPrototype.Cooldown != 0.0f) &&(AbilityCooldownRemaining <= 0) && (gameObject.GetComponent<PowerManager>().CanSpendEnergy(AbilityPrototype.EnergyCost));
+		return (_abilityPrototype._cooldown != 0.0f) &&(_abilityCooldownRemaining <= 0) && (gameObject.GetComponent<PowerManager>().CanSpendEnergy(_abilityPrototype._energyCost));
 	}
     private bool CanAttack()
     {
-        return (CooldownRemaining <= 0);
+        return (_cooldownRemaining <= 0);
     }
 
     private void ApplyCooldown()
 	{
-		CooldownRemaining = Mathf.Max( CooldownRemaining - ((Time.fixedDeltaTime)*AttackSpeed.modifiedValue), 0);
+		_cooldownRemaining = Mathf.Max( _cooldownRemaining - ((Time.fixedDeltaTime)*_attackSpeed.modifiedValue), 0);
 		// Ability cooldowns are uneffected.
-		AbilityCooldownRemaining = Mathf.Max( AbilityCooldownRemaining - ((Time.fixedDeltaTime)), 0);
+		_abilityCooldownRemaining = Mathf.Max( _abilityCooldownRemaining - ((Time.fixedDeltaTime)), 0);
     }
 
 	private void TryAttack(GameObject target)
@@ -108,26 +108,26 @@ public class AttackManager : MonoBehaviour {
         // Target the RunnerData
         Runner runner = target.GetComponent<Runner>();
 
-		Prototype.Effect.ApplyEntity(gameObject.GetComponent<Tower>(), gameObject.GetComponent<Tower>(), runner);
-		CooldownRemaining = Prototype.Cooldown;
+		_prototype._effect.ApplyEntity(gameObject.GetComponent<Tower>(), gameObject.GetComponent<Tower>(), runner);
+		_cooldownRemaining = _prototype._cooldown;
 
     }
 
 	private void DoCast(GameObject target)
 	{
 		Runner runner = target.GetComponent<Runner>();
-		if (gameObject.GetComponent<PowerManager> ().TrySpendEnergy (AbilityPrototype.EnergyCost))
+		if (gameObject.GetComponent<PowerManager> ().TrySpendEnergy (_abilityPrototype._energyCost))
 		{
-			AbilityPrototype.Effect.ApplyEntity (gameObject.GetComponent<Tower> (), gameObject.GetComponent<Tower> (), runner);
-			AbilityCooldownRemaining = AbilityPrototype.Cooldown;
-			if (AbilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE)
+			_abilityPrototype._effect.ApplyEntity (gameObject.GetComponent<Tower> (), gameObject.GetComponent<Tower> (), runner);
+			_abilityCooldownRemaining = _abilityPrototype._cooldown;
+			if (_abilityPrototype._trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE)
 			{
-				CooldownRemaining = Mathf.Min(AbilityPrototype.Cooldown,Prototype.Cooldown);
+				_cooldownRemaining = Mathf.Min(_abilityPrototype._cooldown,_prototype._cooldown);
 			}
-			else if (AbilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK)
+			else if (_abilityPrototype._trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK)
 			{
 				// Simulate casting time somehow? At least delay the next attack a bit.
-				CooldownRemaining = Mathf.Max(CooldownRemaining,0.1f);
+				_cooldownRemaining = Mathf.Max(_cooldownRemaining,0.1f);
 			}
 		}
 
@@ -135,7 +135,7 @@ public class AttackManager : MonoBehaviour {
     private void SearchTarget()
     {
         GameObject newTarget = null;
-        Collider[] collidersInRange = Physics.OverlapSphere(transform.position, Prototype.Range);
+        Collider[] collidersInRange = Physics.OverlapSphere(transform.position, _prototype._range);
         float bestValue = 0;
         foreach (Collider currentCollider in collidersInRange)
         {
@@ -146,9 +146,9 @@ public class AttackManager : MonoBehaviour {
                 if (newTarget == null)
                 {
                     newTarget = currentEnemy;
-                    bestValue = runner.Life;
+                    bestValue = runner._life;
                 }
-                else if (bestValue > runner.Life)
+                else if (bestValue > runner._life)
                 {
                     newTarget = currentEnemy;
                 }
@@ -156,7 +156,7 @@ public class AttackManager : MonoBehaviour {
         }
         if (newTarget != null)
         {
-            CurrentTarget = newTarget;
+            _currentTarget = newTarget;
         }
     }
     

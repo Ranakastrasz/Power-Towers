@@ -82,7 +82,7 @@ public class UnitPanel : MonoBehaviour {
 
         foreach (Transform child in Player.SelectedUnit.transform)
         {
-            if (child.gameObject.tag == "Turret")
+            if (child.gameObject.tag == "Turret" && child.gameObject.GetComponent<SpriteRenderer>().sprite != null)
             {
                 TurretImage.enabled = true;
                 TurretImage.sprite = child.GetComponent<SpriteRenderer>().sprite;
@@ -94,64 +94,67 @@ public class UnitPanel : MonoBehaviour {
         if (Player.SelectedUnit is Runner)
         {
             Runner runner = (Runner)Player.SelectedUnit;
-            Vitals.text = "Health: " + runner.Life + "/" + runner.MaxLife;
+            Vitals.text = "Health: " + runner._life + "/" + runner._maxLife;
             Vitals.color = COLOR_VITAL_LIFE;
-            Cooldown.text = "Speed: " + runner.BASE_SPEED; // Use real speed value later.
-            Value.text = "Bounty: " + runner.Bounty;
+            Cooldown.text = "Speed: " + runner.BASE_SPEED; // Remember to change to mutablespeed later.
+            Value.text = "Bounty: " + runner._bounty;
+
+            // Special abilities here later. Divine shield, speed, Feedback.
         }
         else if (Player.SelectedUnit is Tower)
         {
             Tower tower = (Tower)Player.SelectedUnit;
-            PowerManager power = tower.PowerManager;
+            PowerManager power = tower._powerManager;
             
 
             if (power != null)
             {
-                Vitals.text = "Energy: " + power.Energy + "/" + power.Prototype.MaxEnergy;
+                Vitals.text = "Energy: " + power._energy + "/" + power._prototype._maxEnergy;
                 Vitals.color = COLOR_VITAL_MANA;
             }
             AttackManager attack = tower.gameObject.GetComponent<AttackManager>();
-            Value.text = "Value: " + tower.Prototype.Price;
-			if (attack.Prototype != PrototypeDatabase.Active.AttackManagerDefault)
+            Value.text = "Value: " + tower._prototype._price;
+			if (attack._prototype != PrototypeDatabase.Active.AttackManagerDefault)
 			{
-				AttackManagerPrototype attackPrototype = attack.Prototype as AttackManagerPrototype; // Should be get functions instead of doing this here.
+				AttackManagerPrototype attackPrototype = attack._prototype as AttackManagerPrototype; // Should be get functions instead of doing this here.
 				if (attack != null)
 				{
-					Range.text = "Range: " + UIManager.formatFloat(attackPrototype.Range);
-					if (attack.AttackSpeed.modifiedValue == 1)
+					Range.text = "Range: " + UIManager.formatFloat(attackPrototype._range);
+					if (attack._attackSpeed.modifiedValue == 1)
 					{
-						Cooldown.text = "Cool: " + UIManager.formatFloat (attack.CooldownRemaining) + "/"
-						+ UIManager.formatFloat (attackPrototype.Cooldown);
+						Cooldown.text = "Cool: " + UIManager.formatFloat (attack._cooldownRemaining) + "/"
+						+ UIManager.formatFloat (attackPrototype._cooldown);
 					}
 					else
 					{
-						Cooldown.text = "Cool: " + UIManager.formatFloat (attack.CooldownRemaining/attack.AttackSpeed.modifiedValue) + "/"
-							+ UIManager.formatFloat (attackPrototype.Cooldown/attack.AttackSpeed.modifiedValue);
+						Cooldown.text = "Cool: " + UIManager.formatFloat (attack._cooldownRemaining/attack._attackSpeed.modifiedValue) + "/"
+							+ UIManager.formatFloat (attackPrototype._cooldown/attack._attackSpeed.modifiedValue);
 					}
 
-					Damage.text = "Damage: " + attackPrototype.DamageDisplay;
-					if (attack.AbilityPrototype != PrototypeDatabase.Active.AbilityManagerDefault)
+					Damage.text = "Damage: " + attackPrototype._damageDisplay;
+					if (attack._abilityPrototype != PrototypeDatabase.Active.AbilityManagerDefault)
 					{
-						AbilityManagerPrototype abilityPrototype = attack.AbilityPrototype as AbilityManagerPrototype; // Should be get functions instead of doing this here.
-						AbilityName.text = abilityPrototype.Name;
+						AbilityManagerPrototype abilityPrototype = attack._abilityPrototype as AbilityManagerPrototype;
+						AbilityName.text = abilityPrototype._name;
 
-						AbilityCooldown.text = "Cool: " + UIManager.formatFloat(attack.AbilityCooldownRemaining) + "/"
-							+ UIManager.formatFloat(abilityPrototype.Cooldown);
+						AbilityCooldown.text = "Cool: " + UIManager.formatFloat(attack._abilityCooldownRemaining) + "/"
+							+ UIManager.formatFloat(abilityPrototype._cooldown);
 						
-						AbilityEnergycost.text = "Energy: "+abilityPrototype.EnergyCost + "(" +UIManager.formatFloat(abilityPrototype.EnergyCost/abilityPrototype.Cooldown,1)+ ")";
-						AbilityEffect.text = "Effect: "+abilityPrototype.EffectDisplay;
+						AbilityEnergycost.text = "Energy: "+abilityPrototype._energyCost + "(" +UIManager.formatFloat(abilityPrototype._energyCost/abilityPrototype._cooldown,1)+ ")";
+						AbilityEffect.text = "Effect: "+abilityPrototype._effectDisplay;
 
-						if (abilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK)
+                        // These need better descriptions. Don't really want it to even say "Trigger"
+						if (abilityPrototype._trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK)
 						{
-							AbilityTrigger.text = "Trigger: On Attack";
+							AbilityTrigger.text = "Trigger: On Attack"; // Doesn't prevent normal attack
 						}
-						else if(abilityPrototype.Trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE)
+						else if(abilityPrototype._trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE)
 						{
-							AbilityTrigger.text = "Trigger: Replace Attack";
+							AbilityTrigger.text = "Trigger: Replace Attack"; // Prevents normal attack
 						}
 						else
-						{
-							AbilityTrigger.text = "Trigger: Constant";
+						{ 
+							AbilityTrigger.text = "Trigger: Constant"; // Whenever cooldown is ready
 						}
 					}
 				}
@@ -159,17 +162,17 @@ public class UnitPanel : MonoBehaviour {
             }
             else
 			{
-				PowerManagerPrototype powerPrototype = power.Prototype as PowerManagerPrototype;
+				PowerManagerPrototype powerPrototype = power._prototype as PowerManagerPrototype;
 				// Power Geneator/Transfer Tower.
-				Range.text = "Transfer Rate: " + UIManager.formatFloat(powerPrototype.TransferRate);
-				Cooldown.text = "Links: " + power.PowerLinksIn.Count + "/" + power.PowerLinksOut.Count;
+				Range.text = "Transfer Rate: " + UIManager.formatFloat(powerPrototype._transferRate);
+				Cooldown.text = "Links: " + power._powerLinksIn.Count + "/" + power._powerLinksOut.Count;
 				if (powerPrototype.isGenerator())
 				{
-					Damage.text = "Production: " + powerPrototype.PassiveProduction;
+					Damage.text = "Production: " + powerPrototype._passiveProduction;
 				}
 				else if (powerPrototype.isConsumer())
 				{
-					Damage.text = "Consumption: " + powerPrototype.ConsumptionEstimate;
+					Damage.text = "Consumption: " + powerPrototype._consumptionEstimate;
 				}
             }
 

@@ -20,14 +20,14 @@ public class Timer : MonoBehaviour {
         QUADRUPLE
     }
 
-    public TIME_SCALE timeScale { get; protected set; }
-    public bool paused;
+    public TIME_SCALE _timeScale { get; protected set; }
+    public bool _paused;
 
     // Use this for initialization
     void Start()
     {
         Active = this;
-        timeScale = TIME_SCALE.FULL;
+        _timeScale = TIME_SCALE.FULL;
         SetGameSpeed(TIME_SCALE.FULL);
         InvokeRepeating("Tick", 1.0f, 1.0f);
     }
@@ -40,13 +40,13 @@ public class Timer : MonoBehaviour {
 
     private void RefreshTimeScale()
     {
-        if (paused)
+        if (_paused)
         {
             Time.timeScale = 0.0f ;
         }
         else
         {
-            switch (timeScale)
+            switch (_timeScale)
             {
                 case TIME_SCALE.QUARTER:
                     Time.timeScale = 0.25f;
@@ -65,49 +65,49 @@ public class Timer : MonoBehaviour {
                     break;
                 default:
                     Time.timeScale = 1.0f;
-                    Debug.Log("Timer.SetTimeScale("+timeScale+") Unexpected TIME_SCALE value");
+                    Debug.Log("Timer.SetTimeScale("+_timeScale+") Unexpected TIME_SCALE value");
                     break;
             }
         }
-        InputManager.Active.SetTimeSliderPosition((int)timeScale);
+        InputManager.Active.SetTimeSliderPosition((int)_timeScale);
         //Debug.Log("timeScale: " + Time.timeScale);
     }
 
     
     public static void SetGameSpeed(int iTimeScale)
     {
-        Active.timeScale = (TIME_SCALE) iTimeScale;
+        Active._timeScale = (TIME_SCALE) iTimeScale;
         Active.RefreshTimeScale();
     }
     
     public static void SetGameSpeed(TIME_SCALE iTimeScale)
     {
-        Active.timeScale = iTimeScale;
+        Active._timeScale = iTimeScale;
         Active.RefreshTimeScale();
     }
     
     public static void IncreaseGameSpeed()
     {
-        int index = (int)Active.timeScale;
+        int index = (int)Active._timeScale;
 
         index = Math.Min(index + 1, 4);
 
-        Active.timeScale = (TIME_SCALE)index;
+        Active._timeScale = (TIME_SCALE)index;
         Active.RefreshTimeScale();
     }
     public static void DecreaseGameSpeed()
     {
-        int index = (int)Active.timeScale;
+        int index = (int)Active._timeScale;
 
         index = Math.Max(index - 1, 0);
 
-        Active.timeScale = (TIME_SCALE)index;
+        Active._timeScale = (TIME_SCALE)index;
         Active.RefreshTimeScale();
     }
 
     public static void TogglePause()
     {
-        Active.paused = !Active.paused;
+        Active._paused = !Active._paused;
         Active.RefreshTimeScale();
     }
 }

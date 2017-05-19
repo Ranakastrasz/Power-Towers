@@ -18,9 +18,13 @@ public class EntityManager : MonoBehaviour {
     
     public GameObject PowerLinkPrefab;
     public GameObject PowerLinkContainer;
-
+    
     public GameObject ProjectilePrefab;
     public GameObject ProjectileContainer;
+
+    public GameObject FloatingTextPrefab;
+    public GameObject FloatingTextContainer;
+    
 
     public static GameObject CreateTower(Vector3 iPosition, TowerPrototype iPrototype)
     {
@@ -65,14 +69,27 @@ public class EntityManager : MonoBehaviour {
 		GameObject obj = (GameObject)GameObject.Instantiate(Active.PowerLinkPrefab, iSource.gameObject.transform.position, Quaternion.identity);
 		PowerLink powerLink = obj.GetComponent<PowerLink>();
 		powerLink.transform.parent = Active.PowerLinkContainer.transform;
-
 		powerLink.Init(iSource, iTarget);
 
-		iSource.PowerLinksOut.Add(powerLink);
-		iTarget.PowerLinksIn.Add(powerLink);
+		iSource._powerLinksOut.Add(powerLink);
+		iTarget._powerLinksIn.Add(powerLink);
 
 		return obj;
 	}
+
+    public static GameObject CreateFloatingText(Vector3 iPosition, string iText, float iDuration, Color? iColor = null)
+    {
+
+		GameObject obj = (GameObject)GameObject.Instantiate(Active.FloatingTextPrefab, iPosition, Quaternion.identity);
+		FloatingText floatingText = obj.GetComponent<FloatingText>();
+
+		floatingText.transform.parent = Active.FloatingTextContainer.transform;
+
+		floatingText.Init(iText, iDuration, iColor ?? Color.black);
+        
+
+		return obj;
+    }
 
     /*public static Unit[] GetUnits()
     {

@@ -11,9 +11,9 @@ using UnityEngine;
 
 public class Buff : MonoBehaviour {
 
-	string Name;
-	Entity Source;
-	BuffPrototype Prototype;
+	string _name;
+	Entity _source;
+	BuffPrototype _prototype;
 
 	public static Component AddBuff(Entity iTarget, BuffPrototype iPrototype, Entity iSource)
 	{
@@ -25,37 +25,37 @@ public class Buff : MonoBehaviour {
 
 	public void Init(BuffPrototype iPrototype, Entity iSource)
 	{
-		Source = iSource;
+		_source = iSource;
 		ApplyPrototype(iPrototype);
 
 	}
 
 	public void ApplyPrototype(BuffPrototype iPrototype)
 	{
-		Prototype = iPrototype;
+		_prototype = iPrototype;
 		CancelInvoke ();
 
 		OnStart();
-		if (Prototype.Period != 0.0f)
+		if (_prototype._Period != 0.0f)
 		{
-			InvokeRepeating ("OnPeriodic", iPrototype.Period, iPrototype.Period);
+			InvokeRepeating ("OnPeriodic", iPrototype._Period, iPrototype._Period);
 		}
-		Invoke ("OnEnd", Prototype.Duration);
+		Invoke ("OnEnd", _prototype._duration);
 	}
 
 
 	private void OnStart()
 	{
-		Prototype.OnStart.ApplyEntity (Source, Source, gameObject.GetComponent<Entity> ());
+		_prototype._onStart.ApplyEntity (_source, _source, gameObject.GetComponent<Entity> ());
 	}
 	private void OnEnd()
 	{
-		Prototype.OnEnd.ApplyEntity (Source, Source, gameObject.GetComponent<Entity> ());
+		_prototype._onEnd.ApplyEntity (_source, _source, gameObject.GetComponent<Entity> ());
 		Destroy (this);
 	}
 	private void OnPeriodic()
 	{
-		Prototype.OnPeriodic.ApplyEntity (Source, Source, gameObject.GetComponent<Entity> ());
+		_prototype._onPeriodic.ApplyEntity (_source, _source, gameObject.GetComponent<Entity> ());
 	}
 
 }

@@ -5,18 +5,18 @@ using UnityEngine;
 
 public class PowerManager : Entity
 {
-    public PowerManagerPrototype Prototype { protected set; get; }
+    public PowerManagerPrototype _prototype { protected set; get; }
 
-    public int Energy { protected set; get; }
+    public int _energy { protected set; get; }
 
-    public List<PowerLink> PowerLinksIn = new List<PowerLink>(8);
-    public List<PowerLink> PowerLinksOut = new List<PowerLink>(8);
+    public List<PowerLink> _powerLinksIn = new List<PowerLink>(8);
+    public List<PowerLink> _powerLinksOut = new List<PowerLink>(8);
 
-    public int lastEnergy { protected set; get; } // For +- number floaters, I think
-    public int totalReceived = 0;
-    public int totalSent = 0;
-    private int numSlowedByTransferRate = 0;
-    private int bottleNeckedCount = 0;
+    public int _lastEnergy { protected set; get; } // For +- number floaters, I think
+    public int _totalReceived = 0;
+    public int _totalSent = 0;
+    private int _numSlowedByTransferRate = 0;
+    private int _bottleNeckedCount = 0;
 
     
         // Consider a better way to do this, prefer not having to handle a list.
@@ -26,8 +26,8 @@ public class PowerManager : Entity
     protected override void Start()
     {
         PowerManagerList.Add(this);
-        Energy = 0;
-        lastEnergy = 0;
+        _energy = 0;
+        _lastEnergy = 0;
         this.Redraw();
     }
 
@@ -66,25 +66,25 @@ public class PowerManager : Entity
     /// </summary>
     private void PerformSortingPass()
     {
-        if (PowerLinksOut.Count < 2) return;
+        if (_powerLinksOut.Count < 2) return;
 
-        PowerLink powerLink = PowerLinksOut[0];
+        PowerLink powerLink = _powerLinksOut[0];
 
         // Only run if two or more links exist.
-        int maxSeen = PowerLinksOut[0].Target.MaxReceivableEnergy();;
-        for (int x = 0; x < PowerLinksOut.Count - 1; x++)
+        int maxSeen = _powerLinksOut[0]._target.MaxReceivableEnergy();;
+        for (int x = 0; x < _powerLinksOut.Count - 1; x++)
         {
-            int energy = PowerLinksOut[x + 1].Target.MaxReceivableEnergy();
+            int energy = _powerLinksOut[x + 1]._target.MaxReceivableEnergy();
 			// Equal amounts should always be swapped to avoid a single tower hogging a constant +1
             if (energy <= maxSeen)
             {
-                PowerLinksOut[x] = PowerLinksOut[x + 1];
-                PowerLinksOut[x + 1] = powerLink;
+                _powerLinksOut[x] = _powerLinksOut[x + 1];
+                _powerLinksOut[x + 1] = powerLink;
                 // keep shifting the best so far towards the end of the list
             }
             else
             {
-                powerLink = PowerLinksOut[x + 1];
+                powerLink = _powerLinksOut[x + 1];
                 maxSeen = energy;
             }
         }
@@ -93,7 +93,7 @@ public class PowerManager : Entity
 
     private int MaxReceivableEnergy()
     {
-        return Math.Min(Prototype.MaxEnergy - Energy, Prototype.TransferRate - totalReceived);
+        return Math.Min(_prototype._maxEnergy - _energy, _prototype._transferRate - _totalReceived);
 
     }
 
@@ -106,7 +106,7 @@ public class PowerManager : Entity
 	private int MaxReceivableTransfer()
     {
         
-        int transferCap = Prototype.TransferRate - totalReceived;
+        int transferCap = _prototype._transferRate - _totalReceived;
 
         return transferCap;
     }
@@ -115,7 +115,7 @@ public class PowerManager : Entity
 
     private int GetEnergyCap()
     {
-        int energyCap = Prototype.MaxEnergy - Math.Max(Energy, lastEnergy);
+        int energyCap = _prototype._maxEnergy - Math.Max(_energy, _lastEnergy);
         return energyCap;
             // Why both energy and last energy? I suppose this simulates all the
             // transfers happening at the same time, while still avoiding overflow?
@@ -128,19 +128,23 @@ public class PowerManager : Entity
     /// <returns></returns>
     private int MaxSendableEnergy()
     {
-        return Math.Min( Energy, Prototype.TransferRate - totalSent);
+        return Math.Min( _energy, _prototype._transferRate - _totalSent);
     }
 
     public bool CanLinkIn()
     {
-        return PowerLinksIn.Count < PowerLink.MAX_LINKS &&  (Prototype.isPowered());
+        return _powerLinksIn.Count < PowerLink.MAX_LINKS &&  (_prototype.isPowered());
     }
     public bool CanLinkOut()
     {
-        return PowerLinksOut.Count < PowerLink.MAX_LINKS && (Prototype.isPowered());
+        return _powerLinksOut.Count < PowerLink.MAX_LINKS && (_prototype.isPowered());
     }
     public void AddLink(PowerManager iTarget, bool longLink)
     {
+        Vector3 sourcePosition = transform.position;
+
+        Vector3 targetPosition = iTarget.transform.position;
+
         // Isn't self
         // Has Room
         // Target Has Room
@@ -156,7 +160,7 @@ public class PowerManager : Entity
                 if (iTarget.CanLinkIn())
                 {
                     // And input link on the target
-                    if (PowerLinksOut.Find(x => x.Target == iTarget) == null)
+                    if (_powerLinksOut.Find(x => x._target == iTarget) == null)
                     {
                         // Make sure it doesn't exist already. No duplicates.
 
@@ -185,22 +189,22 @@ public class PowerManager : Entity
                     }
                     else
                     {
-                        RanaLib.Exception.Throw(this.GetType().Name+".AddLink: Target Exists");
+                        EntityManager.CreateFloatingText(targetPosition, "Already Linked", 1.0f, Color.red);
                     }
                 }
                 else
                 {
-                    RanaLib.Exception.Throw(this.GetType().Name+".AddLink: iTarget.CanLinkIn() = false");
+                    EntityManager.CreateFloatingText(targetPosition, "Link Limit Reached", 1.0f, Color.red);
                 }
             }
             else
             {
-                RanaLib.Exception.Throw(this.GetType().Name+".AddLink: CanLinkOut = false");
+                EntityManager.CreateFloatingText(sourcePosition, "Link Limit Reached", 1.0f, Color.red);
             }
         }
         else
         {
-            RanaLib.Exception.Throw(this.GetType().Name+".AddLink: Cannot Link to Self");
+            EntityManager.CreateFloatingText(sourcePosition, "Cannot Link to Self", 1.0f, Color.red);
         }
         
     }
@@ -208,7 +212,7 @@ public class PowerManager : Entity
 	internal void RemoveLinksIn()
 	{
 		List<PowerLink> list = new List<PowerLink>();
-		list.AddRange(PowerLinksIn);
+		list.AddRange(_powerLinksIn);
 		foreach (PowerLink powerLink in list)
 		{
 			RemoveLink(powerLink);
@@ -217,7 +221,7 @@ public class PowerManager : Entity
 	internal void RemoveLinksOut()
 	{
 		List<PowerLink> list = new List<PowerLink>();
-		list.AddRange(PowerLinksOut);
+		list.AddRange(_powerLinksOut);
 		foreach (PowerLink powerLink in list)
 		{
 			RemoveLink(powerLink);
@@ -232,7 +236,7 @@ public class PowerManager : Entity
     internal void RemoveLongLinksIn()
     {
         List<PowerLink> list = new List<PowerLink>();
-        list.AddRange(PowerLinksIn);
+        list.AddRange(_powerLinksIn);
         foreach (PowerLink powerLink in list)
         {
             if (powerLink.LinkRange == PowerLink.LINK_RANGE.LONG)
@@ -242,7 +246,7 @@ public class PowerManager : Entity
     internal void RemoveLongLinksOut()
     {
         List<PowerLink> list = new List<PowerLink>();
-        list.AddRange(PowerLinksOut);
+        list.AddRange(_powerLinksOut);
         foreach (PowerLink powerLink in list)
         {
             if (powerLink.LinkRange == PowerLink.LINK_RANGE.LONG)
@@ -264,9 +268,9 @@ public class PowerManager : Entity
     public bool RemoveLink(PowerManager iTarget)
     {
         PowerLink link = null;
-        foreach (PowerLink powerLink in PowerLinksOut)
+        foreach (PowerLink powerLink in _powerLinksOut)
         {
-            if (powerLink.Target == iTarget)
+            if (powerLink._target == iTarget)
             {
                 link = powerLink;
                 break;
@@ -290,7 +294,7 @@ public class PowerManager : Entity
 	/// <returns></returns>
 	internal bool CanSpendEnergy(int iCost)
 	{
-		if (Energy >= iCost)
+		if (_energy >= iCost)
 		{
 			return true;
 		}
@@ -308,9 +312,9 @@ public class PowerManager : Entity
 	/// <returns></returns>
 	internal bool TrySpendEnergy(int iCost)
 	{
-		if (Energy >= iCost)
+		if (_energy >= iCost)
 		{
-			Energy -= iCost;
+			_energy -= iCost;
 			return true;
 		}
 		else
@@ -333,10 +337,10 @@ public class PowerManager : Entity
     /// </summary>
     public void EndTick()
     {
-        lastEnergy = Energy;
-        totalReceived = 0;
-        totalSent = 0;
-        numSlowedByTransferRate = 0;
+        _lastEnergy = _energy;
+        _totalReceived = 0;
+        _totalSent = 0;
+        _numSlowedByTransferRate = 0;
 
     }
 
@@ -350,11 +354,11 @@ public class PowerManager : Entity
 
             powerLink.PushEnergy(EnergyToTransfer);
         }*/
-		if (Energy < 0)
+		if (_energy < 0)
 		{
-			Energy = Energy;
+			_energy = _energy;
 		}
-        Energy = Math.Min(Energy + Prototype.PassiveProduction, Prototype.MaxEnergy);
+        _energy = Math.Min(_energy + _prototype._passiveProduction, _prototype._maxEnergy);
         
         Redraw();
 
@@ -382,25 +386,26 @@ public class PowerManager : Entity
 
         //transfer energy out
         //note: lastEnergy >= current energy because this tower hasn't transfered out yet this tick
-        int energyAvailable = Math.Min(Prototype.TransferRate, lastEnergy);
-		int transfersRemaining = PowerLinksOut.Count;
-        for (int x = 0; x < PowerLinksOut.Count; x++)
+        int energyAvailable = Math.Min(_prototype._transferRate, _lastEnergy);
+		int transfersRemaining = _powerLinksOut.Count;
+        for (int x = 0; x < _powerLinksOut.Count; x++)
         {
-            PowerLink powerLink = PowerLinksOut[x];
+            PowerLink powerLink = _powerLinksOut[x];
 
             //compute amount to send
             int energyToTransfer = energyAvailable / transfersRemaining;
 
-			int targetTransferCap = powerLink.Target.MaxReceivableTransfer();
+			int targetTransferCap = powerLink._target.MaxReceivableTransfer();
                 
-			int targetEnergyCap = powerLink.Target.GetEnergyCap();
+			int targetEnergyCap = powerLink._target.GetEnergyCap();
 
             if(targetTransferCap < energyToTransfer || targetEnergyCap < energyToTransfer)
             {
                 if (targetTransferCap < targetEnergyCap)
                 {
                     energyToTransfer = targetTransferCap;
-                    numSlowedByTransferRate++;
+                    _numSlowedByTransferRate++;
+                    //print(targetTransferCap+" < "+targetEnergyCap+" "+numSlowedByTransferRate);
                 }
                 else
                 {
@@ -422,62 +427,65 @@ public class PowerManager : Entity
 
     private void TransferEnergy(PowerLink powerLink, int energyToTransfer)
     {
-        powerLink.Target.totalReceived += energyToTransfer;
+        powerLink._target._totalReceived += energyToTransfer;
 
-        totalSent += energyToTransfer;
+        _totalSent += energyToTransfer;
 
-		powerLink.Target.Energy += energyToTransfer;
+		powerLink._target._energy += energyToTransfer;
 
-        Energy -= energyToTransfer;
+        _energy -= energyToTransfer;
 
 		powerLink.lastTransfer = energyToTransfer;
 		powerLink.Redraw();
-		if (Energy < 0 || Energy > GetEnergyCap() || powerLink.Target.Energy < 0 || powerLink.Target.Energy > powerLink.Target.GetEnergyCap())
-		{
-
-		}
     }
 
     public new void Redraw()
     {
-        int energy = Energy;
-        int energyChange = energy - lastEnergy;
+        int energy = _energy;
+        int energyChange = energy - _lastEnergy;
         
         // Figure this out. Its complex.
-        if (totalSent > 0 && energyChange >= 0 && energy > (Prototype.MaxEnergy - Prototype.TransferRate) && numSlowedByTransferRate >= PowerLinksOut.Count / 2)
+        if (_totalSent > 0 && energyChange >= 0 && energy > (_prototype._maxEnergy - _prototype._transferRate) && _numSlowedByTransferRate >= _powerLinksOut.Count / 2)
         {
-            bottleNeckedCount = RanaLib.Math.Clamp<int>(0, bottleNeckedCount + 3, 15);
-            if (bottleNeckedCount >= 15)
+            _bottleNeckedCount = RanaLib.Math.Clamp<int>(0, _bottleNeckedCount + 3, 15);
+            if (_bottleNeckedCount >= 15)
             {
+                EntityManager.CreateFloatingText(transform.position, "Bottlenecked", 1.0f, Color.red);
                 // EntityManager.CreateTextFloater(gameObject, "|cFFFF0000Bottlenecked|r");
             }
         }
         else
         {
-            bottleNeckedCount--;
+            _bottleNeckedCount--;
         }
 
-        if (lastEnergy > 0)
-        {
+        if (energyChange > 0)
+        { // Energy is increasing
+            
+            EntityManager.CreateFloatingText(transform.position, energyChange.ToString(), 1.0f, Color.blue);
             //showUnitText(.u, "|cFF0000FF+" + I2S(de) + "|r")
         }
-        else if (lastEnergy < 0)
-        {
+        else if (energyChange < 0)
+        { // Energy is Decreasing
+            EntityManager.CreateFloatingText(transform.position, energyChange.ToString(), 1.0f, Color.magenta);
             //showUnitText(.u, "|cFFFF00FF" + I2S(de) + "|r")
         }
-        else if (lastEnergy == 0 && PowerLinksIn.Count == 0 && Prototype.ConsumptionEstimate > 0)
-        {
+        else if (_lastEnergy == 0 && _powerLinksIn.Count == 0 && _prototype._consumptionEstimate > 0 && _prototype._passiveProduction == 0)
+        { // Consumes power, and cannot recieve any.
+            // Change lastEnergy == 0 to lastEnergy < SpellCost, I think
 
+            EntityManager.CreateFloatingText(transform.position, "No Power", 1.0f, Color.red);
             //showUnitText(.u, "|cFFFF0000No Power|r")
         }
-        else if (PowerLinksOut.Count == 0 && lastEnergy >= MaxSendableEnergy() && Prototype.PassiveProduction > 0)
-        {
+        else if (_powerLinksOut.Count == 0 && _lastEnergy >= MaxSendableEnergy() && _prototype._passiveProduction > 0)
+        { // Produces Power, but cannot output.
+            EntityManager.CreateFloatingText(transform.position, "No Target", 1.0f, Color.red);
             //showUnitText(.u, "|cFFFF0000No Target|r")
         }
 
-        if (Prototype.MaxEnergy > 0)
+        if (_prototype._maxEnergy > 0)
         {
-            float shade = (float)lastEnergy / Prototype.MaxEnergy * 0.75f + 0.25f;
+            float shade = (float)_lastEnergy / _prototype._maxEnergy * 0.75f + 0.25f;
             
             SpriteRenderer sprite = this.GetComponent<SpriteRenderer>();
         
@@ -577,7 +585,7 @@ public class PowerManager : Entity
          */
     public void ApplyPrototype(PowerManagerPrototype iPrototype)
     {
-        Prototype = iPrototype;
+        _prototype = iPrototype;
 
     }
 

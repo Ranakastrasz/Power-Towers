@@ -5,7 +5,7 @@ using System.Collections;
 public class EditorGrid : MonoBehaviour
 {
 
-    public float cell_size = 1f; // = larghezza/altezza delle celle
+    public float CellSize = 1f; // = larghezza/altezza delle celle
     //private float x, y, z;
 
 

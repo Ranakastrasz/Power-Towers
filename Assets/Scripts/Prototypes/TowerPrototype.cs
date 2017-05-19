@@ -3,45 +3,47 @@
 public class TowerPrototype : Prototype
 {
 
-    public TowerPrototype UpgradesTo { get; protected set; }
-    public string Name { get; protected set; }
-    public int Price { get; protected set; }
+    public TowerPrototype _upgradesTo { get; protected set; }
+    public string _name { get; protected set; }
+    public int _price { get; protected set; }
     
-    public Sprite BaseSprite;
-    public Sprite TurretSprite;
+    public bool _pathable { get; protected set; }
+
+    public Sprite _baseSprite { get; protected set; }
+    public Sprite _turretSprite { get; protected set; }
 
     // Also Sprite data
 
-	public AttackManagerPrototype AttackManagerPrototype { get; set; }
-	public AbilityManagerPrototype AbilityManagerPrototype { get; set; }
-    public PowerManagerPrototype PowerManagerPrototype { get; set; }
+	public AttackManagerPrototype _attackManagerPrototype { get; set; }
+	public AbilityManagerPrototype _abilityManagerPrototype { get; set; }
+    public PowerManagerPrototype _powerManagerPrototype { get; set; }
 
     public TowerPrototype(string iName, int iPrice, Sprite iTurretSprite)
     {
-        Name = iName;
-        Price = iPrice;
-		BaseSprite = PrototypeDatabase.Active.SpriteBase;
-        TurretSprite = iTurretSprite;
-        
+        _name = iName;
+        _price = iPrice;
+		_baseSprite = PrototypeDatabase.Active.SpriteBase;
+        _turretSprite = iTurretSprite;
+        _pathable = false;
 
-		AttackManagerPrototype = PrototypeDatabase.Active.AttackManagerDefault;
-		AbilityManagerPrototype = PrototypeDatabase.Active.AbilityManagerDefault;
-        PowerManagerPrototype = PrototypeDatabase.Active.PowerManagerDefault;
+		_attackManagerPrototype = PrototypeDatabase.Active.AttackManagerDefault;
+		_abilityManagerPrototype = PrototypeDatabase.Active.AbilityManagerDefault;
+        _powerManagerPrototype = PrototypeDatabase.Active.PowerManagerDefault;
     }
 
     public void SetAttackManager(AttackManagerPrototype iAttackPrototype)
     {
-        AttackManagerPrototype = iAttackPrototype;
+        _attackManagerPrototype = iAttackPrototype;
     }
 
 	public void SetAbilityManager(AbilityManagerPrototype iAbilityManager)
 	{
-		AbilityManagerPrototype = iAbilityManager;
+		_abilityManagerPrototype = iAbilityManager;
 	}
 
 	public void SetPowerManager(PowerManagerPrototype iPowerPrototype)
 	{
-		PowerManagerPrototype = iPowerPrototype;
+		_powerManagerPrototype = iPowerPrototype;
 	}
     
     /// <summary>
@@ -51,13 +53,18 @@ public class TowerPrototype : Prototype
     public void SetBaseSprite(Sprite iSprite)
     {
         // For trap towers specifically, use this.
-        BaseSprite = iSprite;
+        _baseSprite = iSprite;
+    }
+
+    public void SetPatable(bool iPathable)
+    {
+        _pathable = iPathable;
     }
 
 
     public void SetUpgradesTo(TowerPrototype iUpgradesTo)
     {
-        UpgradesTo = iUpgradesTo;
+        _upgradesTo = iUpgradesTo;
     }
 
 }

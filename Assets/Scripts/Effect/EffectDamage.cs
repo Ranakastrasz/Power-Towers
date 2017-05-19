@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class EffectDamage : Effect {
 
-    protected int Damage;
+    protected int _damage;
 
     public EffectDamage(int iDamage, bool iDestroy)
     {
-        Damage = iDamage;
-        DestroySource = iDestroy;
+        _damage = iDamage;
+        _destroySource = iDestroy;
     }
 
     public override void ApplyEntity(Entity iOrigin, Entity iSource, Entity iTarget)
@@ -22,7 +22,7 @@ public class EffectDamage : Effect {
             if (iOrigin is Unit)
             {
                 Unit iOriginUnit = iOrigin as Unit;
-                iTargetRunner.Damage(iOriginUnit, Damage);
+                iTargetRunner.Damage(iOriginUnit, _damage);
             }
             else
             {

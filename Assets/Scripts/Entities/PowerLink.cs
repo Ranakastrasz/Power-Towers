@@ -14,12 +14,12 @@ public class PowerLink : Entity {
 
     public const int MAX_LINKS = 8;
 
-    public PowerManager Source { get; protected set; }
-    public PowerManager Target { get; protected set; }
+    public PowerManager _source { get; protected set; }
+    public PowerManager _target { get; protected set; }
 
 
-    public readonly static int[] PowerThreshholds = {           0,            1,        25,          125,          625};
-    public readonly static Color[] BeamColor      = { new Color(1.0f,0.5f,0.0f), Color.green, Color.cyan, Color.yellow, Color.white };
+    public readonly static int[] _powerThreshhold = {           0,            1,        25,          125,          625};
+    public readonly static Color[] _beamColor      = { new Color(1.0f,0.5f,0.0f), Color.green, Color.cyan, Color.yellow, Color.white };
 
     /// <summary>
     ///  How much power was transfered last tick, for drawing the beam.
@@ -46,8 +46,8 @@ public class PowerLink : Entity {
 
     public void Init(PowerManager iSource, PowerManager iTarget)
     {
-        Source = iSource;
-        Target = iTarget;
+        _source = iSource;
+        _target = iTarget;
 
         lastTransfer = 0;
 
@@ -98,6 +98,7 @@ public class PowerLink : Entity {
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);*/
 
         float distance = relativePos.magnitude;
+        print(distance);
         LINK_RANGE linkType;
         if (distance <= RANGE_SHORT)
         {
@@ -138,8 +139,8 @@ public class PowerLink : Entity {
 
     protected override void onRemove()
     {
-        Source.PowerLinksOut.Remove(this);
-        Target.PowerLinksIn.Remove(this);
+        _source._powerLinksOut.Remove(this);
+        _target._powerLinksIn.Remove(this);
     }
 
 
@@ -148,16 +149,16 @@ public class PowerLink : Entity {
         SpriteRenderer sprite = this.GetComponent<SpriteRenderer>();
         int index = 0;
         int z;
-        for (z = 0; z < PowerThreshholds.Length; z++)
+        for (z = 0; z < _powerThreshhold.Length; z++)
         {
-            if (lastTransfer >= PowerThreshholds[z])
+            if (lastTransfer >= _powerThreshhold[z])
             {
                 index = z;
             }
         }
         
 
-        sprite.material.SetColor("_Color", BeamColor[index]);
+        sprite.material.SetColor("_Color", _beamColor[index]);
 
         float animationSpeed = (float)index * 0.25f;
 

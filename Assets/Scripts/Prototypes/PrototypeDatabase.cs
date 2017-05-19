@@ -8,7 +8,8 @@ public class PrototypeDatabase : MonoBehaviour
 
 	public Sprite SpriteGenerator 	    = null;
 	public Sprite SpriteTransfer 		= null;
-
+    
+	public Sprite SpriteBasePyro 			= null;
 
 	public Sprite SpriteTurretCannon 		= null;
 	public Sprite SpriteTurretLightning 	= null;
@@ -33,6 +34,9 @@ public class PrototypeDatabase : MonoBehaviour
 	public Sprite SpriteAbilityProjectileFlame 		= null;
 	public Sprite SpriteAbilityProjectilePoison	 	= null;
 
+    
+	public Sprite SpriteSfxPyro 			= null;
+
 
 
     public static PrototypeDatabase Active { protected set; get; }
@@ -43,6 +47,8 @@ public class PrototypeDatabase : MonoBehaviour
     public TowerPrototype[] Wave 		= new TowerPrototype[6]; // Holy Tower
     public TowerPrototype[] Flame 		= new TowerPrototype[6]; // Demon Tower
     public TowerPrototype[] Poison 		= new TowerPrototype[6]; // Chemical Tower
+    public TowerPrototype[] Pyro 		= new TowerPrototype[6]; // Pyro Trap
+
     public TowerPrototype[] Generator 	= new TowerPrototype[6]; // Waterwheel/Furnace
     public TowerPrototype[] Transfer 	= new TowerPrototype[6]; // Briding Tower
 
@@ -75,7 +81,10 @@ public class PrototypeDatabase : MonoBehaviour
         PowerManagerDefault = new PowerManagerPrototype(0, 0);
 
 
+
+
         Wall = new TowerPrototype("Wall Tower", 2, null);
+        Wall._powerManagerPrototype.SetCanRecieve(false);
 
         // Rock Launcher
 		{
@@ -94,21 +103,21 @@ public class PrototypeDatabase : MonoBehaviour
 				// Make a TowerPrototype 
 				Cannon [z] = new TowerPrototype ("Rock Launcher " + level, (int)LevelScale (level, BasePrice), SpriteTurretCannon);
 				// Attach an AttackManagerPrototype to throw that effect, also display the damage.
-				Cannon [z].AttackManagerPrototype = new AttackManagerPrototype (5.0f, 3.0f, Damage [z], effectCreateProjectile);
+				Cannon [z]._attackManagerPrototype = new AttackManagerPrototype (5.0f, 3.0f, Damage [z], effectCreateProjectile);
 
                 // Attack a SpellManager.
                 Effect effectOverclockAdd = new EffectTowerSpeed("overclock", 4.0f, true);
                 Effect effectOverclockRemove = new EffectTowerSpeed("overclock", 0f, false);
 				Effect effectAddbuff = new EffectBuff(new BuffPrototype(effectOverclockAdd, effectOverclockRemove, EffectDefault, 5.0f, 0f,"Overclock"),EffectBuff.TARGET.SELF,false);
 
-				Cannon[z].AbilityManagerPrototype = new AbilityManagerPrototype(5.0f,(int)LevelScale(level,25),AbilityManagerPrototype.TRIGGER.CONSTANT,effectAddbuff,"Overclock","+300% Attack Speed");
+				Cannon[z]._abilityManagerPrototype = new AbilityManagerPrototype(5.0f,(int)LevelScale(level,25),AbilityManagerPrototype.TRIGGER.CONSTANT,effectAddbuff,"Overclock","+300% Attack Speed");
 				// (float iCooldown, int iEnergyCost, TRIGGER iTrigger, int iDamageDisplay, Effect iEffect)
 				// (5.0f, 25, TRIGGER.ON_ATTACK, -1, new EFFECT(Apply Buff self -cooldown, 5 second, something),"Overclock");
 
 
 				// Attach a PowerManagerPrototype as well, to supply power.
-				Cannon [z].PowerManagerPrototype = new PowerManagerPrototype ((int)LevelScale (level, BasePower), (int)LevelScale (level, BasePowerRate));
-			}
+				Cannon [z]._powerManagerPrototype = new PowerManagerPrototype ((int)LevelScale (level, BasePower), (int)LevelScale (level, BasePowerRate));
+            }
     
 			for (int z = 0; z < 5; z++)
 			{
@@ -123,7 +132,7 @@ public class PrototypeDatabase : MonoBehaviour
 			int[] AbilityDamage = { 33, 156, 489, 1306, 3218, 7560 };
 			int BasePrice = 20;
 			int[] Power = { 150, 400, 900, 1700, 3300, 6400 };
-			int[] PowerCost = { 40,113,248,500,979,1890 };
+			int[] PowerCost = { 40,115,250,500,980,1890 };//{ 40,113,248,500,979,1890 };
 			int[] PowerRate = { 28, 75, 165, 333, 653, 1260 };
 			for (int z = 0; z < 6; z++)
 			{
@@ -141,11 +150,11 @@ public class PrototypeDatabase : MonoBehaviour
 				Poison[z] = new TowerPrototype ("Posion Tower " + level, (int)LevelScale (level, BasePrice), SpriteTurretPoison);
 
 				// Attach an AttackManagerPrototype to throw that effect, also display the damage.
-				Poison[z].AttackManagerPrototype = new AttackManagerPrototype (3.5f, 0.4f, Damage [z], effect);
+				Poison[z]._attackManagerPrototype = new AttackManagerPrototype (3.5f, 0.4f, Damage [z], effect);
 
 
-				// Attack a SpellManager.
-				Poison[z].AbilityManagerPrototype = new AbilityManagerPrototype(
+				// Attach a SpellManager.
+				Poison[z]._abilityManagerPrototype = new AbilityManagerPrototype(
 					3.0f,PowerCost[z],
 					AbilityManagerPrototype.TRIGGER.ON_ATTACK,
 					effectAbility,
@@ -156,7 +165,7 @@ public class PrototypeDatabase : MonoBehaviour
 
 
 				// Attach a PowerManagerPrototype as well, to supply power.
-					Poison [z].PowerManagerPrototype = new PowerManagerPrototype (Power[z], LevelScale (level, PowerRate[z]));
+					Poison [z]._powerManagerPrototype = new PowerManagerPrototype (Power[z], LevelScale (level, PowerRate[z]));
 			}
 
 			for (int z = 0; z < 5; z++)
@@ -165,9 +174,64 @@ public class PrototypeDatabase : MonoBehaviour
 			}
 		}
 
+        {
+			// Pyro Trap -- NYA
+			int BasePrice = 25;
+			int[] Damage = 		  { 2, 5, 11, 24, 51, 105};
+			int[] AbilityDamage ={ 450, 1443, 3594, 8220, 18135, 39375 };
+            float Range = 1.5f;
+            float AbilityRange = 1.75f;
+			int[] Power = { 200, 600, 2000, 4000, 8000, 20000 };
+            int[] PowerCost = { 113, 356, 875, 1968, 4360, 9450 };
+			int[] PowerRate = { 25, 80, 194, 441, 967, 2100 };
+			for (int z = 0; z < 6; z++)
+			{
+				int level = z + 1;
+
+                // Create a Splash effect that Applies a damage over time buff.
+                EffectDamage initialDamage = new EffectDamage(AbilityDamage[z], false);
+                EffectDamage periodicDamage = new EffectDamage(AbilityDamage[z] / 20, false);
+
+				BuffPrototype buff = new BuffPrototype(initialDamage ,EffectDefault, periodicDamage,10.1f,1.0f,"Pyro", "On Fire");
+
+                EffectBuff dotEffect = new EffectBuff(buff, Effect.TARGET.RUNNER, false);
+                EffectSplash splashEffect = new EffectSplash(dotEffect, AbilityRange, Effect.TARGET.RUNNER, false);
+
+                // Create a direct damage effect.
+                EffectDamage attackDamage = new EffectDamage(Damage[z], false);
+                
+
+				// Make a TowerPrototype 
+				Pyro[z] = new TowerPrototype ("Pyro Trap " + level, (int)LevelScale (level, BasePrice), null);
+
+				// Attach an AttackManagerPrototype to throw that effect, also display the damage.
+				Pyro[z]._attackManagerPrototype = new AttackManagerPrototype (Range, 1.0f, Damage [z], attackDamage);
+
+
+				// Attack a SpellManager.
+				Pyro[z]._abilityManagerPrototype = new AbilityManagerPrototype(
+					8.5f,PowerCost[z],
+					AbilityManagerPrototype.TRIGGER.ON_ATTACK,
+					splashEffect,
+					"Firestorm",
+					AbilityDamage[z]+"damage + "+(AbilityDamage[z]/20)+ "dps for 10sec in Range"
+				);
+
+
+
+				// Attach a PowerManagerPrototype as well, to supply power.
+					Pyro [z]._powerManagerPrototype = new PowerManagerPrototype (Power[z], LevelScale (level, PowerRate[z]));
+			}
+
+			for (int z = 0; z < 5; z++)
+			{
+					Pyro [z].SetUpgradesTo (Pyro [z + 1]);
+			}
+		}
+
 		{
-			// Flame Tower
-			int[] Damage = 		  { 36, 108, 252,  540, 1116, 2268 };
+            // Flame Tower
+            int BaseDamage = 36;//	  { 36, 108, 252,  540, 1116, 2268 };
 			int[] AbilityDamage = { 48, 135, 294,  585, 1116, 2079 };
 			int BasePrice = 20;
 			int[] Power = 	  { 120,300, 720,1440,3000,6600 };
@@ -175,25 +239,26 @@ public class PrototypeDatabase : MonoBehaviour
 			int BasePowerRate = 40;
 			for (int z = 0; z < 6; z++)
 			{
+				int level = z + 1;
+
 				// Create a Effectdamage, and a projectile to deliver it.
-				ProjectilePrototype projectilePrototype = new ProjectilePrototype 		 (5.0f, new EffectDamage(Damage[z]		 			 ,true),SpriteProjectileFlame);
-				ProjectilePrototype abilityProjectilePrototype = new ProjectilePrototype (5.0f, new EffectDamage(Damage[z] + AbilityDamage[z],true),SpriteAbilityProjectileFlame);
+				ProjectilePrototype projectilePrototype = new ProjectilePrototype 		 (5.0f, new EffectDamage(LevelScale (level, BaseDamage)		 			 ,true),SpriteProjectileFlame);
+				ProjectilePrototype abilityProjectilePrototype = new ProjectilePrototype (5.0f, new EffectDamage(LevelScale (level, BaseDamage) + AbilityDamage[z],true),SpriteAbilityProjectileFlame);
 
 
 
 				// Make an EffectProjectile to throw said projectile
 				Effect effect 		 = new EffectProjectile (	    projectilePrototype, false);
 				Effect effectAbility = new EffectProjectile (abilityProjectilePrototype, false);
-				int level = z + 1;
 				// Make a TowerPrototype 
-				Flame[z] = new TowerPrototype ("Flame Tower " + level, (int)LevelScale (level, BasePrice), SpriteTurretFlame);
+				Flame[z] = new TowerPrototype ("Flame Tower " + level, LevelScale (level, BasePrice), SpriteTurretFlame);
 
 				// Attach an AttackManagerPrototype to throw that effect, also display the damage.
-				Flame[z].AttackManagerPrototype = new AttackManagerPrototype (3.0f, 0.75f, Damage [z], effect);
+				Flame[z]._attackManagerPrototype = new AttackManagerPrototype (3.0f, 0.75f, LevelScale (level, BaseDamage), effect);
 
 
 				// Attack a SpellManager.
-				Flame[z].AbilityManagerPrototype = new AbilityManagerPrototype(
+				Flame[z]._abilityManagerPrototype = new AbilityManagerPrototype(
 					0.75f,(int)LevelScale (level, BasePowerCost),
 					AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE,
 					effectAbility,
@@ -204,7 +269,7 @@ public class PrototypeDatabase : MonoBehaviour
 
 
 				// Attach a PowerManagerPrototype as well, to supply power.
-				Flame [z].PowerManagerPrototype = new PowerManagerPrototype (Power[z], (int)LevelScale (level, BasePowerRate));
+				Flame [z]._powerManagerPrototype = new PowerManagerPrototype (Power[z], (int)LevelScale (level, BasePowerRate));
 			}
 
 			for (int z = 0; z < 5; z++)
@@ -238,11 +303,11 @@ public class PrototypeDatabase : MonoBehaviour
 				Lightning[z] = new TowerPrototype ("Lightning Tower " + level, LevelScale (level, BasePrice), SpriteTurretLightning);
 
 				// Attach an AttackManagerPrototype to throw that effect, also display the damage.
-				Lightning[z].AttackManagerPrototype = new AttackManagerPrototype (3.0f, 1f, LevelScale(level, BaseDamage), effect);
+				Lightning[z]._attackManagerPrototype = new AttackManagerPrototype (3.0f, 1f, LevelScale(level, BaseDamage), effect);
 
 
 				// Attack a SpellManager.
-				Lightning[z].AbilityManagerPrototype = new AbilityManagerPrototype(
+				Lightning[z]._abilityManagerPrototype = new AbilityManagerPrototype(
 					0.1f,LevelScale (level, BasePowerCost),
 					AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE,
 					effectAbility,
@@ -253,7 +318,7 @@ public class PrototypeDatabase : MonoBehaviour
 
 
 				// Attach a PowerManagerPrototype as well, to supply power.
-				Lightning [z].PowerManagerPrototype = new PowerManagerPrototype (LevelScale(level,BasePower), (int)LevelScale (level, BasePowerRate));
+				Lightning [z]._powerManagerPrototype = new PowerManagerPrototype (LevelScale(level,BasePower), (int)LevelScale (level, BasePowerRate));
 			}
 
 			for (int z = 0; z < 5; z++)
@@ -277,11 +342,12 @@ public class PrototypeDatabase : MonoBehaviour
 				Generator [z] = new TowerPrototype ("Generator " + level, (int)LevelScale (level, BasePrice), SpriteGenerator);
 
 				// Attach a PowerManagerPrototype as well, to supply power.
-				Generator [z].PowerManagerPrototype = new PowerManagerPrototype ((int)LevelScale (level, BasePowerCap), (int)LevelScale (level, BasePowerRate));
+				Generator [z]._powerManagerPrototype = new PowerManagerPrototype ((int)LevelScale (level, BasePowerCap), (int)LevelScale (level, BasePowerRate));
 
-				Generator[z].PowerManagerPrototype.PassiveProduction =  (int)LevelScale(level,BasePowerGeneration);
+				Generator[z]._powerManagerPrototype.SetPassiveProduction(LevelScale(level,BasePowerGeneration));
+                Generator[z]._powerManagerPrototype.SetCanSend(true);
 
-			}
+            }
 
 			for (int z = 0; z < 5; z++)
 			{
@@ -303,11 +369,13 @@ public class PrototypeDatabase : MonoBehaviour
 				Transfer [z] = new TowerPrototype ("Transfer Tower " + level, (int)LevelScale (level, BasePrice), SpriteTransfer);
 
 				// Attach a PowerManagerPrototype as well, to supply power.
-				Transfer [z].PowerManagerPrototype = new PowerManagerPrototype (((int)Mathf.Pow(3, level-1)*BasePowerCap), ((int)Mathf.Pow(3, level-1)*BasePowerRate));
+				Transfer [z]._powerManagerPrototype = new PowerManagerPrototype (((int)Mathf.Pow(3, level-1)*BasePowerCap), ((int)Mathf.Pow(3, level-1)*BasePowerRate));
+
+                Transfer[z]._powerManagerPrototype.SetCanSend(true);
+                Transfer[z]._powerManagerPrototype.SetCanSendLong(true);
 
 
-
-			}
+            }
 
 			for (int z = 0; z < 5; z++)
 			{

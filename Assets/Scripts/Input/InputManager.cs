@@ -14,8 +14,8 @@ public class InputManager : MonoBehaviour {
     public GameObject SpawnPointObject;
     public GameObject GoalNodeObject;
 
-    private Pathfinding.GraphNode spawnPoint; 
-    private Pathfinding.GraphNode goalPoint;
+    private Pathfinding.GraphNode _spawnPoint; 
+    private Pathfinding.GraphNode _goalPoint;
 
     
     public TowerPrototype SelectedTowerPrototype { protected set; get; }
@@ -25,6 +25,13 @@ public class InputManager : MonoBehaviour {
     public GameObject PlacementPrototype; // For showing placement.
 
     public GameObject GameSpeedSlider;
+
+    
+    //public Color CAN_BUILD                   = new Color(0.5f, 1.0f , 0.5f);
+
+
+    public static Color TEXT_INSUFFICIENT_RESOURCES = new Color(1.0f, 0.85f, 0.0f);
+    public static Color TEXT_CANNOT_BUILD_HERE      = new Color(1.0f, 0.2f , 0.2f);
     
     public enum MOUSE_STATE{
         SELECT_UNIT,
@@ -36,22 +43,33 @@ public class InputManager : MonoBehaviour {
     
     public MOUSE_STATE MouseState { get; private set; }
 
-    public bool CanPlaceTowerHere = true;
-    public TowerPrototype TowerToPlace = null; // If null, none selected.
+    private bool ShiftUsed = false;
 
-    private Vector3 OutOfTheWay = new Vector3(20, 0, 0);
+    public bool _canPlaceTowerHere = true;
+    public TowerPrototype _towerToPlace = null; // If null, none selected.
+
+
+
+    private Vector3 _outOfTheWay = new Vector3(20, 0, 0);
 
     // Use this for initialization
     void Start ()
     {
         Active = this;
-        spawnPoint = AstarPath.active.GetNearest(SpawnPointObject.transform.position).node;
-        goalPoint = AstarPath.active.GetNearest(GoalNodeObject.transform.position).node;
+        _spawnPoint = AstarPath.active.GetNearest(SpawnPointObject.transform.position).node;
+        _goalPoint = AstarPath.active.GetNearest(GoalNodeObject.transform.position).node;
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
+        
+
+        if ((ShiftUsed) && (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.RightShift)))
+        {
+            SetMouseState(MOUSE_STATE.SELECT_UNIT);
+            ShiftUsed = false;
+        }
 
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -119,7 +137,11 @@ public class InputManager : MonoBehaviour {
 
     private void CheckShift()
     {
-        if (!(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        {
+            ShiftUsed = true;
+        }
+        else
         {
             SetMouseState(MOUSE_STATE.SELECT_UNIT);
         }
@@ -136,12 +158,12 @@ public class InputManager : MonoBehaviour {
             // Override tower, maybe, but probably not.
         }
 
-        if (iUnit != null && Player.Active.selectedUnit != null)
+        if (iUnit != null && Player.Active._selectedUnit != null)
         {
-            if (iUnit is Tower && Player.Active.selectedUnit is Tower)
+            if (iUnit is Tower && Player.Active._selectedUnit is Tower)
             {
-                PowerManager sourcePowerManager = (Player.Active.selectedUnit as Tower).PowerManager;
-                PowerManager targetPowerManager = (iUnit as Tower).PowerManager;
+                PowerManager sourcePowerManager = (Player.Active._selectedUnit as Tower)._powerManager;
+                PowerManager targetPowerManager = (iUnit as Tower)._powerManager;
                 
                 // This really calls for a UI_Button Library or something.
                 if (Active.MouseState == MOUSE_STATE.ADD_SHORT_LINK)
@@ -181,7 +203,7 @@ public class InputManager : MonoBehaviour {
 
             PlacementPrototype.transform.position = new Vector3(p.x, p.y, p.z);
 
-            CanPlaceTowerHere = validatePlacement(p);
+            _canPlaceTowerHere = validatePlacement(p);
 
 
             Redraw();
@@ -189,14 +211,14 @@ public class InputManager : MonoBehaviour {
     }
     public void ClearPlacement()
     {
-        PlacementPrototype.transform.position = OutOfTheWay;
+        PlacementPrototype.transform.position = _outOfTheWay;
         Redraw();
     }
     
     public bool validatePlacement(Vector3 iPosition)
     {
         
-                SpriteRenderer sprite = PlacementPrototype.GetComponent<SpriteRenderer>();
+        //SpriteRenderer sprite = PlacementPrototype.GetComponent<SpriteRenderer>();
         PathingChecker.transform.position = new Vector3(iPosition.x, iPosition.y, iPosition.z);
 
         // Check all Unit positions for collision.
@@ -209,8 +231,8 @@ public class InputManager : MonoBehaviour {
             if (PathingChecker.GetComponent<Collider>().bounds.Intersects(bounds))
             {
                 
-                sprite.material.SetColor("_Color", new Color(1, 0, 0, 0.5f));
-                PathingChecker.transform.position = OutOfTheWay;
+                //sprite.material.SetColor("_Color", new Color(1, 0, 0, 0.5f));
+                PathingChecker.transform.position = _outOfTheWay;
                 return false;
             }
         }
@@ -220,8 +242,8 @@ public class InputManager : MonoBehaviour {
 
         List<GraphNode> nodes = new List<GraphNode>();
 
-        nodes.Add(spawnPoint);
-        nodes.Add(goalPoint);
+        nodes.Add(_spawnPoint);
+        nodes.Add(_goalPoint);
 
         foreach (Runner runner in EntityManager.GetRunners())
         {
@@ -230,13 +252,13 @@ public class InputManager : MonoBehaviour {
 
         if (!GraphUpdateUtilities.UpdateGraphsNoBlock(guo, nodes, true))
         {
-                sprite.material.SetColor("_Color", new Color(1, 1, 0, 0.5f));
-            PathingChecker.transform.position = OutOfTheWay;
+            //sprite.material.SetColor("_Color", new Color(1, 1, 0, 0.5f));
+            PathingChecker.transform.position = _outOfTheWay;
             return false;
         }
         
-                sprite.material.SetColor("_Color", new Color(0, 1, 0, 0.5f));
-        PathingChecker.transform.position = OutOfTheWay;
+        //sprite.material.SetColor("_Color", new Color(0, 1, 0, 0.5f));
+        PathingChecker.transform.position = _outOfTheWay;
         return true;
 
     }
@@ -260,24 +282,24 @@ public class InputManager : MonoBehaviour {
             p.y = (float)Math.Round(p.y, 0.5);
             p.z = 0;
 
-            if (CanPlaceTowerHere)
+            if (_canPlaceTowerHere)
             {
                 if (SelectedTowerPrototype != null)
                 {
-                    int price = SelectedTowerPrototype.Price;
+                    int price = SelectedTowerPrototype._price;
                     if (Player.Active.SpendGold(price))
                     {
                         EntityManager.CreateTower(p, SelectedTowerPrototype);
                     }
                     else
                     {
-                        print("Not Enough Gold");
+                        EntityManager.CreateFloatingText(p, "Not Enough Resources", 1.0f,TEXT_INSUFFICIENT_RESOURCES);
                     }
                 }
             }
             else
             {
-                // Can't build here.
+                 EntityManager.CreateFloatingText(p, "Can't build here", 1.0f,TEXT_INSUFFICIENT_RESOURCES);
             }
 
         }
@@ -285,44 +307,37 @@ public class InputManager : MonoBehaviour {
     public void Redraw()
     {
         SpriteRenderer sprite = PlacementPrototype.GetComponent<SpriteRenderer>();
+        SpriteRenderer turretSprite = PlacementPrototype.transform.FindChild("Turret").GetComponent<SpriteRenderer>();
 
-        float Red = 0;
-        float Green = 0;
-        float Blue = 0.2f;
-        float Alpha = 0.5f;
+        float Red = 0.5f;
+        float Green = 0.5f;;
+        float Blue = 0.5f;
+        float Alpha = 0.8f;
 
         if (MouseState == MOUSE_STATE.PLACE_TOWER)
         {
             sprite.enabled = true;
-
-            if (Player.Active.Gold >= SelectedTowerPrototype.Price)
+            
+            if (!_canPlaceTowerHere)
             {
-                if (CanPlaceTowerHere)
+                 Red = 1;
+            }
+            if (SelectedTowerPrototype != null)
+            {
+                int price = SelectedTowerPrototype._price;
+                if (Player.Active._gold < price)
                 {
-                    // Valid placement shows up as green
-                    Green = 1;
-
-
-                    sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
-
-                }
-                else
-                {
-                    // Invalid placement is red.
-                    Red = 1;
-
-                    sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
+                    Blue = 1;
                 }
             }
-            else
-        {
-                // Insufficient Money shows up blue
-                Blue = 1;
-
-
-                sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
-
+            if (Red != 1 && Blue != 1)
+            {
+                Green = 1;
             }
+
+            sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
+            turretSprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
+            turretSprite.sprite = (SelectedTowerPrototype != null)? SelectedTowerPrototype._turretSprite : null;
         }
         else
         {

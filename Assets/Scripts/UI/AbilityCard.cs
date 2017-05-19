@@ -86,7 +86,7 @@ public class AbilityCard : MonoBehaviour {
         if (Player.SelectedUnit is Tower)
         {
             Tower tower = (Tower)Player.SelectedUnit;
-            PowerManager power = tower.PowerManager;
+            PowerManager power = tower._powerManager;
 
             if (InputManager.Active.MouseState == InputManager.MOUSE_STATE.ADD_SHORT_LINK)
             {
@@ -107,18 +107,18 @@ public class AbilityCard : MonoBehaviour {
                 TextRemoveLink.color = COLOR_NORMAL;
             }
 
-            if (tower.Prototype.UpgradesTo != null)
+            if (tower._prototype._upgradesTo != null)
             {
-                int price = tower.Prototype.UpgradesTo.Price - tower.Prototype.Price;
+                int price = tower._prototype._upgradesTo._price - tower._prototype._price;
                 TextUpgrade.text = "Upgrade (" + price + ") (Q)";
 
-                if (Player.Active.Gold >= price)
+                if (Player.Active._gold >= price)
                 {
                     TextUpgrade.color = COLOR_NORMAL;
                 }
 
             }
-            TextSell.text = "Sell (" + tower.Prototype.Price + ") (W)";
+            TextSell.text = "Sell (" + tower._prototype._price + ") (W)";
 
             if (true) // Is not consumer.
             {

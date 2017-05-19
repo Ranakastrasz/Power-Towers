@@ -34,15 +34,15 @@ using UnityEngine;
 
 public class StatMod
 {
-	public string description{ get; private set; }
-	public string source{ get; private set; }
-	public float value{ get; private set; }
+	public string _description{ get; private set; }
+	public string _source{ get; private set; }
+	public float _value{ get; private set; }
 
 	public StatMod( string iSource, float iValue,string iDescription = "")
 	{
-		description = iDescription;
-		source = iSource;
-		value = iValue;
+		_description = iDescription;
+		_source = iSource;
+		_value = iValue;
 	}
 
 }
@@ -61,7 +61,7 @@ public class MutableStat
         modifiedValue = baseValue;
         foreach (KeyValuePair<string, StatMod> entry in multMods)
         {
-            modifiedValue *= entry.Value.value;
+            modifiedValue *= entry.Value._value;
         }
     }
 

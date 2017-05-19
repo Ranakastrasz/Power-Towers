@@ -5,22 +5,22 @@ using UnityEngine;
 public class AttackManagerPrototype : Prototype
 {
 
-    public float Range { get; protected set; }
-    public float Cooldown { get; protected set; }
+    public float _range { get; protected set; }
+    public float _cooldown { get; protected set; }
     
-    public int DamageDisplay { get; protected set; } // Purely UI
+    public int _damageDisplay { get; protected set; } // Purely UI
 
-    public Effect Effect { get; protected set; }
+    public Effect _effect { get; protected set; }
         
     /*
      * general stuff
      */
 	public AttackManagerPrototype(float iRange, float iCooldown, int iDamageDisplay, Effect iEffect)
     {
-        Range = iRange;
-        Cooldown = iCooldown;
-		DamageDisplay = iDamageDisplay;
-        Effect = iEffect;
+        _range = iRange;
+        _cooldown = iCooldown;
+		_damageDisplay = iDamageDisplay;
+        _effect = iEffect;
     }
 
 }

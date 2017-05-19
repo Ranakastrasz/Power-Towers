@@ -8,15 +8,15 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour {
 
     public static UIManager Active { protected set; get; }
-    public UnitPanel unitPanel;
+    public UnitPanel _unitPanel;
 
 	public Text Gold;
 	public Text Life;
-
+   
 
     static public UnitPanel UnitPanel
     {
-        get { return Active.unitPanel; }
+        get { return Active._unitPanel; }
     }
 
 	public static String formatFloat(float iFloat, int places = 2)
@@ -41,18 +41,20 @@ public class UIManager : MonoBehaviour {
         if (Player.SelectedUnit && Player.SelectedUnit is Tower)
         {
             Tower selectedTower = Player.SelectedUnit as Tower;
-            TowerPrototype current = selectedTower.Prototype as TowerPrototype;
-            TowerPrototype upgradeTo = current.UpgradesTo;
+            TowerPrototype current = selectedTower._prototype as TowerPrototype;
+            TowerPrototype upgradeTo = current._upgradesTo;
             if (upgradeTo != null)
             {
-                int price = upgradeTo.Price - current.Price;
+                int price = upgradeTo._price - current._price;
                 if (Player.Active.SpendGold(price))
                 {
                     selectedTower.ApplyPrototype(upgradeTo);
                 }
                 else
                 {
-                    print("Not Enough Gold");
+                    EntityManager.CreateFloatingText(selectedTower.transform.position, "Not Enough Resources", 1.0f, InputManager.TEXT_INSUFFICIENT_RESOURCES);
+
+                    //print("Not Enough Gold");
                 }
             }
         }
@@ -69,8 +71,8 @@ public class UIManager : MonoBehaviour {
     // Update is called once per frame
 	void Update ()
 	{
-		Gold.text = "Res : "+Player.Active.Gold;
-		Life.text = "Life: "+Player.Active.Lives;
+		Gold.text = "Res : "+Player.Active._gold;
+		Life.text = "Life: "+Player.Active._lives;
     }
 
 	void RenderGrid()

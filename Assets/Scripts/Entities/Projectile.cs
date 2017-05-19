@@ -12,12 +12,12 @@ public class Projectile : Entity
     // Turning speed and whatnot is ignored, projectiles never miss.
     //
     
-    public ProjectilePrototype Prototype { protected set; get; }
+    public ProjectilePrototype _prototype { protected set; get; }
 
-    public Unit OriginUnit { protected set; get; }
-    public float Speed { protected set; get; }
-    public Entity TargetEntity { protected set; get; }
-    public Vector3 TargetPoint { protected set; get; }
+    public Unit _originUnit { protected set; get; }
+    public float _speed { protected set; get; }
+    public Entity _targetEntity { protected set; get; }
+    public Vector3 _targetPoint { protected set; get; }
 
 
 
@@ -35,30 +35,30 @@ public class Projectile : Entity
     public void Init(ProjectilePrototype iPrototype, Unit iOriginUnit, Entity iTargetEntity)
     {
         ApplyPrototype(iPrototype);
-		OriginUnit = iOriginUnit;
-		TargetEntity = iTargetEntity;
-		TargetPoint = TargetEntity.transform.position;
+		_originUnit = iOriginUnit;
+		_targetEntity = iTargetEntity;
+		_targetPoint = _targetEntity.transform.position;
 
 		SpriteRenderer Sprite = this.GetComponent<SpriteRenderer>();
-		Sprite.sprite = Prototype.Sprite;
+		Sprite.sprite = _prototype._sprite;
 
     }
     public void Init(ProjectilePrototype iPrototype, Unit iOriginUnit, Vector3 iTargetPoint)
     {
         ApplyPrototype(iPrototype);
-		OriginUnit = iOriginUnit;
-		TargetEntity = null;
-		TargetPoint = iTargetPoint;
+		_originUnit = iOriginUnit;
+		_targetEntity = null;
+		_targetPoint = iTargetPoint;
 
 		SpriteRenderer Sprite = this.GetComponent<SpriteRenderer>();
-		Sprite.sprite = Prototype.Sprite;
+		Sprite.sprite = _prototype._sprite;
         
     }
 	
 
     public  void ApplyPrototype(ProjectilePrototype iPrototype)
     {
-        Prototype = iPrototype;
+        _prototype = iPrototype;
     }
    
 
@@ -70,17 +70,17 @@ public class Projectile : Entity
         base.Update();
         
 
-        if (TargetEntity != null)
+        if (_targetEntity != null)
 		{
-			TargetPoint = TargetEntity.transform.position;
+			_targetPoint = _targetEntity.transform.position;
         }
-        transform.position = Vector3.MoveTowards(transform.position, TargetPoint, Prototype.Speed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, _targetPoint, _prototype._speed * Time.deltaTime);
 
-        Vector3 distance = TargetPoint - transform.position;
+        Vector3 distance = _targetPoint - transform.position;
         
-        if (TargetEntity == null && distance.magnitude < 0.1)
+        if (_targetEntity == null && distance.magnitude < 0.1)
         {
-            Prototype.Effect.ApplyPoint(OriginUnit, this, TargetPoint);
+            _prototype._effect.ApplyPoint(_originUnit, this, _targetPoint);
         }
 
 		float angle = Mathf.Atan2(distance.y, distance.x) * Mathf.Rad2Deg;
@@ -96,7 +96,7 @@ public class Projectile : Entity
         {
 
             Entity entity = gameObject.GetComponent<Entity>();
-            Prototype.Effect.ApplyEntity(OriginUnit, this, entity);
+            _prototype._effect.ApplyEntity(_originUnit, this, entity);
         }
         
     }

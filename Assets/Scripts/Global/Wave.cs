@@ -4,31 +4,31 @@ using UnityEngine;
 
 public class Wave : MonoBehaviour {
     
-    public Runner_Spawner spawner;
+    public Runner_Spawner Spawner;
     
     public GameObject RunnerType;
 
 
-    private int toSpawn;
-    private int hitpoints;
-    private int bounty;
+    private int _toSpawn;
+    private int _hitpoints;
+    private int _bounty;
 
     // Temp 
-    private int round = 0;
+    private int _round = 0;
 
 
 
     private void SpawnRunner()
     {
-        spawner.SpawnRunner(hitpoints, bounty, round);
-        toSpawn--;
-        if (toSpawn > 0)
+        Spawner.SpawnRunner(_hitpoints, _bounty, _round);
+        _toSpawn--;
+        if (_toSpawn > 0)
         {
             Invoke("SpawnRunner", Constants.SPAWN_PERIOD);
         }
         else
         {
-			Player.Active.AddGold (RunnerData.getRoundFinishBounty(round));
+			Player.Active.AddGold (RunnerData.getRoundFinishBounty(_round));
             Invoke("NextWave", Constants.ROUND_WAIT_TIME);
         }
     }
@@ -37,15 +37,15 @@ public class Wave : MonoBehaviour {
     // Temp
     public void NextWave()
     {
-        Init(RunnerType, spawner, round+1);
+        Init(RunnerType, Spawner, _round+1);
     }
 
     public void Init(GameObject iRunnerType, Runner_Spawner iSpawner, int iRound)
     {
-        round = iRound;
-        toSpawn = Constants.SPAWNS_PER_ROUND;
-        hitpoints = RunnerData.getRoundRunnerHealth(round,RunnerData.DIFFICULTY.NOOB);
-        bounty = RunnerData.getRoundRunnerBounty(round);
+        _round = iRound;
+        _toSpawn = Constants.SPAWNS_PER_ROUND;
+        _hitpoints = RunnerData.getRoundRunnerHealth(_round,RunnerData.DIFFICULTY.NOOB);
+        _bounty = RunnerData.getRoundRunnerBounty(_round);
 
         Invoke("SpawnRunner", Constants.MIN_SPAWN_PERIOD);
     }

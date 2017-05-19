@@ -6,10 +6,10 @@ using System;
 
 public class Tower : Unit
 {
-	public TowerPrototype Prototype { protected set; get; }
-	public AttackManager AttackManager { protected set; get; }
-    public PowerManager PowerManager { protected set; get; }
-    public GameObject Turret { get; private set; }
+	public TowerPrototype _prototype { protected set; get; }
+	public AttackManager _attackManager { protected set; get; }
+    public PowerManager _powerManager { protected set; get; }
+    public GameObject _turret { get; private set; }
 
     // Should autocleanup when you change it.
     // I think.
@@ -32,10 +32,10 @@ public class Tower : Unit
 
     public void Init(TowerPrototype iPrototype)
     {
-        AttackManager = this.gameObject.AddComponent<AttackManager>();
-        PowerManager = this.gameObject.AddComponent<PowerManager>();
+        _attackManager = this.gameObject.AddComponent<AttackManager>();
+        _powerManager = this.gameObject.AddComponent<PowerManager>();
         
-        Turret = gameObject.transform.FindChild("Turret").gameObject;
+        _turret = gameObject.transform.FindChild("Turret").gameObject;
 
         UpdatePathing();
         
@@ -47,29 +47,30 @@ public class Tower : Unit
     public void ApplyPrototype(TowerPrototype iPrototype)
     {
 
-		Prototype = iPrototype;
-		AttackManagerPrototype attackManagerPrototype = Prototype.AttackManagerPrototype;
-		AbilityManagerPrototype abilityManagerPrototype = Prototype.AbilityManagerPrototype;
-        PowerManagerPrototype powerManagerPrototype = Prototype.PowerManagerPrototype;
+		_prototype = iPrototype;
+		AttackManagerPrototype attackManagerPrototype = _prototype._attackManagerPrototype;
+		AbilityManagerPrototype abilityManagerPrototype = _prototype._abilityManagerPrototype;
+        PowerManagerPrototype powerManagerPrototype = _prototype._powerManagerPrototype;
 
-        gameObject.name = Prototype.Name;
+        gameObject.name = _prototype._name;
 
 
-        AttackManager.ApplyPrototype(attackManagerPrototype,abilityManagerPrototype);
-        PowerManager.ApplyPrototype(powerManagerPrototype);
+        _attackManager.ApplyPrototype(attackManagerPrototype,abilityManagerPrototype);
+        _powerManager.ApplyPrototype(powerManagerPrototype);
         
         SpriteRenderer baseSprite = this.GetComponent<SpriteRenderer>();
-        SpriteRenderer turretSprite = Turret.GetComponent<SpriteRenderer>();
+        SpriteRenderer turretSprite = _turret.GetComponent<SpriteRenderer>();
         
-        baseSprite.sprite = Prototype.BaseSprite;
-        turretSprite.sprite = Prototype.TurretSprite;
+        baseSprite.sprite = _prototype._baseSprite;
+        turretSprite.sprite = _prototype._turretSprite;
 
     }
     
 
     public void Sell()
     {
-        Player.Active.AddGold((this.Prototype as TowerPrototype).Price);
+        Player.Active.AddGold((this._prototype as TowerPrototype)._price);
+        EntityManager.CreateFloatingText(transform.position, "+"+(this._prototype as TowerPrototype)._price.ToString(), 1.0f, InputManager.TEXT_INSUFFICIENT_RESOURCES);
         Kill(this);
     }
 
@@ -83,7 +84,7 @@ public class Tower : Unit
 
     protected override void onRemove()
     {
-        PowerManager.RemoveLinks();
+        _powerManager.RemoveLinks();
     }
 
 
@@ -125,13 +126,13 @@ public class Tower : Unit
         sprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));*/
 
         
-        if (AttackManager.CurrentTarget != null)
+        if (_attackManager._currentTarget != null)
         {
-            Vector3 relativePos = AttackManager.CurrentTarget.gameObject.transform.position - transform.position;
+            Vector3 relativePos = _attackManager._currentTarget.gameObject.transform.position - transform.position;
 
             float angle = Mathf.Atan2(relativePos.y, relativePos.x) * Mathf.Rad2Deg;
 
-            Turret.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            _turret.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
 
 

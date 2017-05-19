@@ -1,7 +1,7 @@
 Shader "Projector/Multiply" {
    Properties {
-      _ShadowTex ("Cookie", 2D) = "gray" { TexGen ObjectLinear }
-      _FalloffTex ("FallOff", 2D) = "white" { TexGen ObjectLinear   }
+   //   _ShadowTex ("Cookie", 2D) = "gray" { TexGen ObjectLinear }
+   //   _FalloffTex ("FallOff", 2D) = "white" { TexGen ObjectLinear   }
    }
 
    Subshader {
@@ -17,13 +17,13 @@ Shader "Projector/Multiply" {
          SetTexture [_ShadowTex] {
          	constantColor [_Tint]
             combine texture, ONE - texture
-            Matrix [_Projector]
+            //Matrix [_Projector]
          }
          
          SetTexture [_FalloffTex] {
             constantColor (1,1,1,0)
             combine previous lerp (texture) constant
-            Matrix [_ProjectorClip]
+            //Matrix [_ProjectorClip]
          }
       }
    }

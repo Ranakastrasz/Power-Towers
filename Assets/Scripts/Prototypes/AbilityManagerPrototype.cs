@@ -11,30 +11,30 @@ public class AbilityManagerPrototype : Prototype
         CONSTANT // Do at every opportunity.
     }
 
-    public float Cooldown { get; protected set; }
-    public int EnergyCost { get; protected set; }
+    public float _cooldown { get; protected set; }
+    public int _energyCost { get; protected set; }
 
-    public TRIGGER Trigger { get; protected set; } // Which event causes it to occur.
+    public TRIGGER _trigger { get; protected set; } // Which event causes it to occur.
 
 
 
-    public Effect Effect { get; protected set; }
+    public Effect _effect { get; protected set; }
 
-	public string EffectDisplay { get; protected set; } // Purely UI
+	public string _effectDisplay { get; protected set; } // Purely UI
 
-	public string Name { get; protected set; } // Purely UI
+	public string _name { get; protected set; } // Purely UI
 
     /*
      * general stuff
      */
 	public AbilityManagerPrototype(float iCooldown, int iEnergyCost, TRIGGER iTrigger, Effect iEffect, string iName = "", string iEffectDisplay = "")
     {
-        Cooldown = iCooldown;
-        EnergyCost = iEnergyCost;
-        Trigger = iTrigger;
-		Effect = iEffect;
-		EffectDisplay = iEffectDisplay;
-		Name = iName;
+        _cooldown = iCooldown;
+        _energyCost = iEnergyCost;
+        _trigger = iTrigger;
+		_effect = iEffect;
+		_effectDisplay = iEffectDisplay;
+		_name = iName;
     }
 
 }
