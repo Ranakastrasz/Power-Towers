@@ -25,7 +25,7 @@ public class ShopCard : MonoBehaviour {
 		_towerList.Add(PrototypeDatabase.Active.Poison[0]);
 		_towerList.Add(PrototypeDatabase.Active.Lightning[0]);
 		_towerList.Add(PrototypeDatabase.Active.Flame[0]);
-		_towerList.Add(PrototypeDatabase.Active.Pyro[0]);
+		//_towerList.Add(PrototypeDatabase.Active.Pyro[0]);
 
         _towerList.Add(PrototypeDatabase.Active.Generator[0]);
         _towerList.Add(PrototypeDatabase.Active.Transfer[0]);
@@ -61,6 +61,11 @@ public class ShopCard : MonoBehaviour {
             }
         }
 
+		for (int z = 0; z < ShopCard.Active._towerList.Count; z++)
+		{
+
+			KeyManager.Active._list.Add(new Hotkey(KeyCode.Alpha1+z, source => ShopCard.Active.Button_Pressed(ShopCard.Active._towerList[source]), z));
+		}
 
     }
 

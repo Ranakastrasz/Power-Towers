@@ -105,20 +105,28 @@ public class UnitPanel : MonoBehaviour {
         {
             Tower tower = (Tower)Player.SelectedUnit;
             PowerManager power = tower._powerManager;
+            AttackManager attack = tower.gameObject.GetComponent<AttackManager>();
             
+            Value.text = "Value: " + tower._prototype._price;
 
-            if (power != null)
+
+            if (power._prototype._maxEnergy > 0)
             {
+                // If it has energy, show it.
                 Vitals.text = "Energy: " + power._energy + "/" + power._prototype._maxEnergy;
                 Vitals.color = COLOR_VITAL_MANA;
             }
-            AttackManager attack = tower.gameObject.GetComponent<AttackManager>();
-            Value.text = "Value: " + tower._prototype._price;
+
+
 			if (attack._prototype != PrototypeDatabase.Active.AttackManagerDefault)
 			{
-				AttackManagerPrototype attackPrototype = attack._prototype as AttackManagerPrototype; // Should be get functions instead of doing this here.
+                
+				AttackManagerPrototype attackPrototype = attack._prototype; // Should be get functions instead of doing this here.
+
 				if (attack != null)
 				{
+                    // If it has an attack and hence isn't the dummy attackManager
+
 					Range.text = "Range: " + UIManager.formatFloat(attackPrototype._range);
 					if (attack._attackSpeed.modifiedValue == 1)
 					{
@@ -130,6 +138,7 @@ public class UnitPanel : MonoBehaviour {
 						Cooldown.text = "Cool: " + UIManager.formatFloat (attack._cooldownRemaining/attack._attackSpeed.modifiedValue) + "/"
 							+ UIManager.formatFloat (attackPrototype._cooldown/attack._attackSpeed.modifiedValue);
 					}
+
 
 					Damage.text = "Damage: " + attackPrototype._damageDisplay;
 					if (attack._abilityPrototype != PrototypeDatabase.Active.AbilityManagerDefault)
@@ -173,6 +182,7 @@ public class UnitPanel : MonoBehaviour {
 				else if (powerPrototype.isConsumer())
 				{
 					Damage.text = "Consumption: " + powerPrototype._consumptionEstimate;
+                    // Never displays. No consumes that aren't also attackers.
 				}
             }
 

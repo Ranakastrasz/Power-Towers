@@ -1,24 +1,2 @@
-Base path: E:/Unity/Editor/Data
+Base path: D:/Unity/Editor/Data
 Cmd: getPlatforms
-Cmd: disassembleShader
-  api=13 insize=754 outsize=2118 ok=1
-Cmd: disassembleShader
-  api=13 insize=754 outsize=2118 ok=1
-Cmd: disassembleShader
-  api=12 insize=180 outsize=360 ok=1
-Cmd: disassembleShader
-  api=15 insize=522 outsize=1199 ok=1
-Cmd: disassembleShader
-  api=12 insize=180 outsize=360 ok=1
-Cmd: compileSnippet
-  api=4 type=0 insize=1327 outsize=590 kw=PIXELSNAP_ON pd=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA ok=1
-Cmd: disassembleShader
-  api=15 insize=590 outsize=1349 ok=1
-Cmd: compileSnippet
-  api=4 type=1 insize=1327 outsize=678 kw=PIXELSNAP_ON pd=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA ok=1
-Cmd: disassembleShader
-  api=17 insize=678 outsize=1399 ok=1
-Cmd: compileSnippet
-  api=8 type=1 insize=1093 outsize=750 kw=DUMMY pd=UNITY_NO_SCREENSPACE_SHADOWS UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_MOBILE SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA ok=1
-Cmd: disassembleShader
-  api=14 insize=750 outsize=2078 ok=1

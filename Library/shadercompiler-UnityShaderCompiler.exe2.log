@@ -1,30 +1,8 @@
-Base path: E:/Unity/Editor/Data
+Base path: D:/Unity/Editor/Data
 Cmd: getPlatforms
-Cmd: disassembleShader
-  api=15 insize=522 outsize=1199 ok=1
-Cmd: disassembleShader
-  api=14 insize=410 outsize=1290 ok=1
-Cmd: disassembleShader
-  api=13 insize=754 outsize=2118 ok=1
-Cmd: disassembleShader
-  api=17 insize=298 outsize=868 ok=1
-Cmd: disassembleShader
-  api=14 insize=410 outsize=1290 ok=1
-Cmd: disassembleShader
-  api=12 insize=180 outsize=360 ok=1
-Cmd: disassembleShader
-  api=17 insize=298 outsize=868 ok=1
-Cmd: disassembleShader
-  api=12 insize=180 outsize=360 ok=1
 Cmd: compileSnippet
-  api=8 type=1 insize=1327 outsize=1030 kw=DUMMY pd=UNITY_NO_SCREENSPACE_SHADOWS UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_MOBILE SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA ok=1
-Cmd: disassembleShader
-  api=14 insize=1030 outsize=2570 ok=1
+  error: 2 plat 1 at (25): invalid vs_3_0 output semantic 'TEXTCOORD0'\nCompiling Vertex program
+Platform defines: UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA
+  api=1 type=0 insize=1301 outsize=0 kw= pd=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA ok=0
 Cmd: compileSnippet
-  api=8 type=0 insize=1093 outsize=822 kw=PIXELSNAP_ON pd=UNITY_NO_SCREENSPACE_SHADOWS UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_MOBILE SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA ok=1
-Cmd: disassembleShader
-  api=13 insize=822 outsize=2247 ok=1
-Cmd: compileSnippet
-  api=1 type=1 insize=1093 outsize=356 kw=PIXELSNAP_ON pd=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA ok=1
-Cmd: disassembleShader
-  api=12 insize=356 outsize=621 ok=1
+  api=8 type=1 insize=1301 outsize=1338 kw= pd=UNITY_NO_SCREENSPACE_SHADOWS UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_MOBILE SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA ok=1

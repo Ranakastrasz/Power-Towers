@@ -5,7 +5,7 @@ using UnityEngine;
 public class KeyManager : MonoBehaviour {
 
     /*
-     List<Action> list = new List<Action>();
+    List<Action> list = new List<Action>();
     list.Add( () => ClassA.MethodX(paramM) );
     list.Add( () => ClassB.MethodY(paramN, ...) );
 
@@ -18,9 +18,9 @@ public class KeyManager : MonoBehaviour {
     // Register a keypress -> Functioncall. Possibly with an Argument, but only an Integer.
     // Integer index would let you lookup whatever you need to in that function, no need for
     // Anything more complicated.
-    
+
     // Throw exception for double registration, I think
-    
+
     // Allow modded keys, E.g. Shift-Q
     // Make sure modded keys get priority.
 
@@ -29,47 +29,31 @@ public class KeyManager : MonoBehaviour {
 
     // All hotkeys will flow through this class.
 
+	public static KeyManager Active;
+    public List<Hotkey> _list = new List<Hotkey>();
+
     
 	// Use this for initialization
 	void Start ()
     {
-		
-	}
+		Active = this;
+
+    }
 	
 	// Update is called once per frame
 	void Update ()
     {
 
-        for (int z = 0; z < ShopCard.Active._towerList.Count; z++)
+		foreach(Hotkey hotkey in _list)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1+z)) // Temperary
-            {
-                ShopCard.Active.Button_Pressed(ShopCard.Active._towerList[z]);
-            }
+            if (hotkey.check()) hotkey.call();
         }
-        if (Input.GetKeyDown("p"))
-        {
-            Timer.TogglePause();
-        }
-        if (Input.GetKeyDown(KeyCode.Equals))
-        {
-            Timer.IncreaseGameSpeed();
-        }
-        if (Input.GetKeyDown(KeyCode.Minus))
-        {
-            Timer.DecreaseGameSpeed();
-        }
-            
-        /*if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (MouseState == MOUSE_STATE.SELECT_UNIT)
-            {
-                Player.Active.SelectUnit(null);
-            }
-            else
-            {
-                SetMouseState(MOUSE_STATE.SELECT_UNIT);
-            }
-        }*/
+        
+    }
+
+	public void Clear()
+	{
+		_list.Clear ();
+
 	}
 }

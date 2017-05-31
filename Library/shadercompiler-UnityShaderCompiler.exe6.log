@@ -1,20 +1,2 @@
-Base path: E:/Unity/Editor/Data
+Base path: D:/Unity/Editor/Data
 Cmd: getPlatforms
-Cmd: disassembleShader
-  api=10 insize=404 outsize=677 ok=1
-Cmd: disassembleShader
-  api=14 insize=410 outsize=1290 ok=1
-Cmd: disassembleShader
-  api=15 insize=522 outsize=1199 ok=1
-Cmd: disassembleShader
-  api=10 insize=404 outsize=677 ok=1
-Cmd: disassembleShader
-  api=14 insize=410 outsize=1290 ok=1
-Cmd: disassembleShader
-  api=17 insize=298 outsize=868 ok=1
-Cmd: disassembleShader
-  api=15 insize=590 outsize=1349 ok=1
-Cmd: compileSnippet
-  api=1 type=1 insize=1093 outsize=356 kw=DUMMY pd=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING SHADER_API_DESKTOP UNITY_COLORSPACE_GAMMA ok=1
-Cmd: disassembleShader
-  api=12 insize=356 outsize=621 ok=1

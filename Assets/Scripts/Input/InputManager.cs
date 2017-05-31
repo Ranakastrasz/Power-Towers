@@ -50,7 +50,7 @@ public class InputManager : MonoBehaviour {
 
 
 
-    private Vector3 _outOfTheWay = new Vector3(20, 0, 0);
+    //private Vector3 _outOfTheWay = new Vector3(20, 0, 0);
 
     // Use this for initialization
     void Start ()
@@ -59,7 +59,7 @@ public class InputManager : MonoBehaviour {
         _spawnPoint = AstarPath.active.GetNearest(SpawnPointObject.transform.position).node;
         _goalPoint = AstarPath.active.GetNearest(GoalNodeObject.transform.position).node;
     }
-	
+
 	// Update is called once per frame
 	void Update ()
     {
@@ -186,11 +186,17 @@ public class InputManager : MonoBehaviour {
         }
     }
 
+    static bool BoundsIsEncapsulated(Bounds Encapsulator, Bounds Encapsulating)
+    {
+        return Encapsulator.Contains(Encapsulating.min) && Encapsulator.Contains(Encapsulating.max);
+    }
+
     public void ShowPlacement()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+        LayerMask layerMask = 1 << LayerMask.NameToLayer("Ground"); // only check for collisions with layerX
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
         {
 
             Vector3 p = hit.point;
@@ -201,25 +207,50 @@ public class InputManager : MonoBehaviour {
             p.z = (float)0.0;
 
 
+            PathingChecker.transform.position = new Vector3(p.x, p.y, p.z);
+			PathingChecker.SetActive (true);
+
+			bool inArea = BoundsIsEncapsulated(hit.transform.gameObject.GetComponent<BoxCollider>().bounds, PathingChecker.GetComponent<Collider>().bounds);
+            
+			PathingChecker.SetActive (false);
+
+
+
+            if (!inArea)
+            {
+                ClearPlacement();
+                return;
+            }
+
+			PlacementPrototype.SetActive (true);
             PlacementPrototype.transform.position = new Vector3(p.x, p.y, p.z);
+
 
             _canPlaceTowerHere = validatePlacement(p);
 
 
             Redraw();
         }
+        else
+        {
+            ClearPlacement();
+        }
     }
+
     public void ClearPlacement()
     {
-        PlacementPrototype.transform.position = _outOfTheWay;
+		PlacementPrototype.SetActive (false);
+        _canPlaceTowerHere = false;
         Redraw();
     }
     
     public bool validatePlacement(Vector3 iPosition)
     {
         
-        //SpriteRenderer sprite = PlacementPrototype.GetComponent<SpriteRenderer>();
+		//SpriteRenderer sprite = PlacementPrototype.GetComponent<SpriteRenderer>();
+		PathingChecker.SetActive(true);
         PathingChecker.transform.position = new Vector3(iPosition.x, iPosition.y, iPosition.z);
+
 
         // Check all Unit positions for collision.
 
@@ -232,7 +263,7 @@ public class InputManager : MonoBehaviour {
             {
                 
                 //sprite.material.SetColor("_Color", new Color(1, 0, 0, 0.5f));
-                PathingChecker.transform.position = _outOfTheWay;
+				PathingChecker.SetActive(false);
                 return false;
             }
         }
@@ -252,58 +283,45 @@ public class InputManager : MonoBehaviour {
 
         if (!GraphUpdateUtilities.UpdateGraphsNoBlock(guo, nodes, true))
         {
-            //sprite.material.SetColor("_Color", new Color(1, 1, 0, 0.5f));
-            PathingChecker.transform.position = _outOfTheWay;
+			//sprite.material.SetColor("_Color", new Color(1, 1, 0, 0.5f));
+			PathingChecker.SetActive(false);
             return false;
         }
         
-        //sprite.material.SetColor("_Color", new Color(0, 1, 0, 0.5f));
-        PathingChecker.transform.position = _outOfTheWay;
+		//sprite.material.SetColor("_Color", new Color(0, 1, 0, 0.5f));
+		PathingChecker.SetActive(false);
         return true;
 
     }
+
     public void PlaceObject()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+        //if (hit.transform.gameObject.tag == "Tower") return;
+
+        Vector3 p = PlacementPrototype.transform.position;
+        
+
+        if (_canPlaceTowerHere)
         {
-            /*
-               public static bool CheckBox(Vector3 center, Vector3 halfExtents, 
-               Quaternion orientation = Quaternion.identity, int layermask = DefaultRaycastLayers, 
-               QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal);
-             */
-             
-            if (hit.transform.gameObject.tag == "Tower") return;
-            
-            Vector3 p = hit.point;
-
-            p.x = (float)Math.Round(p.x, 0.5);
-            p.y = (float)Math.Round(p.y, 0.5);
-            p.z = 0;
-
-            if (_canPlaceTowerHere)
+            if (SelectedTowerPrototype != null)
             {
-                if (SelectedTowerPrototype != null)
+                int price = SelectedTowerPrototype._price;
+                if (Player.Active.SpendGold(price))
                 {
-                    int price = SelectedTowerPrototype._price;
-                    if (Player.Active.SpendGold(price))
-                    {
-                        EntityManager.CreateTower(p, SelectedTowerPrototype);
-                    }
-                    else
-                    {
-                        EntityManager.CreateFloatingText(p, "Not Enough Resources", 1.0f,TEXT_INSUFFICIENT_RESOURCES);
-                    }
+                    EntityManager.CreateTower(p, SelectedTowerPrototype);
+                }
+                else
+                {
+                    EntityManager.CreateFloatingText(p, "Not Enough Resources", 1.0f, TEXT_INSUFFICIENT_RESOURCES);
                 }
             }
-            else
-            {
-                 EntityManager.CreateFloatingText(p, "Can't build here", 1.0f,TEXT_INSUFFICIENT_RESOURCES);
-            }
-
+        }
+        else
+        {
+            EntityManager.CreateFloatingText(p, "Can't build here", 1.0f, TEXT_INSUFFICIENT_RESOURCES);
         }
     }
+
     public void Redraw()
     {
         SpriteRenderer sprite = PlacementPrototype.GetComponent<SpriteRenderer>();

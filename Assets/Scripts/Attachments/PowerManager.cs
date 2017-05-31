@@ -35,31 +35,8 @@ public class PowerManager : Entity
     {
         PowerManagerList.Remove(this);
     }
-
-
-
-    //
-    //
-    /*private method PerformSortingPass takes nothing returns nothing
-            assert(this != 0)
-            if .numTransfersOut< 2 then; return; endif
-
-           TowerTransfer transfer; transfer = .transfersOut[0]
-           integer maxSeen; maxSeen = transfer.dst.MaxReceivableEnergy()
-            integer i
-            loopForIntBelow(i, .numTransfersOut-1)
-                integer e; e = .transfersOut[i + 1].dst.MaxReceivableEnergy()
-                if e <= maxSeen then
-                    //keep shifting the best so far towards the end of the list
-                    .transfersOut[i] = .transfersOut[i+1]
-                    .transfersOut[i+1] = transfer
-                else
-                    //new best so far
-                    transfer = .transfersOut[i + 1]
-                    maxSeen = e
-                endif
-            endloop
-        endmethod*/
+    
+  
     /// <summary>
     /// Do a single bubble-sort pass over the transfer list to favor needy towers
     /// Guaranteed to place the neediest tower at the end of the list
@@ -133,11 +110,15 @@ public class PowerManager : Entity
 
     public bool CanLinkIn()
     {
-        return _powerLinksIn.Count < PowerLink.MAX_LINKS &&  (_prototype.isPowered());
+        return _powerLinksIn.Count < PowerLink.MAX_LINKS &&  _prototype.isPowered() &&_prototype._canRecieve;
     }
-    public bool CanLinkOut()
+    public bool CanLinkOutShort()
     {
-        return _powerLinksOut.Count < PowerLink.MAX_LINKS && (_prototype.isPowered());
+        return _powerLinksOut.Count < PowerLink.MAX_LINKS && _prototype.isPowered() && _prototype._canSend;
+    }
+    public bool CanLinkOutLong()
+    {
+        return _powerLinksOut.Count < PowerLink.MAX_LINKS && _prototype.isPowered() && _prototype._canSendLong;
     }
     public void AddLink(PowerManager iTarget, bool longLink)
     {
@@ -154,13 +135,15 @@ public class PowerManager : Entity
         if (this != iTarget)
         {
             // Can't link to yoruself
-            if (CanLinkOut())
+
+            if ((CanLinkOutLong() && longLink) || CanLinkOutShort())
             {
-                // Gotta have room for output link
+                // Gotta have room for output link.
+
                 if (iTarget.CanLinkIn())
                 {
                     // And input link on the target
-                    if (_powerLinksOut.Find(x => x._target == iTarget) == null)
+                    if (_powerLinksOut.Find(x => x._target == iTarget) == null && _powerLinksIn.Find(x => x._source == iTarget) == null)
                     {
                         // Make sure it doesn't exist already. No duplicates.
 
@@ -184,7 +167,10 @@ public class PowerManager : Entity
                                 EntityManager.CreatePowerLink(this, iTarget);
                             }
                         }
-
+                        else
+                        {
+                            EntityManager.CreateFloatingText(targetPosition, "Out of Range", 1.0f, Color.red);
+                        }
                         
                     }
                     else

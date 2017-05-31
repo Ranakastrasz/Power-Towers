@@ -30,6 +30,10 @@ public class Timer : MonoBehaviour {
         _timeScale = TIME_SCALE.FULL;
         SetGameSpeed(TIME_SCALE.FULL);
         InvokeRepeating("Tick", 1.0f, 1.0f);
+
+		KeyManager.Active._list.Add(new Hotkey(KeyCode.P     , source => Timer.TogglePause()      , 0));
+		KeyManager.Active._list.Add(new Hotkey(KeyCode.Equals, source => Timer.IncreaseGameSpeed(), 0));
+		KeyManager.Active._list.Add(new Hotkey(KeyCode.Minus , source => Timer.DecreaseGameSpeed(), 0));
     }
 
     private void Tick()

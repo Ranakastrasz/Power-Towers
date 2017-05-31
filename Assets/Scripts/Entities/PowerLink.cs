@@ -98,7 +98,7 @@ public class PowerLink : Entity {
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);*/
 
         float distance = relativePos.magnitude;
-        print(distance);
+        //print(distance);
         LINK_RANGE linkType;
         if (distance <= RANGE_SHORT)
         {

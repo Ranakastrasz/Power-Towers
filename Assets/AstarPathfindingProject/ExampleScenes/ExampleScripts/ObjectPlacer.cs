@@ -38,7 +38,8 @@ public class ObjectPlacer : MonoBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+        LayerMask layerMask = 1 << LayerMask.NameToLayer("Ground"); // only check for collisions with layerX
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity,layerMask))
         {
             /*
                public static bool CheckBox(Vector3 center, Vector3 halfExtents, 
