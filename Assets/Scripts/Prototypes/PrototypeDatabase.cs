@@ -106,9 +106,9 @@ public class PrototypeDatabase : MonoBehaviour
 				Cannon [z]._attackManagerPrototype = new AttackManagerPrototype (5.0f, 3.0f, Damage [z], effectCreateProjectile);
 
                 // Attack a SpellManager.
-                Effect effectOverclockAdd = new EffectTowerSpeed("overclock", 4.0f, true);
-                Effect effectOverclockRemove = new EffectTowerSpeed("overclock", 0f, false);
-				Effect effectAddbuff = new EffectBuff(new BuffPrototype(effectOverclockAdd, effectOverclockRemove, EffectDefault, 5.0f, 0f,"Overclock"),EffectBuff.TARGET.SELF,false);
+                Effect effectOverclockAdd = new EffectMutableStat(Tower.ATTACK_SPEED,"overclock", 4.0f, true);
+                Effect effectOverclockRemove = new EffectMutableStat(Tower.ATTACK_SPEED, "overclock", false);
+				Effect effectAddbuff = new EffectBuff(new BuffPrototype(effectOverclockAdd, effectOverclockRemove, EffectDefault, 5.0f, 0f, true,"Overclock"),EffectBuff.TARGET.SELF,false);
 
 				Cannon[z]._abilityManagerPrototype = new AbilityManagerPrototype(5.0f,(int)LevelScale(level,25),AbilityManagerPrototype.TRIGGER.CONSTANT,effectAddbuff,"Overclock","+300% Attack Speed");
 				// (float iCooldown, int iEnergyCost, TRIGGER iTrigger, int iDamageDisplay, Effect iEffect)
@@ -139,7 +139,7 @@ public class PrototypeDatabase : MonoBehaviour
 				// Create a Effectdamage, and a projectile to deliver it.
 				ProjectilePrototype projectilePrototype = new ProjectilePrototype (5.0f, new EffectDamage(Damage[z],true),SpriteProjectilePoison);
 
-				BuffPrototype buff = new BuffPrototype(new EffectDamage(AbilityDamage[z],false),EffectDefault,new EffectDamage(AbilityDamage[z]/10,false),15.1f,1.0f,"Poison");
+				BuffPrototype buff = new BuffPrototype(new EffectDamage(AbilityDamage[z],false),EffectDefault,new EffectDamage(AbilityDamage[z]/10,false),15.1f,1.0f,true,"Poison");
 				ProjectilePrototype abilityProjectilePrototype = new ProjectilePrototype (9.0f, new EffectBuff(buff,EffectBuff.TARGET.RUNNER,true),SpriteAbilityProjectilePoison);
 
 				// Make an EffectProjectile to throw said projectile
@@ -167,12 +167,68 @@ public class PrototypeDatabase : MonoBehaviour
 				// Attach a PowerManagerPrototype as well, to supply power.
 					Poison [z]._powerManagerPrototype = new PowerManagerPrototype (Power[z], LevelScale (level, PowerRate[z]));
 			}
-
 			for (int z = 0; z < 5; z++)
 			{
 					Poison [z].SetUpgradesTo (Poison [z + 1]);
 			}
 		}
+
+
+        {
+            // Slow Tower
+            int[] Damage = { 20, 53, 107, 196, 341, 567 };
+            int[] AbilityDamage = { 33, 156, 489, 1306, 3218, 7560 }; // Huh, Poison and Frost have same damage. Well, sort of.
+            int BasePrice = 15;
+            int[] Power =     { 90, 225, 450, 843, 1551, 2835 };
+            int[] PowerCost = { 18,  45, 105, 500,  979, 1890 };
+            int[] PowerRate = { 30,  75, 150, 281,  517,  945 };
+            float[] AbilityRange = {0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f}; // A guess, Revamp later.
+            float[] Duration = { 2f, 4f, 7f, 11f, 16f, 21f };
+            for (int z = 0; z < 6; z++)
+            {
+                // Create a Effectdamage, and a projectile to deliver it.
+                ProjectilePrototype projectilePrototype = new ProjectilePrototype(5.0f, new EffectDamage(Damage[z], true), SpriteProjectileFrost);
+
+                Effect effectBuffAdd    = new EffectMutableStat(Runner.MOVEMENT_SPEED, "slow", 0.5f, true);
+                Effect effectBuffRemove = new EffectMutableStat(Runner.MOVEMENT_SPEED, "slow", false);
+                Effect effectAddBuff    = new EffectBuff(new BuffPrototype(effectBuffAdd, effectBuffRemove, EffectDefault, Duration[z], 0f, true, "slow"), EffectBuff.TARGET.RUNNER, false);
+                Effect effectAOE = new EffectSplash(effectAddBuff, AbilityRange[z], Effect.TARGET.RUNNER, false);
+                Effect effectAbilityDamage = new EffectDamage(AbilityDamage[z], true);
+                Effect effectFork = new EffectFork(effectAOE, effectAbilityDamage, EffectDefault, EffectDefault);
+                // Need splash effect and fork effect for this to work correctly.
+                // On Impact, call Fork. Damage Target, and AOE on Target ->Apply Debuff
+                ProjectilePrototype abilityProjectilePrototype = new ProjectilePrototype(9.0f, effectFork, SpriteAbilityProjectileFrost);
+
+                // Make an EffectProjectile to throw said projectile
+                Effect effect = new EffectProjectile(projectilePrototype, false);
+                Effect effectAbility = new EffectProjectile(abilityProjectilePrototype, false);
+                int level = z + 1;
+                // Make a TowerPrototype 
+                Frost[z] = new TowerPrototype("Frost Tower " + level, (int)LevelScale(level, BasePrice), SpriteTurretFrost);
+
+                // Attach an AttackManagerPrototype to throw that effect, also display the damage.
+                Frost[z]._attackManagerPrototype = new AttackManagerPrototype(3.5f, 1f, Damage[z], effect);
+
+
+                // Attach a SpellManager.
+                Frost[z]._abilityManagerPrototype = new AbilityManagerPrototype(
+                    1.0f, PowerCost[z],
+                    AbilityManagerPrototype.TRIGGER.ON_ATTACK,
+                    effectAbility,
+                    "Slow",
+                    "50% Slow for "+Duration[z]+"sec"
+                );
+
+
+
+                // Attach a PowerManagerPrototype as well, to supply power.
+                Frost[z]._powerManagerPrototype = new PowerManagerPrototype(Power[z], LevelScale(level, PowerRate[z]));
+            }
+            for (int z = 0; z < 5; z++)
+            {
+                Frost[z].SetUpgradesTo(Frost[z + 1]);
+            }
+        }
 
         {
 			// Pyro Trap -- NYA
@@ -192,7 +248,7 @@ public class PrototypeDatabase : MonoBehaviour
                 EffectDamage initialDamage = new EffectDamage(AbilityDamage[z], false);
                 EffectDamage periodicDamage = new EffectDamage(AbilityDamage[z] / 20, false);
 
-				BuffPrototype buff = new BuffPrototype(initialDamage ,EffectDefault, periodicDamage,10.1f,1.0f,"Pyro", "On Fire");
+				BuffPrototype buff = new BuffPrototype(initialDamage ,EffectDefault, periodicDamage,10.1f,1.0f, true,"Pyro", "On Fire");
 
                 EffectBuff dotEffect = new EffectBuff(buff, Effect.TARGET.RUNNER, false);
                 EffectSplash splashEffect = new EffectSplash(dotEffect, AbilityRange, Effect.TARGET.RUNNER, false);
@@ -280,6 +336,7 @@ public class PrototypeDatabase : MonoBehaviour
 
 		{
 			// Lightning Tower
+            // Temperarlly a rapid-fire attack tower because no lightning effect yet.
 			int BaseDamage = 3;
 			int BaseAbilityDamage = 9;//90;
 			int BasePrice = 10;
@@ -334,7 +391,7 @@ public class PrototypeDatabase : MonoBehaviour
 			int BasePowerRate = 10;
 			int BasePowerCap = 250;
 
-			for (int z = 0; z < 6; z++)
+			for (int z = 0; z < 6; z++) 
 			{
 
 				int level = z + 1;

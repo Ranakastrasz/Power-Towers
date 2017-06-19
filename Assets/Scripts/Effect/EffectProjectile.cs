@@ -6,7 +6,7 @@ public class EffectProjectile : Effect {
 
     protected ProjectilePrototype _projectilePrototype;
 
-    public EffectProjectile(ProjectilePrototype iProjectilePrototype, bool iDestroy)
+    public EffectProjectile(ProjectilePrototype iProjectilePrototype, bool iDestroy = false)
     {
         _projectilePrototype = iProjectilePrototype;
         _destroySource = iDestroy;

@@ -33,5 +33,14 @@ public class Effect
         Impact(iSource);
     }
 
+	protected static bool validateTarget(TARGET iType, Entity iTarget)
+	{
+		if (iType == TARGET.RUNNER && iTarget is Runner
+		    || iType == TARGET.TOWER && iTarget is Tower)
+		{
+			return true;
+		}
+		return false;
+	}
 
 }

@@ -4,15 +4,46 @@ using UnityEngine;
 
 public class Entity : MonoBehaviour
 {
-    // Add a StatTable
-    // Made up of Mutable Stats.
-    // Towers would get speed
-    // Creeps would get speed, vulnerability.
-    // Mutable stat effect could then use a key for the mod, and a key for the stat.
+
+    protected IDictionary<string,MutableStat> _statTable;
+
+
+    public virtual void AddStatMod(string iStatKey, string iSourceKey,  float iValue)
+    {
+        _statTable[iStatKey].ModifyMult(iSourceKey, iValue);
+        RecalculateStats();
+    }
+
+    public virtual void RemoveStatMod(string iStatkey, string iSourceKey)
+    {
+        _statTable[iStatkey].UnmodifyMult(iSourceKey);
+        RecalculateStats();
+    }
+
+    public virtual float GetStat(string iStatKey, bool baseValue = false)
+    {
+        if (baseValue)
+        {
+            return _statTable[iStatKey].baseValue;
+        }
+        else
+        {
+            return _statTable[iStatKey].modifiedValue;
+        }
+    }
+
+    /// <summary>
+    /// This function is called when mutable stats change
+    /// </summary>
+    protected virtual void RecalculateStats()
+    {
+
+    }
 
     // Use this for initialization
     protected virtual void Start()
     {
+        _statTable = new Dictionary<string, MutableStat>();
         Redraw();
     }
 

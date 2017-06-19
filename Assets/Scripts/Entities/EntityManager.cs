@@ -24,7 +24,10 @@ public class EntityManager : MonoBehaviour {
 
     public GameObject FloatingTextPrefab;
     public GameObject FloatingTextContainer;
-    
+
+    public GameObject SfxPrefab;
+    public GameObject SfxContainer;
+
 
     public static GameObject CreateTower(Vector3 iPosition, TowerPrototype iPrototype)
     {
@@ -80,15 +83,29 @@ public class EntityManager : MonoBehaviour {
     public static GameObject CreateFloatingText(Vector3 iPosition, string iText, float iDuration, Color? iColor = null)
     {
 
-		GameObject obj = (GameObject)GameObject.Instantiate(Active.FloatingTextPrefab, iPosition, Quaternion.identity);
-		FloatingText floatingText = obj.GetComponent<FloatingText>();
+        GameObject obj = (GameObject)GameObject.Instantiate(Active.FloatingTextPrefab, iPosition, Quaternion.identity);
+        FloatingText floatingText = obj.GetComponent<FloatingText>();
 
-		floatingText.transform.parent = Active.FloatingTextContainer.transform;
+        floatingText.transform.parent = Active.FloatingTextContainer.transform;
 
-		floatingText.Init(iText, iDuration, iColor ?? Color.black);
-        
+        floatingText.Init(iText, iDuration, iColor ?? Color.black);
 
-		return obj;
+
+        return obj;
+    }
+
+    public static GameObject CreateSfx(Vector3 iPosition, SfxPrototype iPrototype)
+    {
+
+        GameObject obj = (GameObject)GameObject.Instantiate(Active.SfxPrefab, iPosition, Quaternion.identity);
+        Sfx sfx = obj.GetComponent<Sfx>();
+
+        sfx.transform.parent = Active.SfxContainer.transform;
+
+        sfx.Init(iPrototype);
+
+
+        return obj;
     }
 
     /*public static Unit[] GetUnits()
@@ -116,6 +133,7 @@ public class EntityManager : MonoBehaviour {
     void Start ()
     {
         Active = this;
+        Unit.Init();
     }
 	
 	// Update is called once per frame

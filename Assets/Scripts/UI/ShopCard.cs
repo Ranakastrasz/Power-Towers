@@ -24,8 +24,9 @@ public class ShopCard : MonoBehaviour {
 		_towerList.Add(PrototypeDatabase.Active.Cannon[0]);
 		_towerList.Add(PrototypeDatabase.Active.Poison[0]);
 		_towerList.Add(PrototypeDatabase.Active.Lightning[0]);
-		_towerList.Add(PrototypeDatabase.Active.Flame[0]);
-		//_towerList.Add(PrototypeDatabase.Active.Pyro[0]);
+        _towerList.Add(PrototypeDatabase.Active.Flame[0]);
+        _towerList.Add(PrototypeDatabase.Active.Frost[0]);
+        //_towerList.Add(PrototypeDatabase.Active.Pyro[0]);
 
         _towerList.Add(PrototypeDatabase.Active.Generator[0]);
         _towerList.Add(PrototypeDatabase.Active.Transfer[0]);

@@ -39,10 +39,10 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="UnityEngine">
-      <HintPath>D:/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+      <HintPath>F:/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
-      <HintPath>D:/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+      <HintPath>F:/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -134,27 +134,30 @@
      <Compile Include="Assets\Scripts\Attachments\Buff.cs" />
      <Compile Include="Assets\Scripts\Attachments\PointCollider.cs" />
      <Compile Include="Assets\Scripts\Attachments\PowerManager.cs" />
+     <Compile Include="Assets\Scripts\Attachments\Runner\Feedback.cs" />
      <Compile Include="Assets\Scripts\Effect\Effect.cs" />
      <Compile Include="Assets\Scripts\Effect\EffectBuff.cs" />
      <Compile Include="Assets\Scripts\Effect\EffectDamage.cs" />
+     <Compile Include="Assets\Scripts\Effect\EffectFork.cs" />
+     <Compile Include="Assets\Scripts\Effect\EffectMutableStat.cs" />
      <Compile Include="Assets\Scripts\Effect\EffectProjectile.cs" />
      <Compile Include="Assets\Scripts\Effect\EffectSplash.cs" />
-     <Compile Include="Assets\Scripts\Effect\EffectTowerSpeed.cs" />
      <Compile Include="Assets\Scripts\Entities\Beam.cs" />
      <Compile Include="Assets\Scripts\Entities\Entity.cs" />
      <Compile Include="Assets\Scripts\Entities\EntityManager.cs" />
      <Compile Include="Assets\Scripts\Entities\PowerLink.cs" />
      <Compile Include="Assets\Scripts\Entities\Projectile.cs" />
-     <Compile Include="Assets\Scripts\Entities\SFX.cs" />
+     <Compile Include="Assets\Scripts\Entities\RunnerManager.cs" />
+     <Compile Include="Assets\Scripts\Entities\Sfx.cs" />
      <Compile Include="Assets\Scripts\Entities\Units\Runner.cs" />
      <Compile Include="Assets\Scripts\Entities\Units\Runner_Goal.cs" />
      <Compile Include="Assets\Scripts\Entities\Units\Runner_Spawner.cs" />
      <Compile Include="Assets\Scripts\Entities\Units\Tower.cs" />
      <Compile Include="Assets\Scripts\Entities\Units\Unit.cs" />
+     <Compile Include="Assets\Scripts\Entities\WaveManager.cs" />
      <Compile Include="Assets\Scripts\Global\Constants.cs" />
      <Compile Include="Assets\Scripts\Global\Player.cs" />
      <Compile Include="Assets\Scripts\Global\Timer.cs" />
-     <Compile Include="Assets\Scripts\Global\Wave.cs" />
      <Compile Include="Assets\Scripts\Input\Hotkey.cs" />
      <Compile Include="Assets\Scripts\Input\InputManager.cs" />
      <Compile Include="Assets\Scripts\Input\KeyManager.cs" />
@@ -170,6 +173,7 @@
      <Compile Include="Assets\Scripts\Prototypes\Prototype.cs" />
      <Compile Include="Assets\Scripts\Prototypes\PrototypeDatabase.cs" />
      <Compile Include="Assets\Scripts\Prototypes\RunnerData.cs" />
+     <Compile Include="Assets\Scripts\Prototypes\SfxPrototype.cs" />
      <Compile Include="Assets\Scripts\Prototypes\TowerPrototype.cs" />
      <Compile Include="Assets\Scripts\UI\AbilityCard.cs" />
      <Compile Include="Assets\Scripts\UI\FloatingText.cs" />
@@ -193,25 +197,25 @@
      <None Include="Assets\AstarPathfindingProject\Editor\EditorAssets\Materials\NavmeshOutline.shader" />
      <None Include="Assets\AstarPathfindingProject\link.xml" />
  <Reference Include="UnityEngine.UI">
- <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+ <HintPath>F:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
- <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ <HintPath>F:/Unity/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.PlaymodeTestsRunner">
- <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/PlaymodeTestsRunner/UnityEngine.PlaymodeTestsRunner.dll</HintPath>
+ <HintPath>F:/Unity/Editor/Data/UnityExtensions/Unity/PlaymodeTestsRunner/UnityEngine.PlaymodeTestsRunner.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Analytics">
- <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
+ <HintPath>F:/Unity/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.HoloLens">
- <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
+ <HintPath>F:/Unity/Editor/Data/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.VR">
- <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
+ <HintPath>F:/Unity/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
  </Reference>
  <Reference Include="Pathfinding.Ionic.Zip.Reduced">
- <HintPath>D:/Power Towers/Power Towers/Assets/AstarPathfindingProject/Plugins/DotNetZip/Pathfinding.Ionic.Zip.Reduced.dll</HintPath>
+ <HintPath>F:/Power Towers/Power Towers/Assets/AstarPathfindingProject/Plugins/DotNetZip/Pathfinding.Ionic.Zip.Reduced.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

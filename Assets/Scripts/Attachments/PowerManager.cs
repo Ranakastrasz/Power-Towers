@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PowerManager : Entity
 {
+    public Tower _parent { protected set; get; }
     public PowerManagerPrototype _prototype { protected set; get; }
 
     public int _energy { protected set; get; }
@@ -22,9 +23,10 @@ public class PowerManager : Entity
         // Consider a better way to do this, prefer not having to handle a list.
         // Possible loop all towers and get their power managers instead?
     protected static List<PowerManager> PowerManagerList = new List<PowerManager>();
-
+    
     protected override void Start()
     {
+        _parent = gameObject.transform.parent.GetComponent<Tower>();
         PowerManagerList.Add(this);
         _energy = 0;
         _lastEnergy = 0;
@@ -290,25 +292,38 @@ public class PowerManager : Entity
 		}
 	}
 
-	/// <summary>
-	/// Attempt to spend energy, Return true if enough energy exists
-	/// and energy is deducted. False if insufficient energy.
-	/// </summary>
-	/// <param name="iCost">How much energy to spend</param>
-	/// <returns></returns>
-	internal bool TrySpendEnergy(int iCost)
-	{
-		if (_energy >= iCost)
-		{
-			_energy -= iCost;
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
+    /// <summary>
+    /// Attempt to spend energy, Return true if enough energy exists
+    /// and energy is deducted. False if insufficient energy.
+    /// </summary>
+    /// <param name="iCost">How much energy to spend</param>
+    /// <returns></returns>
+    internal bool TrySpendEnergy(int iCost)
+    {
+        if (_energy >= iCost)
+        {
+            _energy -= iCost;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    internal void DrainEnergy(int iCost)
+    {
 
+        if (_energy >= iCost)
+        {
+            _energy -= iCost;
+        }
+        else
+        {
+            iCost = _energy;
+            _energy = 0;
+        }
+        EntityManager.CreateFloatingText(transform.position, "-"+iCost, 1.0f, Color.green);
+    }
 
     public static void GlobalTick()
     {

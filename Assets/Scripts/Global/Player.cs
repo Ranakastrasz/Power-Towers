@@ -53,6 +53,7 @@ public class Player : MonoBehaviour {
         obj.transform.SetParent(iUnit.transform);
         // Contains the whole circle, so size is diameter.
         obj.transform.localScale = new Vector3(iDiameter, iDiameter, iDiameter);
+        obj.transform.localScale = obj.transform.localScale;
 
         Material rendererMaterial = obj.GetComponent<MeshRenderer>().material;
         rendererMaterial.color = iColor ?? Color.black;
@@ -109,8 +110,8 @@ public class Player : MonoBehaviour {
             }
             else
             {
-                // Creeps use radius 1 selector.
-                AddSelectionCircle(iSelectedUnit, 1.0f, Color.red);
+                // Runners use radius 1 selector.
+                AddSelectionCircle(iSelectedUnit, 1f, Color.red);
             }
         }
         else

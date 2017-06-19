@@ -11,22 +11,37 @@ using UnityEngine;
 
 public class Buff : MonoBehaviour {
 
-	string _name;
-	Entity _source;
-	BuffPrototype _prototype;
+	private string _name;
+    private Entity _source;
+    private BuffPrototype _prototype;
+    private float timeElapsed;
 
-	public static Component AddBuff(Entity iTarget, BuffPrototype iPrototype, Entity iSource)
-	{
-		Buff comp = iTarget.gameObject.AddComponent<Buff>();
-		comp.Init (iPrototype, iSource);
+    public static Component AddBuff(Entity iTarget, BuffPrototype iPrototype, Entity iSource)
+    {
+        if (iPrototype._unique) // quick and dirty uniqueness-getter thinggy. Ideally I need a comparison to drop weakest version, but that is hard.
+        {
+            // Find all existing buffs of this type.
+            Buff[] buffs = iTarget.GetComponents<Buff>();
+            foreach (Buff buff in buffs)
+            {
+                if (buff._prototype._name.Equals(iPrototype._name))
+                {
+                    Destroy(buff);
+                    //if (iPrototype._duration > component.)
+                }
+            }
+        }
+		Buff newBuff = iTarget.gameObject.AddComponent<Buff>();
+        newBuff.Init (iPrototype, iSource);
 
-		return comp;
+		return newBuff;
 	}
 
 	public void Init(BuffPrototype iPrototype, Entity iSource)
 	{
 		_source = iSource;
 		ApplyPrototype(iPrototype);
+        
 
 	}
 
@@ -36,9 +51,9 @@ public class Buff : MonoBehaviour {
 		CancelInvoke ();
 
 		OnStart();
-		if (_prototype._Period != 0.0f)
+		if (_prototype._period > 0f)
 		{
-			InvokeRepeating ("OnPeriodic", iPrototype._Period, iPrototype._Period);
+			InvokeRepeating ("OnPeriodic", iPrototype._period, iPrototype._period);
 		}
 		Invoke ("OnEnd", _prototype._duration);
 	}
@@ -57,5 +72,10 @@ public class Buff : MonoBehaviour {
 	{
 		_prototype._onPeriodic.ApplyEntity (_source, _source, gameObject.GetComponent<Entity> ());
 	}
+
+    public void Update()
+    {
+
+    }
 
 }

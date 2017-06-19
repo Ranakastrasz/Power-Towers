@@ -6,7 +6,7 @@ public class EffectDamage : Effect {
 
     protected int _damage;
 
-    public EffectDamage(int iDamage, bool iDestroy)
+    public EffectDamage(int iDamage, bool iDestroy = false)
     {
         _damage = iDamage;
         _destroySource = iDestroy;

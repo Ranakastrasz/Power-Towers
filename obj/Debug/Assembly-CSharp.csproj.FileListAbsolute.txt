@@ -58,7 +58,6 @@ F:\Power Towers\Power Towers\Temp\bin\Debug\UnityEngine.PlaymodeTestsRunner.xml
 F:\Power Towers\Power Towers\Temp\bin\Debug\UnityEngine.Analytics.xml
 F:\Power Towers\Power Towers\Temp\bin\Debug\UnityEngine.HoloLens.xml
 F:\Power Towers\Power Towers\Temp\bin\Debug\UnityEngine.VR.xml
-F:\Power Towers\Power Towers\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
 F:\Power Towers\Power Towers\obj\Debug\Assembly-CSharp.dll
 F:\Power Towers\Power Towers\obj\Debug\Assembly-CSharp.pdb
 E:\Power Towers\Power Towers\Temp\bin\Debug\Assembly-CSharp.dll
@@ -91,3 +90,4 @@ E:\Power Towers\Power Towers\Temp\bin\Debug\UnityEngine.VR.xml
 E:\Power Towers\Power Towers\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
 E:\Power Towers\Power Towers\obj\Debug\Assembly-CSharp.dll
 E:\Power Towers\Power Towers\obj\Debug\Assembly-CSharp.pdb
+F:\Power Towers\Power Towers\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache

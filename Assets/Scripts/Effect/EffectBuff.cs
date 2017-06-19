@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class EffectBuff : Effect {
 
+    // Make a textmacro/easy constructor to chain EffectBuff with EffectMutableStat.
 
 	protected BuffPrototype _buffPrototype;
 	protected TARGET _target;
 
-	public EffectBuff(BuffPrototype iBuff, TARGET iTarget, bool iDestroy)
+	public EffectBuff(BuffPrototype iBuff, TARGET iTarget, bool iDestroy = false)
 	{
 		_buffPrototype = iBuff;
 		_target = iTarget;

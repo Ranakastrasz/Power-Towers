@@ -5,6 +5,7 @@ using System.Text;
 
 static class RunnerData
 {
+    public static float BASE_SPEED = 1;
 
     public enum DIFFICULTY
     {

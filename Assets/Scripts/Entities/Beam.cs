@@ -5,7 +5,9 @@ using UnityEngine;
 /*public class Beam : Entity
 {
    
-    // Beams are purely SFX.
+    // Beams are Entities.
+    // Special effect, with a time-delayed call for their Effect.
+    // Also time until they start fading, and fade time.
     // They have a start and end point.
     // both optionally entities instead.
     // Also they have a duration,
@@ -19,11 +21,11 @@ using UnityEngine;
 
 
 
-	// Use this for initialization
-	protected override void Start ()
+    // Use this for initialization
+    protected override void Start ()
     {
-		
-	}
+
+    }
 
     // 
     
@@ -40,7 +42,7 @@ using UnityEngine;
         TargetPoint = iTargetPoint;
         
     }
-	
+    
 
     public  void ApplyPrototype(ProjectilePrototype iPrototype)
     {
@@ -50,8 +52,8 @@ using UnityEngine;
 
     // On Impact, call Prototype.Payload(this, SourceUnit, ImpactUnit, ImpactPoint)
 
-	// Update is called once per frame
-	protected override void Update ()
+    // Update is called once per frame
+    protected override void Update ()
     {
         base.Update();
         
@@ -68,10 +70,10 @@ using UnityEngine;
         {
             Prototype.Effect.ApplyPoint(OriginUnit, this, TargetPoint);
         }
-		// Move forward based on speed, I think.
+        // Move forward based on speed, I think.
         // Turn instantly to face target.
         // 
-	}
+    }
 
     
     void OnTriggerEnter(Collider other)

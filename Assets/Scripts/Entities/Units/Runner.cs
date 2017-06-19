@@ -1,21 +1,35 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Pathfinding;
+using UnityEngine.Events;
 
 /// <summary>  
 /// A Unit which represents an Enemy, able to move, take damage, and die.
 /// </summary>  
+/// 
+
+public delegate void OnDamageEventHandler(Unit iSource, int iDamage);
+
 public class Runner : Unit
 {
+
+
+    public event OnDamageEventHandler _onDamageEvent;
+
+    public const string MOVEMENT_SPEED = "movementSpeed";
 
     public int _life { protected set; get; }
     public int _maxLife { protected set; get; }
 
     public int _bounty { protected set; get; }
-    
 
-    public float BASE_SPEED = 3; // Figure out how to put this in unity editor instead.
     private AILerp _lerp;
+
+    private SpriteRenderer _healthSprite;
+    private SpriteRenderer _shieldSprite;
+    private SpriteRenderer _speedSprite;
+    private SpriteRenderer _feedbackSprite;
+
 
 
 
@@ -41,28 +55,39 @@ public class Runner : Unit
         _lerp = gameObject.GetComponent<AILerp>();
 
         _lerp.target = targetPoint;
-        _lerp.speed = BASE_SPEED;
+        _lerp.speed = RunnerData.BASE_SPEED;
         gameObject.name = "Runner " + iRound;
 
         _maxLife = iHitpoints;
         _life = iHitpoints;
         _bounty = iBounty;
-        
+
+
+    }
+    protected override void RecalculateStats()
+    {
+        _lerp.speed = _statTable[MOVEMENT_SPEED].modifiedValue;
     }
 
     new private void Start()
     {
+        _healthSprite = transform.FindChild("HealthNodeSprite").GetComponent<SpriteRenderer>();
+        _shieldSprite = transform.FindChild("ShieldNodeSprite").GetComponent<SpriteRenderer>();
+        _speedSprite = transform.FindChild("SpeedNodeSprite").GetComponent<SpriteRenderer>();
+        _feedbackSprite = transform.FindChild("FeedbackNodeSprite").GetComponent<SpriteRenderer>();
+
         base.Start();
 
-        //lerp.ForceSearchPath();
+        _statTable.Add(MOVEMENT_SPEED, new MutableStat(RunnerData.BASE_SPEED));
+
         _lerp.SearchPath();
 
-	    //Assumes a Seeker component is attached to the GameObject
-	    //Seeker seeker = GetComponent<Seeker>();
-	   
-	    //seeker.pathCallback is a OnPathDelegate, we add the function OnPathComplete to it so it will be called whenever a path has finished calculating on that seeker
-	    //seeker.pathCallback += OnPathComplete;
-	   
+        _shieldSprite.material.SetColor("_Color", new Color(UnityEngine.Random.Range(0.5f, 1f), UnityEngine.Random.Range(0.5f, 1f), 1, 1f));
+        _speedSprite.material.SetColor("_Color", new Color(1, UnityEngine.Random.Range(0.5f, 1f), UnityEngine.Random.Range(0.5f, 1f), 1f));
+        _feedbackSprite.material.SetColor("_Color", new Color(UnityEngine.Random.Range(0.5f, 1f), 1, UnityEngine.Random.Range(0.5f, 1f), 1f));
+
+        gameObject.AddComponent<Feedback>();
+
     }
 
     protected void OnDestroy()
@@ -71,63 +96,47 @@ public class Runner : Unit
 
     public void Damage(Unit iSource, int iLife)
     {
-		if (_life > 0)
-		{
-			_life -= iLife;
-			// Deduct life equal to damage dealth
-			// If it hits zero or passes it, its lethal.
-			if (_life <= 0)
-			{
-				this.Kill (iSource);
-			}
-		}
+        if (_life > 0)
+        {
+            _onDamageEvent(iSource, iLife);
+            _life -= iLife;
+            // Deduct life equal to damage dealth
+            // If it hits zero or passes it, its lethal.
+            if (_life <= 0)
+            {
+                this.Kill(iSource);
+            }
+        }
     }
 
-    public override void Kill(Unit killingUnit)
+    /*public override void Kill(Unit killingUnit)
     {
         base.Kill(killingUnit);
 
-        if (killingUnit is Tower)
-        {
-            Tower tower = killingUnit as Tower;
-            tower.KillCredit(this);
-            Player.Active.AddGold(this._bounty);
-        }
+    }*/
 
-    }
 
     public override void Redraw()
     {
-        float Red = ((float)_life /_maxLife);
-        float Green =  1 - ((float)_life/_maxLife);
-        float Blue = 0.5f;
-        float Alpha = 1 ;
+        float Red = 1 - ((float)_life / _maxLife);
+        float Green = ((float)_life / _maxLife);
+        float Blue = 0f;
+        float Alpha = 1;
 
-        SpriteRenderer sprite = this.GetComponent<SpriteRenderer>();
-        sprite.material.SetColor("_Color", new Color(Red, Green, Blue,Alpha));
+        _healthSprite.material.SetColor("_Color", new Color(Red, Green, Blue, Alpha));
 
     }
 
-    //FixedUpdate is called at a fixed interval and is independent of frame rate. Put physics code here.
-    public override void FixedUpdate()
+    public override void onDeath(Unit iSource)
     {
-        base.FixedUpdate();
-        // Graphical nonsense.
-    }
-
-    public override void OnMouseDown()
-    {
-        base.OnMouseDown();
-        if (Input.GetKey("mouse 0"))
+        if (iSource is Tower)
         {
-            // Damage on Click. Disabled
-           // Damage(this, 1);
+            Tower tower = iSource as Tower;
+            tower.KillCredit(this);
+            Player.Active.AddGold(this._bounty);
         }
     }
-    /*private void OnPathComplete(Path p)
-    {
-        this.remove();
-	    Debug.Log ("This is called when a path is completed on the seeker attached to this GameObject");
-    }*/
-    
+
+
+
 }

@@ -9,7 +9,7 @@ public class EffectSplash : Effect {
     protected Effect _effect;
     protected float _range;
     
-	public EffectSplash(Effect iEffect, float iRange, TARGET iTarget, bool iDestroy)
+	public EffectSplash(Effect iEffect, float iRange, TARGET iTarget, bool iDestroy = false)
     {
         _effect = iEffect;
         _range = iRange;
@@ -33,18 +33,10 @@ public class EffectSplash : Effect {
             if (currentTarget)
             { // For all entities
                 // Check if it matchs the target Filter
-                if (_target == TARGET.RUNNER && currentTarget.GetComponent<Runner>() != null)
+                if (validateTarget(_target, currentTarget))
                 {
                     // And if so, apply the effect.
                     _effect.ApplyEntity(iOrigin, iSource, currentTarget);
-                }
-                else if (_target == TARGET.TOWER && currentTarget.GetComponent<Tower>() != null)
-                {
-                    _effect.ApplyEntity(iOrigin, iSource, currentTarget);
-                }
-                else
-                {
-                    // Invalid target, ignore
                 }
             }
         }

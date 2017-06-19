@@ -20,7 +20,6 @@ public class Projectile : Entity
     public Vector3 _targetPoint { protected set; get; }
 
 
-
 	// Use this for initialization
 	protected override void Start ()
     {
@@ -80,7 +79,9 @@ public class Projectile : Entity
         
         if (_targetEntity == null && distance.magnitude < 0.1)
         {
+            // If you RELLY want to lay landmines, create a landmine entity of some kind.
             _prototype._effect.ApplyPoint(_originUnit, this, _targetPoint);
+            Destroy(this);
         }
 
 		float angle = Mathf.Atan2(distance.y, distance.x) * Mathf.Rad2Deg;

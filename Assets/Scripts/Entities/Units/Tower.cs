@@ -6,7 +6,8 @@ using System;
 
 public class Tower : Unit
 {
-	public TowerPrototype _prototype { protected set; get; }
+    public const string ATTACK_SPEED = "attackSpeed";
+    public TowerPrototype _prototype { protected set; get; }
 	public AttackManager _attackManager { protected set; get; }
     public PowerManager _powerManager { protected set; get; }
     public GameObject _turret { get; private set; }
@@ -17,14 +18,17 @@ public class Tower : Unit
 
     new void Start()
     {
-        base.Start();
+		base.Start();
+
+		_statTable.Add(ATTACK_SPEED, new MutableStat(1f));
         
         // Locked to a 0.5 grid area.
         Vector3 p = transform.position;
         p.x = (float)RanaLib.Math.Round(p.x, 0.5);
         p.y = (float)RanaLib.Math.Round(p.y, 0.5);
 
-        transform.position = new Vector3(p.x, p.y, p.z);
+		transform.position = new Vector3(p.x, p.y, p.z);
+
 
 
 
@@ -36,6 +40,7 @@ public class Tower : Unit
         _powerManager = this.gameObject.AddComponent<PowerManager>();
         
         _turret = gameObject.transform.FindChild("Turret").gameObject;
+
 
         UpdatePathing();
         
@@ -84,6 +89,7 @@ public class Tower : Unit
 
     protected override void onRemove()
     {
+        base.onRemove();
         _powerManager.RemoveLinks();
     }
 

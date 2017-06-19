@@ -50,11 +50,11 @@ public class StatMod
 
 public class MutableStat
 {
-	public MutableStat()
-	{
-		multMods = new Dictionary<string, StatMod>();
-		baseValue = 0f;
-	}
+    public MutableStat(float iBaseBalue = 0f)
+    {
+        multMods = new Dictionary<string, StatMod>();
+        baseValue = iBaseBalue;
+    }
 
     private void CalculateModifiedValue()
     {

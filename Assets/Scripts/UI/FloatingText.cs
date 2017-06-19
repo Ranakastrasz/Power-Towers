@@ -44,6 +44,7 @@ public class FloatingText : Entity {
         base.Update();
 
         _durationLeft -= Time.deltaTime;
+        // See if you can automate this instead. Rigidbody -> Velocity?
         transform.Translate(new Vector3(0, _speed * Time.deltaTime, 0));
 
 	}

@@ -11,9 +11,9 @@ public class Runner_Spawner : MonoBehaviour {
 
 
     // Also include a prototype later for when special Runners show up.
-    public void SpawnRunner(int iHitpoints, int iBounty, int iRound)
+    public GameObject SpawnRunner(int iHitpoints, int iBounty, int iRound)
     {
-        EntityManager.CreateRunner(transform.position, iHitpoints, iBounty, _runnerGoal.GetComponent<Transform>(), iRound);
+        return EntityManager.CreateRunner(transform.position, iHitpoints, iBounty, _runnerGoal.GetComponent<Transform>(), iRound);
 
     }
 

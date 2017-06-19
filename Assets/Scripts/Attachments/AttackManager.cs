@@ -9,6 +9,7 @@ public class AttackManager : MonoBehaviour {
 
     public GameObject _currentTarget { get; private set; }
 
+    public Tower _parent { get; private set; }
 
 	public AttackManagerPrototype _prototype { get; private set; }
 	public AbilityManagerPrototype _abilityPrototype { get; private set; }
@@ -17,20 +18,20 @@ public class AttackManager : MonoBehaviour {
 	public float _cooldownRemaining { get; private set; }
 
 	public float _abilityCooldownRemaining { get; private set; }
-
-	public MutableStat _attackSpeed { get; private set; }
-
+    
 
 
-	public void ApplyPrototype(AttackManagerPrototype iPrototype, AbilityManagerPrototype iAbilityPrototype)
+
+    void Start()
+    {
+        _parent = gameObject.GetComponent<Tower>();
+
+    }
+
+    public void ApplyPrototype(AttackManagerPrototype iPrototype, AbilityManagerPrototype iAbilityPrototype)
 	{
 		_prototype = iPrototype;
 		_abilityPrototype = iAbilityPrototype;
-		if (_attackSpeed == null)
-		{
-			_attackSpeed = new MutableStat();
-		}
-		_attackSpeed.baseValue = 1;
 		_cooldownRemaining = _prototype._cooldown;
 		_abilityCooldownRemaining = _abilityPrototype._cooldown;
 
@@ -39,7 +40,7 @@ public class AttackManager : MonoBehaviour {
     // FixedUpdate is once per physics tick.
     void FixedUpdate()
     {
-        ApplyCooldown();
+        ApplyCooldown(); 
 		CheckTarget ();
         SearchTarget();
         if (CanAttack())
@@ -85,7 +86,7 @@ public class AttackManager : MonoBehaviour {
 
     private void ApplyCooldown()
 	{
-		_cooldownRemaining = Mathf.Max( _cooldownRemaining - ((Time.fixedDeltaTime)*_attackSpeed.modifiedValue), 0);
+		_cooldownRemaining = Mathf.Max( _cooldownRemaining - ((Time.fixedDeltaTime)*_parent.GetStat("attackSpeed")), 0);
 		// Ability cooldowns are uneffected.
 		_abilityCooldownRemaining = Mathf.Max( _abilityCooldownRemaining - ((Time.fixedDeltaTime)), 0);
     }
@@ -108,7 +109,7 @@ public class AttackManager : MonoBehaviour {
         // Target the RunnerData
         Runner runner = target.GetComponent<Runner>();
 
-		_prototype._effect.ApplyEntity(gameObject.GetComponent<Tower>(), gameObject.GetComponent<Tower>(), runner);
+		_prototype._effect.ApplyEntity(_parent, _parent, runner);
 		_cooldownRemaining = _prototype._cooldown;
 
     }
@@ -118,7 +119,7 @@ public class AttackManager : MonoBehaviour {
 		Runner runner = target.GetComponent<Runner>();
 		if (gameObject.GetComponent<PowerManager> ().TrySpendEnergy (_abilityPrototype._energyCost))
 		{
-			_abilityPrototype._effect.ApplyEntity (gameObject.GetComponent<Tower> (), gameObject.GetComponent<Tower> (), runner);
+			_abilityPrototype._effect.ApplyEntity (_parent, _parent, runner);
 			_abilityCooldownRemaining = _abilityPrototype._cooldown;
 			if (_abilityPrototype._trigger == AbilityManagerPrototype.TRIGGER.ON_ATTACK_OVERRIDE)
 			{
@@ -140,9 +141,13 @@ public class AttackManager : MonoBehaviour {
         foreach (Collider currentCollider in collidersInRange)
         {
             GameObject currentEnemy = currentCollider.gameObject;
-            Runner runner = currentEnemy.GetComponent<Runner>();
-            if (runner != null)
+            // Much cheaper check. When it succeeds it is more expensive, slightly, but it ignores every other tower and projectile.
+            // Almost literally cuts it from O(N^2) to O(N). Or rather O(N^3) to O(n^2) overall.
+            // After all, it went from "For each projectile, check all entities on the map using this expensive function" to "Use this cheap function that is just a lookup.
+            // Apperently the other function is more expensive than a generic lookup.
+            if (currentEnemy.tag == "Runner")
             {
+                Runner runner = currentEnemy.GetComponent<Runner>();
                 if (newTarget == null)
                 {
                     newTarget = currentEnemy;
