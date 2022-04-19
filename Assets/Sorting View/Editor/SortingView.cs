@@ -192,6 +192,7 @@ public class SortingView : EditorWindow
         }
     }
 
+    [Obsolete]
     void OnEnable()
     {
         EditorApplication.playmodeStateChanged += SerializeProcess;

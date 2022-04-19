@@ -3,10 +3,12 @@ using Pathfinding.Serialization;
 using UnityEngine;
 
 namespace Pathfinding {
+	/// <summary>Node used for the GridGraph</summary>
 	public class GridNode : GridNodeBase {
 		public GridNode (AstarPath astar) : base(astar) {
 		}
 
+#if !ASTAR_NO_GRID_GRAPH
 		private static GridGraph[] _gridGraphs = new GridGraph[0];
 		public static GridGraph GetGridGraph (uint graphIndex) { return _gridGraphs[(int)graphIndex]; }
 
@@ -20,7 +22,13 @@ namespace Pathfinding {
 			_gridGraphs[graphIndex] = graph;
 		}
 
-		/** Internal use only */
+		public static void ClearGridGraph (int graphIndex, GridGraph graph) {
+			if (graphIndex < _gridGraphs.Length && _gridGraphs[graphIndex] == graph) {
+				_gridGraphs[graphIndex] = null;
+			}
+		}
+
+		/// <summary>Internal use only</summary>
 		internal ushort InternalGridFlags {
 			get { return gridFlags; }
 			set { gridFlags = value; }
@@ -33,55 +41,82 @@ namespace Pathfinding {
 		const int GridFlagsEdgeNodeOffset = 10;
 		const int GridFlagsEdgeNodeMask = 1 << GridFlagsEdgeNodeOffset;
 
-		/** Returns true if the node has a connection in the specified direction.
-		 * The dir parameter corresponds to directions in the grid as:
-		 * \code
-		 * [0] = -Y
-		 * [1] = +X
-		 * [2] = +Y
-		 * [3] = -X
-		 * [4] = -Y+X
-		 * [5] = +Y+X
-		 * [6] = +Y-X
-		 * [7] = -Y-X
-		 * \endcode
-		 *
-		 * \see SetConnectionInternal
-		 */
-		public bool GetConnectionInternal (int dir) {
+		public override bool HasConnectionsToAllEightNeighbours {
+			get {
+				return (InternalGridFlags & GridFlagsConnectionMask) == GridFlagsConnectionMask;
+			}
+		}
+
+		/// <summary>
+		/// True if the node has a connection in the specified direction.
+		/// The dir parameter corresponds to directions in the grid as:
+		/// <code>
+		///         Z
+		///         |
+		///         |
+		///
+		///      6  2  5
+		///       \ | /
+		/// --  3 - X - 1  ----- X
+		///       / | \
+		///      7  0  4
+		///
+		///         |
+		///         |
+		/// </code>
+		///
+		/// See: SetConnectionInternal
+		/// </summary>
+		public bool HasConnectionInDirection (int dir) {
 			return (gridFlags >> dir & GridFlagsConnectionBit0) != 0;
 		}
 
-		/** Enables or disables a connection in a specified direction on the graph.
-		 *	\see GetConnectionInternal
-		 */
+		/// <summary>
+		/// True if the node has a connection in the specified direction.
+		/// Deprecated: Use HasConnectionInDirection
+		/// </summary>
+		[System.Obsolete("Use HasConnectionInDirection")]
+		public bool GetConnectionInternal (int dir) {
+			return HasConnectionInDirection(dir);
+		}
+
+		/// <summary>
+		/// Enables or disables a connection in a specified direction on the graph.
+		/// See: HasConnectionInDirection
+		/// </summary>
 		public void SetConnectionInternal (int dir, bool value) {
 			// Set bit number #dir to 1 or 0 depending on #value
 			unchecked { gridFlags = (ushort)(gridFlags & ~((ushort)1 << GridFlagsConnectionOffset << dir) | (value ? (ushort)1 : (ushort)0) << GridFlagsConnectionOffset << dir); }
+			AstarPath.active.hierarchicalGraph.AddDirtyNode(this);
 		}
 
-		/** Sets the state of all grid connections.
-		 * \param connections a bitmask of the connections (bit 0 is the first connection, bit 1 the second connection, etc.).
-		 *
-		 * \see SetConnectionInternal
-		 */
+		/// <summary>
+		/// Sets the state of all grid connections.
+		///
+		/// See: SetConnectionInternal
+		/// </summary>
+		/// <param name="connections">a bitmask of the connections (bit 0 is the first connection, bit 1 the second connection, etc.).</param>
 		public void SetAllConnectionInternal (int connections) {
 			unchecked { gridFlags = (ushort)((gridFlags & ~GridFlagsConnectionMask) | (connections << GridFlagsConnectionOffset)); }
+			AstarPath.active.hierarchicalGraph.AddDirtyNode(this);
 		}
 
-		/** Disables all grid connections from this node.
-		 * \note Other nodes might still be able to get to this node.
-		 * Therefore it is recommended to also disable the relevant connections on adjacent nodes.
-		 */
+		/// <summary>
+		/// Disables all grid connections from this node.
+		/// Note: Other nodes might still be able to get to this node.
+		/// Therefore it is recommended to also disable the relevant connections on adjacent nodes.
+		/// </summary>
 		public void ResetConnectionsInternal () {
 			unchecked {
 				gridFlags = (ushort)(gridFlags & ~GridFlagsConnectionMask);
 			}
+			AstarPath.active.hierarchicalGraph.AddDirtyNode(this);
 		}
 
-		/** Work in progress for a feature that required info about which nodes were at the border of the graph.
-		 * \note This property is not functional at the moment.
-		 */
+		/// <summary>
+		/// Work in progress for a feature that required info about which nodes were at the border of the graph.
+		/// Note: This property is not functional at the moment.
+		/// </summary>
 		public bool EdgeNode {
 			get {
 				return (gridFlags & GridFlagsEdgeNodeMask) != 0;
@@ -91,38 +126,23 @@ namespace Pathfinding {
 			}
 		}
 
-		/** X coordinate of the node in the grid.
-		 * The node in the bottom left corner has (x,z) = (0,0) and the one in the opposite
-		 * corner has (x,z) = (width-1, depth-1)
-		 * \see ZCoordInGrid
-		 * \see NodeInGridIndex
-		 */
-		public int XCoordinateInGrid {
-			get {
-				return nodeInGridIndex % GetGridGraph(GraphIndex).width;
+		public override GridNodeBase GetNeighbourAlongDirection (int direction) {
+			if (HasConnectionInDirection(direction)) {
+				GridGraph gg = GetGridGraph(GraphIndex);
+				return gg.nodes[NodeInGridIndex+gg.neighbourOffsets[direction]];
 			}
-		}
-
-		/** Z coordinate of the node in the grid.
-		 * The node in the bottom left corner has (x,z) = (0,0) and the one in the opposite
-		 * corner has (x,z) = (width-1, depth-1)
-		 * \see XCoordInGrid
-		 * \see NodeInGridIndex
-		 */
-		public int ZCoordinateInGrid {
-			get {
-				return nodeInGridIndex / GetGridGraph(GraphIndex).width;
-			}
+			return null;
 		}
 
 		public override void ClearConnections (bool alsoReverse) {
 			if (alsoReverse) {
-				GridGraph gg = GetGridGraph(GraphIndex);
+				// Note: This assumes that all connections are bidirectional
+				// which should hold for all grid graphs unless some custom code has been added
 				for (int i = 0; i < 8; i++) {
-					GridNode other = gg.GetNodeConnection(this, i);
+					var other = GetNeighbourAlongDirection(i) as GridNode;
 					if (other != null) {
-						//Remove reverse connection
-						other.SetConnectionInternal(i < 4 ? ((i + 2) % 4) : (((5-2) % 4) + 4), false);
+						// Remove reverse connection. See doc for GridGraph.neighbourOffsets to see which indices are used for what.
+						other.SetConnectionInternal(i < 4 ? ((i + 2) % 4) : (((i-2) % 4) + 4), false);
 					}
 				}
 			}
@@ -134,45 +154,41 @@ namespace Pathfinding {
 #endif
 		}
 
-		public override void GetConnections (GraphNodeDelegate del) {
+		public override void GetConnections (System.Action<GraphNode> action) {
 			GridGraph gg = GetGridGraph(GraphIndex);
 
 			int[] neighbourOffsets = gg.neighbourOffsets;
 			GridNode[] nodes = gg.nodes;
 
 			for (int i = 0; i < 8; i++) {
-				if (GetConnectionInternal(i)) {
-					GridNode other = nodes[nodeInGridIndex + neighbourOffsets[i]];
-					if (other != null) del(other);
+				if (HasConnectionInDirection(i)) {
+					GridNode other = nodes[NodeInGridIndex + neighbourOffsets[i]];
+					if (other != null) action(other);
 				}
 			}
 
 #if !ASTAR_GRID_NO_CUSTOM_CONNECTIONS
-			base.GetConnections(del);
+			base.GetConnections(action);
 #endif
 		}
 
-		public Vector3 ClosestPointOnNode (Vector3 p) {
+		public override Vector3 ClosestPointOnNode (Vector3 p) {
 			var gg = GetGridGraph(GraphIndex);
 
 			// Convert to graph space
-			p = gg.inverseMatrix.MultiplyPoint3x4(p);
-
-			// Nodes are offset 0.5 graph space nodes
-			float xf = position.x-0.5F;
-			float zf = position.z-0.5f;
+			p = gg.transform.InverseTransform(p);
 
 			// Calculate graph position of this node
-			int x = nodeInGridIndex % gg.width;
-			int z = nodeInGridIndex / gg.width;
+			int x = NodeInGridIndex % gg.width;
+			int z = NodeInGridIndex / gg.width;
 
 			// Handle the y coordinate separately
-			float y = gg.inverseMatrix.MultiplyPoint3x4((Vector3)p).y;
+			float y = gg.transform.InverseTransform((Vector3)position).y;
 
-			var closestInGraphSpace = new Vector3(Mathf.Clamp(xf, x-0.5f, x+0.5f)+0.5f, y, Mathf.Clamp(zf, z-0.5f, z+0.5f)+0.5f);
+			var closestInGraphSpace = new Vector3(Mathf.Clamp(p.x, x, x+1f), y, Mathf.Clamp(p.z, z, z+1f));
 
 			// Convert to world space
-			return gg.matrix.MultiplyPoint3x4(closestInGraphSpace);
+			return gg.transform.Transform(closestInGraphSpace);
 		}
 
 		public override bool GetPortal (GraphNode other, List<Vector3> left, List<Vector3> right, bool backwards) {
@@ -183,7 +199,7 @@ namespace Pathfinding {
 			GridNode[] nodes = gg.nodes;
 
 			for (int i = 0; i < 4; i++) {
-				if (GetConnectionInternal(i) && other == nodes[nodeInGridIndex + neighbourOffsets[i]]) {
+				if (HasConnectionInDirection(i) && other == nodes[NodeInGridIndex + neighbourOffsets[i]]) {
 					Vector3 middle = ((Vector3)(position + other.position))*0.5f;
 					Vector3 cross = Vector3.Cross(gg.collision.up, (Vector3)(other.position-position));
 					cross.Normalize();
@@ -195,19 +211,19 @@ namespace Pathfinding {
 			}
 
 			for (int i = 4; i < 8; i++) {
-				if (GetConnectionInternal(i) && other == nodes[nodeInGridIndex + neighbourOffsets[i]]) {
+				if (HasConnectionInDirection(i) && other == nodes[NodeInGridIndex + neighbourOffsets[i]]) {
 					bool rClear = false;
 					bool lClear = false;
-					if (GetConnectionInternal(i-4)) {
-						GridNode n2 = nodes[nodeInGridIndex + neighbourOffsets[i-4]];
-						if (n2.Walkable && n2.GetConnectionInternal((i-4+1)%4)) {
+					if (HasConnectionInDirection(i-4)) {
+						GridNode n2 = nodes[NodeInGridIndex + neighbourOffsets[i-4]];
+						if (n2.Walkable && n2.HasConnectionInDirection((i-4+1)%4)) {
 							rClear = true;
 						}
 					}
 
-					if (GetConnectionInternal((i-4+1)%4)) {
-						GridNode n2 = nodes[nodeInGridIndex + neighbourOffsets[(i-4+1)%4]];
-						if (n2.Walkable && n2.GetConnectionInternal(i-4)) {
+					if (HasConnectionInDirection((i-4+1)%4)) {
+						GridNode n2 = nodes[NodeInGridIndex + neighbourOffsets[(i-4+1)%4]];
+						if (n2.Walkable && n2.HasConnectionInDirection(i-4)) {
 							lClear = true;
 						}
 					}
@@ -225,43 +241,20 @@ namespace Pathfinding {
 			return false;
 		}
 
-		public override void FloodFill (Stack<GraphNode> stack, uint region) {
-			GridGraph gg = GetGridGraph(GraphIndex);
-
-			int[] neighbourOffsets = gg.neighbourOffsets;
-			GridNode[] nodes = gg.nodes;
-
-			for (int i = 0; i < 8; i++) {
-				if (GetConnectionInternal(i)) {
-					GridNode other = nodes[nodeInGridIndex + neighbourOffsets[i]];
-					if (other != null && other.Area != region) {
-						other.Area = region;
-						stack.Push(other);
-					}
-				}
-			}
-
-#if !ASTAR_GRID_NO_CUSTOM_CONNECTIONS
-			base.FloodFill(stack, region);
-#endif
-		}
-
-
-
 		public override void UpdateRecursiveG (Path path, PathNode pathNode, PathHandler handler) {
 			GridGraph gg = GetGridGraph(GraphIndex);
 
 			int[] neighbourOffsets = gg.neighbourOffsets;
 			GridNode[] nodes = gg.nodes;
 
-			UpdateG(path, pathNode);
-			handler.PushNode(pathNode);
+			pathNode.UpdateG(path);
+			handler.heap.Add(pathNode);
 
 			ushort pid = handler.PathID;
-
+			var index = NodeInGridIndex;
 			for (int i = 0; i < 8; i++) {
-				if (GetConnectionInternal(i)) {
-					GridNode other = nodes[nodeInGridIndex + neighbourOffsets[i]];
+				if (HasConnectionInDirection(i)) {
+					GridNode other = nodes[index + neighbourOffsets[i]];
 					PathNode otherPN = handler.GetPathNode(other);
 					if (otherPN.parent == pathNode && otherPN.pathID == pid) other.UpdateRecursiveG(path, otherPN, handler);
 				}
@@ -282,16 +275,18 @@ namespace Pathfinding {
 				int[] neighbourOffsets = gg.neighbourOffsets;
 				uint[] neighbourCosts = gg.neighbourCosts;
 				GridNode[] nodes = gg.nodes;
+				var index = NodeInGridIndex;
 
 				for (int i = 0; i < 8; i++) {
-					if (GetConnectionInternal(i)) {
-						GridNode other = nodes[nodeInGridIndex + neighbourOffsets[i]];
+					if (HasConnectionInDirection(i)) {
+						GridNode other = nodes[index + neighbourOffsets[i]];
 						if (!path.CanTraverse(other)) continue;
 
 						PathNode otherPN = handler.GetPathNode(other);
 
 						uint tmpCost = neighbourCosts[i];
 
+						// Check if the other node has not yet been visited by this path
 						if (otherPN.pathID != pid) {
 							otherPN.parent = pathNode;
 							otherPN.pathID = pid;
@@ -299,11 +294,9 @@ namespace Pathfinding {
 							otherPN.cost = tmpCost;
 
 							otherPN.H = path.CalculateHScore(other);
-							other.UpdateG(path, otherPN);
+							otherPN.UpdateG(path);
 
-							//Debug.Log ("G " + otherPN.G + " F " + otherPN.F);
-							handler.PushNode(otherPN);
-							//Debug.DrawRay ((Vector3)otherPN.node.Position, Vector3.up,Color.blue);
+							handler.heap.Add(otherPN);
 						} else {
 							// Sorry for the huge number of #ifs
 
@@ -321,20 +314,6 @@ namespace Pathfinding {
 								otherPN.parent = pathNode;
 
 								other.UpdateRecursiveG(path, otherPN, handler);
-
-								//Or if the path from this node ("other") to the current ("current") is better
-							}
-#if ASTAR_NO_TRAVERSAL_COST
-							else if (otherPN.G+tmpCost < pathNode.G)
-#else
-							else if (otherPN.G+tmpCost+path.GetTraversalCost(this) < pathNode.G)
-#endif
-							{
-								//Debug.Log ("Path better from " + otherPN.node.NodeIndex + " to " + NodeIndex + " " + (otherPN.G+tmpCost+path.GetTraversalCost (this)) + " < " + pathNode.G);
-								pathNode.parent = otherPN;
-								pathNode.cost = tmpCost;
-
-								UpdateRecursiveG(path, pathNode, handler);
 							}
 						}
 					}
@@ -357,5 +336,26 @@ namespace Pathfinding {
 			position = ctx.DeserializeInt3();
 			gridFlags = ctx.reader.ReadUInt16();
 		}
+#else
+		public override void AddConnection (GraphNode node, uint cost) {
+			throw new System.NotImplementedException();
+		}
+
+		public override void ClearConnections (bool alsoReverse) {
+			throw new System.NotImplementedException();
+		}
+
+		public override void GetConnections (GraphNodeDelegate del) {
+			throw new System.NotImplementedException();
+		}
+
+		public override void Open (Path path, PathNode pathNode, PathHandler handler) {
+			throw new System.NotImplementedException();
+		}
+
+		public override void RemoveConnection (GraphNode node) {
+			throw new System.NotImplementedException();
+		}
+#endif
 	}
 }

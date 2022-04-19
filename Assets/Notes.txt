@@ -1,0 +1,19 @@
+Frost Tower Projectile leaks.
+
+Add wave data
+Add Special waves.
+Simplify graphics to geometric.
+Bouncing Tesla coil.
+
+Special creeps. Speed, Shield, Drain. Color coded with Different graphic. Blue hex for shield, etc.
+
+Preview of selected tower for ghost image.
+
+Offscreen Spawn/despawn points.
+
+Death animations.
+
+Difficutly selection.
+
+Rush mode.
+Test mode. (DPS per gold score thing too)

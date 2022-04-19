@@ -1,67 +1,65 @@
 using UnityEngine;
 
 namespace Pathfinding {
-	/** Base for all path modifiers.
-	 * \see MonoModifier
-	 * Modifier */
+	/// <summary>
+	/// Base for all path modifiers.
+	/// See: MonoModifier
+	/// Modifier
+	/// </summary>
 	public interface IPathModifier {
 		int Order { get; }
 
-		void Apply (Path p);
-		void PreProcess (Path p);
+		void Apply(Path path);
+		void PreProcess(Path path);
 	}
 
-	/** Base class for path modifiers which are not attached to GameObjects.
-	 * \see MonoModifier */
+	/// <summary>
+	/// Base class for path modifiers which are not attached to GameObjects.
+	/// See: MonoModifier
+	/// </summary>
 	[System.Serializable]
 	public abstract class PathModifier : IPathModifier {
 		[System.NonSerialized]
 		public Seeker seeker;
 
-		/** Modifiers will be executed from lower order to higher order.
-		 * This value is assumed to stay constant.
-		 */
+		/// <summary>
+		/// Modifiers will be executed from lower order to higher order.
+		/// This value is assumed to stay constant.
+		/// </summary>
 		public abstract int Order { get; }
 
-		public void Awake (Seeker s) {
-			seeker = s;
-			if (s != null) {
-				s.RegisterModifier(this);
+		public void Awake (Seeker seeker) {
+			this.seeker = seeker;
+			if (seeker != null) {
+				seeker.RegisterModifier(this);
 			}
 		}
 
-		public void OnDestroy (Seeker s) {
-			if (s != null) {
-				s.DeregisterModifier(this);
+		public void OnDestroy (Seeker seeker) {
+			if (seeker != null) {
+				seeker.DeregisterModifier(this);
 			}
 		}
 
-		public virtual void PreProcess (Path p) {
+		public virtual void PreProcess (Path path) {
 			// Required by IPathModifier
 		}
 
-		/** Main Post-Processing function */
-		public abstract void Apply (Path p);
+		/// <summary>Main Post-Processing function</summary>
+		public abstract void Apply(Path path);
 	}
 
-	/** Base class for path modifiers which can be attached to GameObjects.
-	 * \see[AddComponentMenu("CONTEXT/Seeker/Something")] Modifier
-	 */
+	/// <summary>
+	/// Base class for path modifiers which can be attached to GameObjects.
+	/// See: Menubar -> Component -> Pathfinding -> Modifiers
+	/// </summary>
 	[System.Serializable]
-	public abstract class MonoModifier : MonoBehaviour, IPathModifier {
-		public void OnEnable () {}
-		public void OnDisable () {}
-
+	public abstract class MonoModifier : VersionedMonoBehaviour, IPathModifier {
 		[System.NonSerialized]
 		public Seeker seeker;
 
-		/** Modifiers will be executed from lower order to higher order.
-		 * This value is assumed to stay constant.
-		 */
-		public abstract int Order { get; }
-
-		/** Alerts the Seeker that this modifier exists */
-		public void Awake () {
+		/// <summary>Alerts the Seeker that this modifier exists</summary>
+		protected virtual void OnEnable () {
 			seeker = GetComponent<Seeker>();
 
 			if (seeker != null) {
@@ -69,17 +67,23 @@ namespace Pathfinding {
 			}
 		}
 
-		public void OnDestroy () {
+		protected virtual void OnDisable () {
 			if (seeker != null) {
 				seeker.DeregisterModifier(this);
 			}
 		}
 
-		public virtual void PreProcess (Path p) {
+		/// <summary>
+		/// Modifiers will be executed from lower order to higher order.
+		/// This value is assumed to stay constant.
+		/// </summary>
+		public abstract int Order { get; }
+
+		public virtual void PreProcess (Path path) {
 			// Required by IPathModifier
 		}
 
-		/** Main Post-Processing function */
-		public abstract void Apply (Path p);
+		/// <summary>Called for each path that the Seeker calculates after the calculation has finished</summary>
+		public abstract void Apply(Path path);
 	}
 }

@@ -143,9 +143,8 @@ public class Player : MonoBehaviour {
 	public void Quit()
 	{
 
-		SceneManager.LoadScene("Menu");
-		SceneManager.SetActiveScene(SceneManager.GetSceneByName("Menu"));
-		//SceneManager.UnloadSceneAsync (SceneManager.GetSceneByName ("Menu"));
+		SceneManager.LoadScene("MainMenu");
+		//SceneManager.SetActiveScene(SceneManager.GetSceneByName("MainMenu"));
 
 	}
 

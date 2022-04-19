@@ -1,27 +1,25 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using Pathfinding;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace Pathfinding {
-	/** Connects two nodes via two intermediate point nodes.
-	 * In contrast to the NodeLink component, this link type will not connect the nodes directly
-	 * instead it will create two point nodes at the start and end position of this link and connect
-	 * through those nodes.
-	 *
-	 * If the closest node to this object is called A and the closest node to the end transform is called
-	 * D, then it will create one point node at this object's position (call it B) and one point node at
-	 * the position of the end transform (call it C), it will then connect A to B, B to C and C to D.
-	 *
-	 * This link type is possible to detect while following since it has these special point nodes in the middle.
-	 * The link corresponding to one of those intermediate nodes can be retrieved using the #GetNodeLink method
-	 * which can be of great use if you want to, for example, play a link specific animation when reaching the link.
-	 *
-	 * \see The example scene RecastExample2 contains a few links which you can take a look at to see how they are used.
-	 */
+	using Pathfinding.Util;
+
+	/// <summary>
+	/// Connects two nodes via two intermediate point nodes.
+	/// In contrast to the NodeLink component, this link type will not connect the nodes directly
+	/// instead it will create two point nodes at the start and end position of this link and connect
+	/// through those nodes.
+	///
+	/// If the closest node to this object is called A and the closest node to the end transform is called
+	/// D, then it will create one point node at this object's position (call it B) and one point node at
+	/// the position of the end transform (call it C), it will then connect A to B, B to C and C to D.
+	///
+	/// This link type is possible to detect while following since it has these special point nodes in the middle.
+	/// The link corresponding to one of those intermediate nodes can be retrieved using the <see cref="GetNodeLink"/> method
+	/// which can be of great use if you want to, for example, play a link specific animation when reaching the link.
+	///
+	/// See: The example scene RecastExample2 contains a few links which you can take a look at to see how they are used.
+	/// </summary>
 	[AddComponentMenu("Pathfinding/Link2")]
 	[HelpURL("http://arongranberg.com/astar/docs/class_pathfinding_1_1_node_link2.php")]
 	public class NodeLink2 : GraphModifier {
@@ -33,16 +31,17 @@ namespace Pathfinding {
 			return v;
 		}
 
-		/** End position of the link */
+		/// <summary>End position of the link</summary>
 		public Transform end;
 
-		/** The connection will be this times harder/slower to traverse.
-		 * Note that values lower than 1 will not always make the pathfinder choose this path instead of another path even though this one should
-		 * lead to a lower total cost unless you also adjust the Heuristic Scale in A* Inspector -> Settings -> Pathfinding or disable the heuristic altogether.
-		 */
+		/// <summary>
+		/// The connection will be this times harder/slower to traverse.
+		/// Note that values lower than 1 will not always make the pathfinder choose this path instead of another path even though this one should
+		/// lead to a lower total cost unless you also adjust the Heuristic Scale in A* Inspector -> Settings -> Pathfinding or disable the heuristic altogether.
+		/// </summary>
 		public float costFactor = 1.0f;
 
-		/** Make a one-way connection */
+		/// <summary>Make a one-way connection</summary>
 		public bool oneWay = false;
 
 		public Transform StartTransform {
@@ -76,17 +75,27 @@ namespace Pathfinding {
 		public void InternalOnPostScan () {
 			if (EndTransform == null || StartTransform == null) return;
 
-			if (AstarPath.active.astarData.pointGraph == null) {
-				var graph = AstarPath.active.astarData.AddGraph(typeof(PointGraph)) as PointGraph;
+#if ASTAR_NO_POINT_GRAPH
+			throw new System.Exception("Point graph is not included. Check your A* optimization settings.");
+#else
+			if (AstarPath.active.data.pointGraph == null) {
+				var graph = AstarPath.active.data.AddGraph(typeof(PointGraph)) as PointGraph;
 				graph.name = "PointGraph (used for node links)";
 			}
 
-			if (startNode != null) reference.Remove(startNode);
-			if (endNode != null) reference.Remove(endNode);
+			if (startNode != null && startNode.Destroyed) {
+				reference.Remove(startNode);
+				startNode = null;
+			}
+
+			if (endNode != null && endNode.Destroyed) {
+				reference.Remove(endNode);
+				endNode = null;
+			}
 
 			// Create new nodes on the point graph
-			startNode = AstarPath.active.astarData.pointGraph.AddNode((Int3)StartTransform.position);
-			endNode = AstarPath.active.astarData.pointGraph.AddNode((Int3)EndTransform.position);
+			if (startNode == null) startNode = AstarPath.active.data.pointGraph.AddNode((Int3)StartTransform.position);
+			if (endNode == null) endNode = AstarPath.active.data.pointGraph.AddNode((Int3)EndTransform.position);
 
 			connectedNode1 = null;
 			connectedNode2 = null;
@@ -101,6 +110,7 @@ namespace Pathfinding {
 			reference[startNode] = this;
 			reference[endNode] = this;
 			Apply(true);
+#endif
 		}
 
 		public override void OnGraphsPostUpdate () {
@@ -125,10 +135,12 @@ namespace Pathfinding {
 		protected override void OnEnable () {
 			base.OnEnable();
 
-			if (Application.isPlaying && AstarPath.active != null && AstarPath.active.astarData != null && AstarPath.active.astarData.pointGraph != null && !AstarPath.active.isScanning) {
+#if !ASTAR_NO_POINT_GRAPH
+			if (Application.isPlaying && AstarPath.active != null && AstarPath.active.data != null && AstarPath.active.data.pointGraph != null && !AstarPath.active.isScanning) {
 				// Call OnGraphsPostUpdate as soon as possible when it is safe to update the graphs
-				AstarPath.RegisterSafeUpdate(OnGraphsPostUpdate);
+				AstarPath.active.AddWorkItem(OnGraphsPostUpdate);
 			}
+#endif
 		}
 
 		protected override void OnDisable () {
@@ -162,9 +174,6 @@ namespace Pathfinding {
 		void ContextApplyForce () {
 			if (Application.isPlaying) {
 				Apply(true);
-				if (AstarPath.active != null) {
-					AstarPath.active.FloodFill();
-				}
 			}
 		}
 
@@ -188,15 +197,15 @@ namespace Pathfinding {
 			endNode.AddConnection(startNode, cost);
 
 			if (connectedNode1 == null || forceNewCheck) {
-				NNInfo n1 = AstarPath.active.GetNearest(StartTransform.position, nn);
-				connectedNode1 = n1.node;
-				clamped1 = n1.clampedPosition;
+				var info = AstarPath.active.GetNearest(StartTransform.position, nn);
+				connectedNode1 = info.node;
+				clamped1 = info.position;
 			}
 
 			if (connectedNode2 == null || forceNewCheck) {
-				NNInfo n2 = AstarPath.active.GetNearest(EndTransform.position, nn);
-				connectedNode2 = n2.node;
-				clamped2 = n2.clampedPosition;
+				var info = AstarPath.active.GetNearest(EndTransform.position, nn);
+				connectedNode2 = info.node;
+				clamped2 = info.position;
 			}
 
 			if (connectedNode2 == null || connectedNode1 == null) return;
@@ -209,43 +218,8 @@ namespace Pathfinding {
 			endNode.AddConnection(connectedNode2, (uint)Mathf.RoundToInt(((Int3)(clamped2 - EndTransform.position)).costMagnitude*costFactor));
 		}
 
-		void DrawCircle (Vector3 o, float r, int detail, Color col) {
-			Vector3 prev = new Vector3(Mathf.Cos(0)*r, 0, Mathf.Sin(0)*r) + o;
-
-			Gizmos.color = col;
-			for (int i = 0; i <= detail; i++) {
-				float t = (i*Mathf.PI*2f)/detail;
-				Vector3 c = new Vector3(Mathf.Cos(t)*r, 0, Mathf.Sin(t)*r) + o;
-				Gizmos.DrawLine(prev, c);
-				prev = c;
-			}
-		}
-
 		private readonly static Color GizmosColor = new Color(206.0f/255.0f, 136.0f/255.0f, 48.0f/255.0f, 0.5f);
 		private readonly static Color GizmosColorSelected = new Color(235.0f/255.0f, 123.0f/255.0f, 32.0f/255.0f, 1.0f);
-
-		void DrawGizmoBezier (Vector3 p1, Vector3 p2) {
-			Vector3 dir = p2-p1;
-
-			if (dir == Vector3.zero) return;
-
-			Vector3 normal = Vector3.Cross(Vector3.up, dir);
-			Vector3 normalUp = Vector3.Cross(dir, normal);
-
-			normalUp = normalUp.normalized;
-			normalUp *= dir.magnitude*0.1f;
-
-			Vector3 p1c = p1+normalUp;
-			Vector3 p2c = p2+normalUp;
-
-			Vector3 prev = p1;
-			for (int i = 1; i <= 20; i++) {
-				float t = i/20.0f;
-				Vector3 p = AstarSplines.CubicBezier(p1, p1c, p2c, p2, t);
-				Gizmos.DrawLine(prev, p);
-				prev = p;
-			}
-		}
 
 		public virtual void OnDrawGizmosSelected () {
 			OnDrawGizmos(true);
@@ -256,22 +230,21 @@ namespace Pathfinding {
 		}
 
 		public void OnDrawGizmos (bool selected) {
-			Color col = selected ? GizmosColorSelected : GizmosColor;
+			Color color = selected ? GizmosColorSelected : GizmosColor;
 
 			if (StartTransform != null) {
-				DrawCircle(StartTransform.position, 0.4f, 10, col);
+				Draw.Gizmos.CircleXZ(StartTransform.position, 0.4f, color);
 			}
 			if (EndTransform != null) {
-				DrawCircle(EndTransform.position, 0.4f, 10, col);
+				Draw.Gizmos.CircleXZ(EndTransform.position, 0.4f, color);
 			}
 
 			if (StartTransform != null && EndTransform != null) {
-				Gizmos.color = col;
-				DrawGizmoBezier(StartTransform.position, EndTransform.position);
+				Draw.Gizmos.Bezier(StartTransform.position, EndTransform.position, color);
 				if (selected) {
 					Vector3 cross = Vector3.Cross(Vector3.up, (EndTransform.position-StartTransform.position)).normalized;
-					DrawGizmoBezier(StartTransform.position+cross*0.1f, EndTransform.position+cross*0.1f);
-					DrawGizmoBezier(StartTransform.position-cross*0.1f, EndTransform.position-cross*0.1f);
+					Draw.Gizmos.Bezier(StartTransform.position+cross*0.1f, EndTransform.position+cross*0.1f, color);
+					Draw.Gizmos.Bezier(StartTransform.position-cross*0.1f, EndTransform.position-cross*0.1f, color);
 				}
 			}
 		}
@@ -309,8 +282,8 @@ namespace Pathfinding {
 				if (usedIDs.TryGetValue(linkID, out link)) {
 					var link2 = link as NodeLink2;
 					if (link2 != null) {
-						reference[startNode] = link2;
-						reference[endNode] = link2;
+						if (startNode != null) reference[startNode] = link2;
+						if (endNode != null) reference[endNode] = link2;
 
 						// If any nodes happened to be registered right now
 						if (link2.startNode != null) reference.Remove(link2.startNode);

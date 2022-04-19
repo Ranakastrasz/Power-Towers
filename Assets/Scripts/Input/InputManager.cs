@@ -325,7 +325,7 @@ public class InputManager : MonoBehaviour {
     public void Redraw()
     {
         SpriteRenderer sprite = PlacementPrototype.GetComponent<SpriteRenderer>();
-        SpriteRenderer turretSprite = PlacementPrototype.transform.FindChild("Turret").GetComponent<SpriteRenderer>();
+        SpriteRenderer turretSprite = PlacementPrototype.transform.Find("Turret").GetComponent<SpriteRenderer>();
 
         float Red = 0.5f;
         float Green = 0.5f;;

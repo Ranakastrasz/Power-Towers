@@ -3,34 +3,44 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Pathfinding {
-	/** Contains useful functions for working with paths and nodes.
-	 * This class works a lot with the Node class, a useful function to get nodes is AstarPath.GetNearest.
-	 * \see AstarPath.GetNearest
-	 * \see Pathfinding.Utils.GraphUpdateUtilities
-	 * \since Added in version 3.2
-	 * \ingroup utils
-	 *
-	 */
+	/// <summary>
+	/// Contains useful functions for working with paths and nodes.
+	/// This class works a lot with the <see cref="Pathfinding.GraphNode"/> class, a useful function to get nodes is AstarPath.GetNearest.
+	/// See: <see cref="AstarPath.GetNearest"/>
+	/// See: <see cref="Pathfinding.GraphUpdateUtilities"/>
+	/// See: <see cref="Pathfinding.GraphUtilities"/>
+	/// \ingroup utils
+	/// </summary>
 	public static class PathUtilities {
-		/** Returns if there is a walkable path from \a n1 to \a n2.
-		 * If you are making changes to the graph, areas must first be recaculated using FloodFill()
-		 * \note This might return true for small areas even if there is no possible path if AstarPath.minAreaSize is greater than zero (0).
-		 * So when using this, it is recommended to set AstarPath.minAreaSize to 0. (A* Inspector -> Settings -> Pathfinding)
-		 * \see AstarPath.GetNearest
-		 */
-		public static bool IsPathPossible (GraphNode n1, GraphNode n2) {
-			return n1.Walkable && n2.Walkable && n1.Area == n2.Area;
+		/// <summary>
+		/// Returns if there is a walkable path from node1 to node2.
+		/// This method is extremely fast because it only uses precalculated information.
+		///
+		/// <code>
+		/// GraphNode node1 = AstarPath.active.GetNearest(point1, NNConstraint.Default).node;
+		/// GraphNode node2 = AstarPath.active.GetNearest(point2, NNConstraint.Default).node;
+		///
+		/// if (PathUtilities.IsPathPossible(node1, node2)) {
+		///     // Yay, there is a path between those two nodes
+		/// }
+		/// </code>
+		///
+		/// See: graph-updates (view in online documentation for working links)
+		/// See: <see cref="AstarPath.GetNearest"/>
+		/// </summary>
+		public static bool IsPathPossible (GraphNode node1, GraphNode node2) {
+			return node1.Walkable && node2.Walkable && node1.Area == node2.Area;
 		}
 
-		/** Returns if there are walkable paths between all nodes.
-		 * If you are making changes to the graph, areas must first be recaculated using FloodFill()
-		 * \note This might return true for small areas even if there is no possible path if AstarPath.minAreaSize is greater than zero (0).
-		 * So when using this, it is recommended to set AstarPath.minAreaSize to 0. (A* Inspector -> Settings -> Pathfinding)
-		 *
-		 * Returns true for empty lists
-		 *
-		 * \see AstarPath.GetNearest
-		 */
+		/// <summary>
+		/// Returns if there are walkable paths between all nodes.
+		///
+		/// See: graph-updates (view in online documentation for working links)
+		///
+		/// Returns true for empty lists.
+		///
+		/// See: <see cref="AstarPath.GetNearest"/>
+		/// </summary>
 		public static bool IsPathPossible (List<GraphNode> nodes) {
 			if (nodes.Count == 0) return true;
 
@@ -39,20 +49,21 @@ namespace Pathfinding {
 			return true;
 		}
 
-		/** Returns if there are walkable paths between all nodes.
-		 * If you are making changes to the graph, areas should first be recaculated using FloodFill()
-		 *
-		 * This method will actually only check if the first node can reach all other nodes. However this is
-		 * equivalent in 99% of the cases since almost always the graph connections are bidirectional.
-		 * If you are not aware of any cases where you explicitly create unidirectional connections
-		 * this method can be used without worries.
-		 *
-		 * Returns true for empty lists
-		 *
-		 * \warning This method is significantly slower than the IsPathPossible method which does not take a tagMask
-		 *
-		 * \see AstarPath.GetNearest
-		 */
+		/// <summary>
+		/// Returns if there are walkable paths between all nodes.
+		/// See: graph-updates (view in online documentation for working links)
+		///
+		/// This method will actually only check if the first node can reach all other nodes. However this is
+		/// equivalent in 99% of the cases since almost always the graph connections are bidirectional.
+		/// If you are not aware of any cases where you explicitly create unidirectional connections
+		/// this method can be used without worries.
+		///
+		/// Returns true for empty lists
+		///
+		/// Warning: This method is significantly slower than the IsPathPossible method which does not take a tagMask
+		///
+		/// See: <see cref="AstarPath.GetNearest"/>
+		/// </summary>
 		public static bool IsPathPossible (List<GraphNode> nodes, int tagMask) {
 			if (nodes.Count == 0) return true;
 
@@ -75,93 +86,107 @@ namespace Pathfinding {
 			}
 
 			// Pool the temporary list
-			ListPool<GraphNode>.Release(reachable);
+			ListPool<GraphNode>.Release(ref reachable);
 
 			return result;
 		}
 
-		/** Returns all nodes reachable from the seed node.
-		 * This function performs a BFS (breadth-first-search) or flood fill of the graph and returns all nodes which can be reached from
-		 * the seed node. In almost all cases this will be identical to returning all nodes which have the same area as the seed node.
-		 * In the editor areas are displayed as different colors of the nodes.
-		 * The only case where it will not be so is when there is a one way path from some part of the area to the seed node
-		 * but no path from the seed node to that part of the graph.
-		 *
-		 * The returned list is sorted by node distance from the seed node
-		 * i.e distance is measured in the number of nodes the shortest path from \a seed to that node would pass through.
-		 * Note that the distance measurement does not take heuristics, penalties or tag penalties.
-		 *
-		 * Depending on the number of reachable nodes, this function can take quite some time to calculate
-		 * so don't use it too often or it might affect the framerate of your game.
-		 *
-		 * \param seed The node to start the search from
-		 * \param tagMask Optional mask for tags. This is a bitmask.
-		 *
-		 * \returns A List<Node> containing all nodes reachable from the seed node.
-		 * For better memory management the returned list should be pooled, see Pathfinding.Util.ListPool
-		 */
-		public static List<GraphNode> GetReachableNodes (GraphNode seed, int tagMask = -1) {
-			Stack<GraphNode> stack = StackPool<GraphNode>.Claim();
-			List<GraphNode> list = ListPool<GraphNode>.Claim();
+		/// <summary>
+		/// Returns all nodes reachable from the seed node.
+		/// This function performs a DFS (depth-first-search) or flood fill of the graph and returns all nodes which can be reached from
+		/// the seed node. In almost all cases this will be identical to returning all nodes which have the same area as the seed node.
+		/// In the editor areas are displayed as different colors of the nodes.
+		/// The only case where it will not be so is when there is a one way path from some part of the area to the seed node
+		/// but no path from the seed node to that part of the graph.
+		///
+		/// The returned list is not sorted in any particular way.
+		///
+		/// Depending on the number of reachable nodes, this function can take quite some time to calculate
+		/// so don't use it too often or it might affect the framerate of your game.
+		///
+		/// See: bitmasks (view in online documentation for working links).
+		///
+		/// Returns: A List<Node> containing all nodes reachable from the seed node.
+		/// For better memory management the returned list should be pooled, see Pathfinding.Util.ListPool.
+		/// </summary>
+		/// <param name="seed">The node to start the search from.</param>
+		/// <param name="tagMask">Optional mask for tags. This is a bitmask.</param>
+		/// <param name="filter">Optional filter for which nodes to search. You can combine this with tagMask = -1 to make the filter determine everything.
+		///      Only walkable nodes are searched regardless of the filter. If the filter function returns false the node will be treated as unwalkable.</param>
+		public static List<GraphNode> GetReachableNodes (GraphNode seed, int tagMask = -1, System.Func<GraphNode, bool> filter = null) {
+			Stack<GraphNode> dfsStack = StackPool<GraphNode>.Claim();
+			List<GraphNode> reachable = ListPool<GraphNode>.Claim();
 
-			/** \todo Pool */
+			/// <summary>TODO: Pool</summary>
 			var map = new HashSet<GraphNode>();
 
-			GraphNodeDelegate callback;
-			if (tagMask == -1) {
-				callback = delegate(GraphNode node) {
+			System.Action<GraphNode> callback;
+			// Check if we can use the fast path
+			if (tagMask == -1 && filter == null) {
+				callback = (GraphNode node) => {
 					if (node.Walkable && map.Add(node)) {
-						list.Add(node);
-						stack.Push(node);
+						reachable.Add(node);
+						dfsStack.Push(node);
 					}
 				};
 			} else {
-				callback = delegate(GraphNode node) {
+				callback = (GraphNode node) => {
 					if (node.Walkable && ((tagMask >> (int)node.Tag) & 0x1) != 0 && map.Add(node)) {
-						list.Add(node);
-						stack.Push(node);
+						if (filter != null && !filter(node)) return;
+
+						reachable.Add(node);
+						dfsStack.Push(node);
 					}
 				};
 			}
 
 			callback(seed);
 
-			while (stack.Count > 0) {
-				stack.Pop().GetConnections(callback);
+			while (dfsStack.Count > 0) {
+				dfsStack.Pop().GetConnections(callback);
 			}
 
-			StackPool<GraphNode>.Release(stack);
-
-			return list;
+			StackPool<GraphNode>.Release(dfsStack);
+			return reachable;
 		}
 
 		static Queue<GraphNode> BFSQueue;
 		static Dictionary<GraphNode, int> BFSMap;
 
-		/** Returns all nodes up to a given node-distance from the seed node.
-		 * This function performs a BFS (breadth-first-search) or flood fill of the graph and returns all nodes within a specified node distance which can be reached from
-		 * the seed node. In almost all cases when \a depth is large enough this will be identical to returning all nodes which have the same area as the seed node.
-		 * In the editor areas are displayed as different colors of the nodes.
-		 * The only case where it will not be so is when there is a one way path from some part of the area to the seed node
-		 * but no path from the seed node to that part of the graph.
-		 *
-		 * The returned list is sorted by node distance from the seed node
-		 * i.e distance is measured in the number of nodes the shortest path from \a seed to that node would pass through.
-		 * Note that the distance measurement does not take heuristics, penalties or tag penalties.
-		 *
-		 * Depending on the number of nodes, this function can take quite some time to calculate
-		 * so don't use it too often or it might affect the framerate of your game.
-		 *
-		 * \param seed The node to start the search from.
-		 * \param depth The maximum node-distance from the seed node.
-		 * \param tagMask Optional mask for tags. This is a bitmask.
-		 *
-		 * \returns A List<Node> containing all nodes reachable up to a specified node distance from the seed node.
-		 * For better memory management the returned list should be pooled, see Pathfinding.Util.ListPool
-		 *
-		 * \warning This method is not thread safe. Only use it from the Unity thread (i.e normal game code).
-		 */
-		public static List<GraphNode> BFS (GraphNode seed, int depth, int tagMask = -1) {
+		/// <summary>
+		/// Returns all nodes up to a given node-distance from the seed node.
+		/// This function performs a BFS (<a href="https://en.wikipedia.org/wiki/Breadth-first_search">breadth-first search</a>) or flood fill of the graph and returns all nodes within a specified node distance which can be reached from
+		/// the seed node. In almost all cases when depth is large enough this will be identical to returning all nodes which have the same area as the seed node.
+		/// In the editor areas are displayed as different colors of the nodes.
+		/// The only case where it will not be so is when there is a one way path from some part of the area to the seed node
+		/// but no path from the seed node to that part of the graph.
+		///
+		/// The returned list is sorted by node distance from the seed node
+		/// i.e distance is measured in the number of nodes the shortest path from seed to that node would pass through.
+		/// Note that the distance measurement does not take heuristics, penalties or tag penalties.
+		///
+		/// Depending on the number of nodes, this function can take quite some time to calculate
+		/// so don't use it too often or it might affect the framerate of your game.
+		///
+		/// Returns: A List<GraphNode> containing all nodes reachable up to a specified node distance from the seed node.
+		/// For better memory management the returned list should be pooled, see Pathfinding.Util.ListPool
+		///
+		/// Warning: This method is not thread safe. Only use it from the Unity thread (i.e normal game code).
+		///
+		/// The video below shows the BFS result with varying values of depth. Points are sampled on the nodes using <see cref="GetPointsOnNodes"/>.
+		/// [Open online documentation to see videos]
+		/// </summary>
+		/// <param name="seed">The node to start the search from.</param>
+		/// <param name="depth">The maximum node-distance from the seed node.</param>
+		/// <param name="tagMask">Optional mask for tags. This is a bitmask.</param>
+		/// <param name="filter">Optional filter for which nodes to search. You can combine this with depth = int.MaxValue and tagMask = -1 to make the filter determine everything.
+		///      Only walkable nodes are searched regardless of the filter. If the filter function returns false the node will be treated as unwalkable.</param>
+		public static List<GraphNode> BFS (GraphNode seed, int depth, int tagMask = -1, System.Func<GraphNode, bool> filter = null) {
+#if ASTAR_PROFILE
+			System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+			watch.Start();
+#endif
+
 			BFSQueue = BFSQueue ?? new Queue<GraphNode>();
 			var que = BFSQueue;
 
@@ -178,10 +203,12 @@ namespace Pathfinding {
 			List<GraphNode> result = ListPool<GraphNode>.Claim();
 
 			int currentDist = -1;
-			GraphNodeDelegate callback;
+			System.Action<GraphNode> callback;
 			if (tagMask == -1) {
 				callback = node => {
 					if (node.Walkable && !map.ContainsKey(node)) {
+						if (filter != null && !filter(node)) return;
+
 						map.Add(node, currentDist+1);
 						result.Add(node);
 						que.Enqueue(node);
@@ -190,6 +217,8 @@ namespace Pathfinding {
 			} else {
 				callback = node => {
 					if (node.Walkable && ((tagMask >> (int)node.Tag) & 0x1) != 0 && !map.ContainsKey(node)) {
+						if (filter != null && !filter(node)) return;
+
 						map.Add(node, currentDist+1);
 						result.Add(node);
 						que.Enqueue(node);
@@ -211,20 +240,25 @@ namespace Pathfinding {
 			que.Clear();
 			map.Clear();
 
+#if ASTAR_PROFILE
+			watch.Stop();
+			Debug.Log((1000*watch.Elapsed.TotalSeconds).ToString("0.0 ms"));
+#endif
 			return result;
 		}
 
-		/** Returns points in a spiral centered around the origin with a minimum clearance from other points.
-		 * The points are laid out on the involute of a circle
-		 * \see http://en.wikipedia.org/wiki/Involute
-		 * Which has some nice properties.
-		 * All points are separated by \a clearance world units.
-		 * This method is O(n), yes if you read the code you will see a binary search, but that binary search
-		 * has an upper bound on the number of steps, so it does not yield a log factor.
-		 *
-		 * \note Consider recycling the list after usage to reduce allocations.
-		 * \see Pathfinding.Util.ListPool
-		 */
+		/// <summary>
+		/// Returns points in a spiral centered around the origin with a minimum clearance from other points.
+		/// The points are laid out on the involute of a circle
+		/// See: http://en.wikipedia.org/wiki/Involute
+		/// Which has some nice properties.
+		/// All points are separated by clearance world units.
+		/// This method is O(n), yes if you read the code you will see a binary search, but that binary search
+		/// has an upper bound on the number of steps, so it does not yield a log factor.
+		///
+		/// Note: Consider recycling the list after usage to reduce allocations.
+		/// See: Pathfinding.Util.ListPool
+		/// </summary>
 		public static List<Vector3> GetSpiralPoints (int count, float clearance) {
 			List<Vector3> pts = ListPool<Vector3>.Claim(count);
 
@@ -263,17 +297,26 @@ namespace Pathfinding {
 			return pts;
 		}
 
-		/** Returns the XZ coordinate of the involute of circle.
-		 * \see http://en.wikipedia.org/wiki/Involute
-		 */
+		/// <summary>
+		/// Returns the XZ coordinate of the involute of circle.
+		/// See: http://en.wikipedia.org/wiki/Involute
+		/// </summary>
 		private static Vector3 InvoluteOfCircle (float a, float t) {
 			return new Vector3(a*(Mathf.Cos(t) + t*Mathf.Sin(t)), 0, a*(Mathf.Sin(t) - t*Mathf.Cos(t)));
 		}
 
-		/** Will calculate a number of points around \a p which are on the graph and are separated by \a clearance from each other.
-		 * This is like GetPointsAroundPoint except that \a previousPoints are treated as being in world space.
-		 * The average of the points will be found and then that will be treated as the group center.
-		 */
+		/// <summary>
+		/// Will calculate a number of points around p which are on the graph and are separated by clearance from each other.
+		/// This is like GetPointsAroundPoint except that previousPoints are treated as being in world space.
+		/// The average of the points will be found and then that will be treated as the group center.
+		/// </summary>
+		/// <param name="p">The point to generate points around</param>
+		/// <param name="g">The graph to use for linecasting. If you are only using one graph, you can get this by AstarPath.active.graphs[0] as IRaycastableGraph.
+		/// Note that not all graphs are raycastable, recast, navmesh and grid graphs are raycastable. On recast and navmesh it works the best.</param>
+		/// <param name="previousPoints">The points to use for reference. Note that these are in world space.
+		///      The new points will overwrite the existing points in the list. The result will be in world space.</param>
+		/// <param name="radius">The final points will be at most this distance from p.</param>
+		/// <param name="clearanceRadius">The points will if possible be at least this distance from each other.</param>
 		public static void GetPointsAroundPointWorld (Vector3 p, IRaycastableGraph g, List<Vector3> previousPoints, float radius, float clearanceRadius) {
 			if (previousPoints.Count == 0) return;
 
@@ -286,29 +329,32 @@ namespace Pathfinding {
 			GetPointsAroundPoint(p, g, previousPoints, radius, clearanceRadius);
 		}
 
-		/** Will calculate a number of points around \a p which are on the graph and are separated by \a clearance from each other.
-		 * The maximum distance from \a p to any point will be \a radius.
-		 * Points will first be tried to be laid out as \a previousPoints and if that fails, random points will be selected.
-		 * This is great if you want to pick a number of target points for group movement. If you pass all current agent points from e.g the group's average position
-		 * this method will return target points so that the units move very little within the group, this is often aesthetically pleasing and reduces jitter if using
-		 * some kind of local avoidance.
-		 *
-		 * \param p The point to generate points around
-		 * \param g The graph to use for linecasting. If you are only using one graph, you can get this by AstarPath.active.graphs[0] as IRaycastableGraph.
-		 * Note that not all graphs are raycastable, recast, navmesh and grid graphs are raycastable. On recast and navmesh it works the best.
-		 * \param previousPoints The points to use for reference. Note that these should not be in world space. They are treated as relative to \a p.
-		 * \param radius The final points will be at most this distance from \a p.
-		 * \param clearanceRadius The points will if possible be at least this distance from each other.
-		 */
-		public static void GetPointsAroundPoint (Vector3 p, IRaycastableGraph g, List<Vector3> previousPoints, float radius, float clearanceRadius) {
+		/// <summary>
+		/// Will calculate a number of points around center which are on the graph and are separated by clearance from each other.
+		/// The maximum distance from center to any point will be radius.
+		/// Points will first be tried to be laid out as previousPoints and if that fails, random points will be selected.
+		/// This is great if you want to pick a number of target points for group movement. If you pass all current agent points from e.g the group's average position
+		/// this method will return target points so that the units move very little within the group, this is often aesthetically pleasing and reduces jitter if using
+		/// some kind of local avoidance.
+		///
+		/// TODO: Write unit tests
+		/// </summary>
+		/// <param name="center">The point to generate points around</param>
+		/// <param name="g">The graph to use for linecasting. If you are only using one graph, you can get this by AstarPath.active.graphs[0] as IRaycastableGraph.
+		/// Note that not all graphs are raycastable, recast, navmesh and grid graphs are raycastable. On recast and navmesh it works the best.</param>
+		/// <param name="previousPoints">The points to use for reference. Note that these should not be in world space. They are treated as relative to center.
+		///      The new points will overwrite the existing points in the list. The result will be in world space, not relative to center.</param>
+		/// <param name="radius">The final points will be at most this distance from center.</param>
+		/// <param name="clearanceRadius">The points will if possible be at least this distance from each other.</param>
+		public static void GetPointsAroundPoint (Vector3 center, IRaycastableGraph g, List<Vector3> previousPoints, float radius, float clearanceRadius) {
 			if (g == null) throw new System.ArgumentNullException("g");
 
 			var graph = g as NavGraph;
 
 			if (graph == null) throw new System.ArgumentException("g is not a NavGraph");
 
-			NNInfo nn = graph.GetNearestForce(p, NNConstraint.Default);
-			p = nn.clampedPosition;
+			NNInfoInternal nn = graph.GetNearestForce(center, NNConstraint.Default);
+			center = nn.clampedPosition;
 
 			if (nn.node == null) {
 				// No valid point to start from
@@ -329,20 +375,31 @@ namespace Pathfinding {
 				float newMagn = radius;//magn > radius ? radius : magn;
 				dir *= newMagn;
 
-				bool worked = false;
-
 				GraphHitInfo hit;
 
 				int tests = 0;
-				do {
-					Vector3 pt = p + dir;
+				while (true) {
+					Vector3 pt = center + dir;
 
-					if (g.Linecast(p, pt, nn.node, out hit)) {
-						pt = hit.point;
+					if (g.Linecast(center, pt, nn.node, out hit)) {
+						if (hit.point == Vector3.zero) {
+							// Oops, linecast actually failed completely
+							// try again unless we have tried lots of times
+							// then we just continue anyway
+							tests++;
+							if (tests > 8) {
+								previousPoints[i] = pt;
+								break;
+							}
+						} else {
+							pt = hit.point;
+						}
 					}
 
+					bool worked = false;
+
 					for (float q = 0.1f; q <= 1.0f; q += 0.05f) {
-						Vector3 qt = (pt - p)*q + p;
+						Vector3 qt = Vector3.Lerp(center, pt, q);
 						worked = true;
 						for (int j = 0; j < i; j++) {
 							if ((previousPoints[j] - qt).sqrMagnitude < clearanceRadius) {
@@ -351,47 +408,55 @@ namespace Pathfinding {
 							}
 						}
 
-						if (worked) {
+						// Abort after 8 tests or when we have found a valid point
+						if (worked || tests > 8) {
+							worked = true;
 							previousPoints[i] = qt;
 							break;
 						}
 					}
 
-					if (!worked) {
-						// Abort after 8 tries
-						if (tests > 8) {
-							worked = true;
-						} else {
-							clearanceRadius *= 0.9f;
-							// This will pick points in 2D closer to the edge of the circle with a higher probability
-							dir = Random.onUnitSphere * Mathf.Lerp(newMagn, radius, tests / 5);
-							dir.y = 0;
-							tests++;
-						}
+					// Break out of nested loop
+					if (worked) {
+						break;
 					}
-				} while (!worked);
+
+					// If we could not find a valid point, reduce the clearance radius slightly to improve
+					// the chances next time
+					clearanceRadius *= 0.9f;
+					// This will pick points in 2D closer to the edge of the circle with a higher probability
+					dir = Random.onUnitSphere * Mathf.Lerp(newMagn, radius, tests / 5);
+					dir.y = 0;
+					tests++;
+				}
 			}
 		}
 
-		/** Returns randomly selected points on the specified nodes with each point being separated by \a clearanceRadius from each other.
-		 * Selecting points ON the nodes only works for TriangleMeshNode (used by Recast Graph and Navmesh Graph) and GridNode (used by GridGraph).
-		 * For other node types, only the positions of the nodes will be used.
-		 *
-		 * clearanceRadius will be reduced if no valid points can be found.
-		 */
+		/// <summary>
+		/// Returns randomly selected points on the specified nodes with each point being separated by clearanceRadius from each other.
+		/// Selecting points ON the nodes only works for TriangleMeshNode (used by Recast Graph and Navmesh Graph) and GridNode (used by GridGraph).
+		/// For other node types, only the positions of the nodes will be used.
+		///
+		/// clearanceRadius will be reduced if no valid points can be found.
+		///
+		/// Note: This method assumes that the nodes in the list have the same type for some special cases.
+		/// More specifically if the first node is not a TriangleMeshNode or a GridNode, it will use a fast path
+		/// which assumes that all nodes in the list have the same surface area (which usually is a surface area of zero and the
+		/// nodes are all PointNodes).
+		/// </summary>
 		public static List<Vector3> GetPointsOnNodes (List<GraphNode> nodes, int count, float clearanceRadius = 0) {
 			if (nodes == null) throw new System.ArgumentNullException("nodes");
 			if (nodes.Count == 0) throw new System.ArgumentException("no nodes passed");
-
-			var rnd = new System.Random();
 
 			List<Vector3> pts = ListPool<Vector3>.Claim(count);
 
 			// Square
 			clearanceRadius *= clearanceRadius;
 
-			if (nodes[0] is TriangleMeshNode
+			if (clearanceRadius > 0 || nodes[0] is TriangleMeshNode
+#if !ASTAR_NO_GRID_GRAPH
 				|| nodes[0] is GridNode
+#endif
 				) {
 				// Accumulated area of all nodes
 				List<float> accs = ListPool<float>.Claim(nodes.Count);
@@ -400,24 +465,12 @@ namespace Pathfinding {
 				float tot = 0;
 
 				for (int i = 0; i < nodes.Count; i++) {
-					var tnode = nodes[i] as TriangleMeshNode;
-					if (tnode != null) {
-						/** \bug Doesn't this need to be divided by 2? */
-						float a = System.Math.Abs(VectorMath.SignedTriangleAreaTimes2XZ(tnode.GetVertex(0), tnode.GetVertex(1), tnode.GetVertex(2)));
-						tot += a;
-						accs.Add(tot);
-					} else {
-						var gnode = nodes[i] as GridNode;
-
-						if (gnode != null) {
-							GridGraph gg = GridNode.GetGridGraph(gnode.GraphIndex);
-							float a = gg.nodeSize*gg.nodeSize;
-							tot += a;
-							accs.Add(tot);
-						} else {
-							accs.Add(tot);
-						}
-					}
+					var surfaceArea = nodes[i].SurfaceArea();
+					// Ensures that even if the nodes have a surface area of 0, a random one will still be picked
+					// instead of e.g always picking the first or the last one.
+					surfaceArea += 0.001f;
+					tot += surfaceArea;
+					accs.Add(tot);
 				}
 
 				for (int i = 0; i < count; i++) {
@@ -429,56 +482,27 @@ namespace Pathfinding {
 					while (!worked) {
 						worked = true;
 
-						//If no valid points can be found, progressively lower the clearance radius until such a point is found
+						// If no valid points could be found, progressively lower the clearance radius until such a point is found
 						if (testCount >= testLimit) {
-							clearanceRadius *= 0.8f;
+							// Note that clearanceRadius is a squared radius
+							clearanceRadius *= 0.9f*0.9f;
 							testLimit += 10;
 							if (testLimit > 100) clearanceRadius = 0;
 						}
 
 						// Pick a random node among the ones in the list weighted by their area
-						float tg = (float)rnd.NextDouble()*tot;
+						float tg = Random.value*tot;
 						int v = accs.BinarySearch(tg);
 						if (v < 0) v = ~v;
 
 						if (v >= nodes.Count) {
-							// This shouldn't happen, due to NextDouble being smaller than 1... but I don't trust floating point arithmetic.
+							// Cover edge cases
 							worked = false;
 							continue;
 						}
 
-						var node = nodes[v] as TriangleMeshNode;
-
-						Vector3 p;
-
-						if (node != null) {
-							// Find a random point inside the triangle
-							// This generates uniformly distributed trilinear coordinates
-							// See http://mathworld.wolfram.com/TrianglePointPicking.html
-							float v1;
-							float v2;
-							do {
-								v1 = (float)rnd.NextDouble();
-								v2 = (float)rnd.NextDouble();
-							} while (v1+v2 > 1);
-
-							// Pick the point corresponding to the trilinear coordinate
-							p = ((Vector3)(node.GetVertex(1)-node.GetVertex(0)))*v1 + ((Vector3)(node.GetVertex(2)-node.GetVertex(0)))*v2 + (Vector3)node.GetVertex(0);
-						} else {
-							var gnode = nodes[v] as GridNode;
-
-							if (gnode != null) {
-								GridGraph gg = GridNode.GetGridGraph(gnode.GraphIndex);
-
-								float v1 = (float)rnd.NextDouble();
-								float v2 = (float)rnd.NextDouble();
-								p = (Vector3)gnode.position + new Vector3(v1 - 0.5f, 0, v2 - 0.5f) * gg.nodeSize;
-							} else {
-								//Point nodes have no area, so we break directly instead
-								pts.Add((Vector3)nodes[v].position);
-								break;
-							}
-						}
+						var node = nodes[v];
+						var p = node.RandomPointOnSurface();
 
 						// Test if it is some distance away from the other points
 						if (clearanceRadius > 0) {
@@ -498,10 +522,11 @@ namespace Pathfinding {
 					}
 				}
 
-				ListPool<float>.Release(accs);
+				ListPool<float>.Release(ref accs);
 			} else {
+				// Fast path, assumes all nodes have the same area (usually zero)
 				for (int i = 0; i < count; i++) {
-					pts.Add((Vector3)nodes[rnd.Next(nodes.Count)].position);
+					pts.Add((Vector3)nodes[Random.Range(0, nodes.Count)].RandomPointOnSurface());
 				}
 			}
 

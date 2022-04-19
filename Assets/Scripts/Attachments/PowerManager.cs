@@ -446,6 +446,11 @@ public class PowerManager : Entity
         int energyChange = energy - _lastEnergy;
         
         // Figure this out. Its complex.
+		// If on this tick.
+		// You have sent any energy, and you are recieving more energy than you are sending
+		// And your energy is above Max-transferrate, I.e fully charged and not transfering at 100%
+		// And at least half of the targets of this tower are unable to recieve enough power because of their own input limit.
+		// Then run a semi-randomized timer to display the bottlenecked message
         if (_totalSent > 0 && energyChange >= 0 && energy > (_prototype._maxEnergy - _prototype._transferRate) && _numSlowedByTransferRate >= _powerLinksOut.Count / 2)
         {
             _bottleNeckedCount = RanaLib.Math.Clamp<int>(0, _bottleNeckedCount + 3, 15);

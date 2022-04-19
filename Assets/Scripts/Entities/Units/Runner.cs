@@ -71,10 +71,10 @@ public class Runner : Unit
 
     new private void Start()
     {
-        _healthSprite = transform.FindChild("HealthNodeSprite").GetComponent<SpriteRenderer>();
-        _shieldSprite = transform.FindChild("ShieldNodeSprite").GetComponent<SpriteRenderer>();
-        _speedSprite = transform.FindChild("SpeedNodeSprite").GetComponent<SpriteRenderer>();
-        _feedbackSprite = transform.FindChild("FeedbackNodeSprite").GetComponent<SpriteRenderer>();
+        _healthSprite = transform.Find("HealthNodeSprite").GetComponent<SpriteRenderer>();
+        _shieldSprite = transform.Find("ShieldNodeSprite").GetComponent<SpriteRenderer>();
+        _speedSprite = transform.Find("SpeedNodeSprite").GetComponent<SpriteRenderer>();
+        _feedbackSprite = transform.Find("FeedbackNodeSprite").GetComponent<SpriteRenderer>();
 
         base.Start();
 

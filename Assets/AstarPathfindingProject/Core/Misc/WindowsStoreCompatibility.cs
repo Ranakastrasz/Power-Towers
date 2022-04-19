@@ -1,4 +1,3 @@
-using System;
 #if NETFX_CORE
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,8 +42,8 @@ namespace Pathfinding.WindowsStore {
 	}
 
 #if NETFX_CORE
-	public delegate void ParameterizedThreadStart (System.Object ob);
-	public delegate void ThreadStart ();
+	public delegate void ParameterizedThreadStart(System.Object ob);
+	public delegate void ThreadStart();
 
 	public class Thread {
 		//
@@ -68,7 +67,7 @@ namespace Pathfinding.WindowsStore {
 				return this._task != null && !this._task.IsCompleted;
 			}
 			set {
-				throw new NotImplementedException();
+				throw new System.NotImplementedException();
 			}
 		}
 

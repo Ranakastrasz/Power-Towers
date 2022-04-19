@@ -2,19 +2,41 @@ using UnityEngine;
 using Pathfinding.Serialization;
 
 namespace Pathfinding {
+	/// <summary>
+	/// Node used for the PointGraph.
+	/// This is just a simple point with a list of connections (and associated costs) to other nodes.
+	/// It does not have any concept of a surface like many other node types.
+	///
+	/// See: PointGraph
+	/// </summary>
 	public class PointNode : GraphNode {
-		public GraphNode[] connections;
-		public uint[] connectionCosts;
+		/// <summary>
+		/// All connections from this node.
+		/// See: <see cref="AddConnection"/>
+		/// See: <see cref="RemoveConnection"/>
+		///
+		/// Note: If you modify this array or the contents of it you must call <see cref="SetConnectivityDirty"/>.
+		///
+		/// Note: If you modify this array or the contents of it you must call <see cref="PointGraph.RegisterConnectionLength"/> with the length of the new connections.
+		/// </summary>
+		public Connection[] connections;
 
-		/** GameObject this node was created from (if any).
-		 * \warning When loading a graph from a saved file or from cache, this field will be null.
-		 */
+		/// <summary>
+		/// GameObject this node was created from (if any).
+		/// Warning: When loading a graph from a saved file or from cache, this field will be null.
+		///
+		/// <code>
+		/// var node = AstarPath.active.GetNearest(transform.position).node;
+		/// var pointNode = node as PointNode;
+		///
+		/// if (pointNode != null) {
+		///     Debug.Log("That node was created from the GameObject named " + pointNode.gameObject.name);
+		/// } else {
+		///     Debug.Log("That node is not a PointNode");
+		/// }
+		/// </code>
+		/// </summary>
 		public GameObject gameObject;
-
-		/** Used for internal linked list structure.
-		 * \warning Do not modify
-		 */
-		public PointNode next;
 
 		public void SetPosition (Int3 value) {
 			position = value;
@@ -23,29 +45,38 @@ namespace Pathfinding {
 		public PointNode (AstarPath astar) : base(astar) {
 		}
 
-		public override void GetConnections (GraphNodeDelegate del) {
+		/// <summary>
+		/// Closest point on the surface of this node to the point p.
+		///
+		/// For a point node this is always the node's <see cref="position"/> sicne it has no surface.
+		/// </summary>
+		public override Vector3 ClosestPointOnNode (Vector3 p) {
+			return (Vector3)this.position;
+		}
+
+		public override void GetConnections (System.Action<GraphNode> action) {
 			if (connections == null) return;
-			for (int i = 0; i < connections.Length; i++) del(connections[i]);
+			for (int i = 0; i < connections.Length; i++) action(connections[i].node);
 		}
 
 		public override void ClearConnections (bool alsoReverse) {
 			if (alsoReverse && connections != null) {
 				for (int i = 0; i < connections.Length; i++) {
-					connections[i].RemoveConnection(this);
+					connections[i].node.RemoveConnection(this);
 				}
 			}
 
 			connections = null;
-			connectionCosts = null;
+			AstarPath.active.hierarchicalGraph.AddDirtyNode(this);
 		}
 
 		public override void UpdateRecursiveG (Path path, PathNode pathNode, PathHandler handler) {
-			UpdateG(path, pathNode);
+			pathNode.UpdateG(path);
 
-			handler.PushNode(pathNode);
+			handler.heap.Add(pathNode);
 
 			for (int i = 0; i < connections.Length; i++) {
-				GraphNode other = connections[i];
+				GraphNode other = connections[i].node;
 				PathNode otherPN = handler.GetPathNode(other);
 				if (otherPN.parent == pathNode && otherPN.pathID == handler.PathID) {
 					other.UpdateRecursiveG(path, otherPN, handler);
@@ -54,24 +85,42 @@ namespace Pathfinding {
 		}
 
 		public override bool ContainsConnection (GraphNode node) {
-			for (int i = 0; i < connections.Length; i++) if (connections[i] == node) return true;
+			if (connections == null) return false;
+			for (int i = 0; i < connections.Length; i++) if (connections[i].node == node) return true;
 			return false;
 		}
 
-		/** Add a connection from this node to the specified node.
-		 * If the connection already exists, the cost will simply be updated and
-		 * no extra connection added.
-		 *
-		 * \note Only adds a one-way connection. Consider calling the same function on the other node
-		 * to get a two-way connection.
-		 */
+		/// <summary>
+		/// Add a connection from this node to the specified node.
+		/// If the connection already exists, the cost will simply be updated and
+		/// no extra connection added.
+		///
+		/// Note: Only adds a one-way connection. Consider calling the same function on the other node
+		/// to get a two-way connection.
+		///
+		/// <code>
+		/// AstarPath.active.AddWorkItem(new AstarWorkItem(ctx => {
+		///     // Connect two nodes
+		///     var node1 = AstarPath.active.GetNearest(transform.position, NNConstraint.None).node;
+		///     var node2 = AstarPath.active.GetNearest(transform.position + Vector3.right, NNConstraint.None).node;
+		///     var cost = (uint)(node2.position - node1.position).costMagnitude;
+		///     node1.AddConnection(node2, cost);
+		///     node2.AddConnection(node1, cost);
+		///
+		///     node1.ContainsConnection(node2); // True
+		///
+		///     node1.RemoveConnection(node2);
+		///     node2.RemoveConnection(node1);
+		/// }));
+		/// </code>
+		/// </summary>
 		public override void AddConnection (GraphNode node, uint cost) {
 			if (node == null) throw new System.ArgumentNullException();
 
 			if (connections != null) {
 				for (int i = 0; i < connections.Length; i++) {
-					if (connections[i] == node) {
-						connectionCosts[i] = cost;
+					if (connections[i].node == node) {
+						connections[i].cost = cost;
 						return;
 					}
 				}
@@ -79,47 +128,61 @@ namespace Pathfinding {
 
 			int connLength = connections != null ? connections.Length : 0;
 
-			var newconns = new GraphNode[connLength+1];
-			var newconncosts = new uint[connLength+1];
+			var newconns = new Connection[connLength+1];
 			for (int i = 0; i < connLength; i++) {
 				newconns[i] = connections[i];
-				newconncosts[i] = connectionCosts[i];
 			}
 
-			newconns[connLength] = node;
-			newconncosts[connLength] = cost;
+			newconns[connLength] = new Connection(node, cost);
 
 			connections = newconns;
-			connectionCosts = newconncosts;
+			AstarPath.active.hierarchicalGraph.AddDirtyNode(this);
+
+			// Make sure the graph knows that there exists a connection with this length
+			(this.Graph as PointGraph).RegisterConnectionLength((node.position - position).sqrMagnitudeLong);
 		}
 
-		/** Removes any connection from this node to the specified node.
-		 * If no such connection exists, nothing will be done.
-		 *
-		 * \note This only removes the connection from this node to the other node.
-		 * You may want to call the same function on the other node to remove its eventual connection
-		 * to this node.
-		 */
+		/// <summary>
+		/// Removes any connection from this node to the specified node.
+		/// If no such connection exists, nothing will be done.
+		///
+		/// Note: This only removes the connection from this node to the other node.
+		/// You may want to call the same function on the other node to remove its possible connection
+		/// to this node.
+		///
+		/// <code>
+		/// AstarPath.active.AddWorkItem(new AstarWorkItem(ctx => {
+		///     // Connect two nodes
+		///     var node1 = AstarPath.active.GetNearest(transform.position, NNConstraint.None).node;
+		///     var node2 = AstarPath.active.GetNearest(transform.position + Vector3.right, NNConstraint.None).node;
+		///     var cost = (uint)(node2.position - node1.position).costMagnitude;
+		///     node1.AddConnection(node2, cost);
+		///     node2.AddConnection(node1, cost);
+		///
+		///     node1.ContainsConnection(node2); // True
+		///
+		///     node1.RemoveConnection(node2);
+		///     node2.RemoveConnection(node1);
+		/// }));
+		/// </code>
+		/// </summary>
 		public override void RemoveConnection (GraphNode node) {
 			if (connections == null) return;
 
 			for (int i = 0; i < connections.Length; i++) {
-				if (connections[i] == node) {
+				if (connections[i].node == node) {
 					int connLength = connections.Length;
 
-					var newconns = new GraphNode[connLength-1];
-					var newconncosts = new uint[connLength-1];
+					var newconns = new Connection[connLength-1];
 					for (int j = 0; j < i; j++) {
 						newconns[j] = connections[j];
-						newconncosts[j] = connectionCosts[j];
 					}
 					for (int j = i+1; j < connLength; j++) {
 						newconns[j-1] = connections[j];
-						newconncosts[j-1] = connectionCosts[j];
 					}
 
 					connections = newconns;
-					connectionCosts = newconncosts;
+					AstarPath.active.hierarchicalGraph.AddDirtyNode(this);
 					return;
 				}
 			}
@@ -129,7 +192,7 @@ namespace Pathfinding {
 			if (connections == null) return;
 
 			for (int i = 0; i < connections.Length; i++) {
-				GraphNode other = connections[i];
+				GraphNode other = connections[i].node;
 
 				if (path.CanTraverse(other)) {
 					PathNode pathOther = handler.GetPathNode(other);
@@ -138,32 +201,36 @@ namespace Pathfinding {
 						pathOther.parent = pathNode;
 						pathOther.pathID = handler.PathID;
 
-						pathOther.cost = connectionCosts[i];
+						pathOther.cost = connections[i].cost;
 
 						pathOther.H = path.CalculateHScore(other);
-						other.UpdateG(path, pathOther);
+						pathOther.UpdateG(path);
 
-						handler.PushNode(pathOther);
+						handler.heap.Add(pathOther);
 					} else {
 						//If not we can test if the path from this node to the other one is a better one then the one already used
-						uint tmpCost = connectionCosts[i];
+						uint tmpCost = connections[i].cost;
 
 						if (pathNode.G + tmpCost + path.GetTraversalCost(other) < pathOther.G) {
 							pathOther.cost = tmpCost;
 							pathOther.parent = pathNode;
 
 							other.UpdateRecursiveG(path, pathOther, handler);
-						} else if (pathOther.G+tmpCost+path.GetTraversalCost(this) < pathNode.G && other.ContainsConnection(this)) {
-							//Or if the path from the other node to this one is better
-
-							pathNode.parent = pathOther;
-							pathNode.cost = tmpCost;
-
-							UpdateRecursiveG(path, pathNode, handler);
 						}
 					}
 				}
 			}
+		}
+
+		public override int GetGizmoHashCode () {
+			var hash = base.GetGizmoHashCode();
+
+			if (connections != null) {
+				for (int i = 0; i < connections.Length; i++) {
+					hash ^= 17 * connections[i].GetHashCode();
+				}
+			}
+			return hash;
 		}
 
 		public override void SerializeNode (GraphSerializationContext ctx) {
@@ -182,8 +249,8 @@ namespace Pathfinding {
 			} else {
 				ctx.writer.Write(connections.Length);
 				for (int i = 0; i < connections.Length; i++) {
-					ctx.SerializeNodeReference(connections[i]);
-					ctx.writer.Write(connectionCosts[i]);
+					ctx.SerializeNodeReference(connections[i].node);
+					ctx.writer.Write(connections[i].cost);
 				}
 			}
 		}
@@ -193,14 +260,11 @@ namespace Pathfinding {
 
 			if (count == -1) {
 				connections = null;
-				connectionCosts = null;
 			} else {
-				connections = new GraphNode[count];
-				connectionCosts = new uint[count];
+				connections = new Connection[count];
 
 				for (int i = 0; i < count; i++) {
-					connections[i] = ctx.DeserializeNodeReference();
-					connectionCosts[i] = ctx.reader.ReadUInt32();
+					connections[i] = new Connection(ctx.DeserializeNodeReference(), ctx.reader.ReadUInt32());
 				}
 			}
 		}

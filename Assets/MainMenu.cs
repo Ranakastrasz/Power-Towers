@@ -41,9 +41,7 @@ Mods
 
 	public void StartGame()
 	{
-		SceneManager.LoadScene("Game");
-		SceneManager.SetActiveScene(SceneManager.GetSceneByName("Game"));
-		//SceneManager.UnloadSceneAsync (SceneManager.GetSceneByName ("Menu"));
+		SceneManager.LoadSceneAsync("Game");
 	}
 
 

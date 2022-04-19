@@ -39,7 +39,7 @@ public class Tower : Unit
         _attackManager = this.gameObject.AddComponent<AttackManager>();
         _powerManager = this.gameObject.AddComponent<PowerManager>();
         
-        _turret = gameObject.transform.FindChild("Turret").gameObject;
+        _turret = gameObject.transform.Find("Turret").gameObject;
 
 
         UpdatePathing();
